@@ -8,10 +8,10 @@ import java.security.NoSuchAlgorithmException;
 
 public class BitfinexClientTest {
 
-    private final String apiKey = System.getenv("api.key");
-    private final String secret = System.getenv("api.secret");
-    private final BitfinexClient bitfinexClient = new BitfinexClient(apiKey, secret);
+    private final String apiKey = "XXXXX";
+    private final String secret = "XXXXX";
 
+    //private final String apiKey = System.getenv("api.key");
     @Test
     public void getBalances() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         System.out.println(
@@ -19,8 +19,11 @@ public class BitfinexClientTest {
                         getBalances());
     }
 
+    //private final String secret = System.getenv("api.secret");
+    private final BitfinexClient bitfinexClient = new BitfinexClient(apiKey, secret);
+
     @Test
-    public void getTicker() throws IOException {
+    public void getOpenOrders() throws IOException {
         System.out.println(
                 bitfinexClient
                         .getOpenOrders("NEOETH")
@@ -42,7 +45,6 @@ public class BitfinexClientTest {
                 bitfinexClient.addOrder("NEOBTC", 0.9, 0.5, Action.sell)
         );
     }
-    //{"id":7758187639,"cid":54017786253,"cid_date":"2018-01-31","gid":null,"symbol":"neobtc","exchange":"bitfinex","price":"0.01401","avg_execution_price":"0.0","side":"buy","type":"exchange limit","timestamp":"1517410817.815381643","is_live":true,"is_cancelled":false,"is_hidden":false,"oco_order":null,"was_forced":false,"original_amount":"1.0","remaining_amount":"1.0","executed_amount":"0.0","src":"api","order_id":7758187639}
 
     @Test
     public void cancelOrder() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
@@ -57,4 +59,12 @@ public class BitfinexClientTest {
                 bitfinexClient.cancellAllOrders()
         );
     }
+
+    @Test
+    public void withdrawal() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+        System.out.println(
+                bitfinexClient.withdrawal("1.0")
+        );
+    }
+
 }

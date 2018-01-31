@@ -2,34 +2,18 @@ package com.bitfinex.client;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BitfinexClient {
 
-
-
     private String apiKey = "";
     private String apiKeySecret = "";
-
-    /**
-     * public access only
-     */
-    public BitfinexClient() {
-        apiKey = null;
-        apiKeySecret = null;
-    }
 
     /**
      * public and authenticated access
@@ -81,5 +65,16 @@ public class BitfinexClient {
                     Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
 
 
+    }
+
+    public String withdrawal(String amount) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+
+        return new BitfinexHttpHandler("/v1/withdraw",
+                ImmutableMap.of("withdraw_type", "neo",
+                        "walletselected", "exchange",
+                        "amount", amount,
+                        "address", "AX3akz59X88sQ3sWgjyqYWK9RUKUdg9cYk"
+                        )
+        ).invokePrivate(apiKey, apiKeySecret);
     }
 }
