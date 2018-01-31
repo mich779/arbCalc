@@ -1,3 +1,4 @@
+import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;
 import org.junit.Test;
 
@@ -7,16 +8,15 @@ import java.security.NoSuchAlgorithmException;
 
 public class BitfinexClientTest {
 
-    private final String apiKey = "dkV7FlyJPGWUUIYHtJpPgnNyZxmQbt5AmQkmrNFPjKT";
-    private final String secret = "G74K0E9603RfBeSX87hqomtYMDXGXd2kafJi8vpwySg";
+    private final String apiKey = System.getenv("api.key");
+    private final String secret = System.getenv("api.secret");
     private final BitfinexClient bitfinexClient = new BitfinexClient(apiKey, secret);
 
     @Test
     public void getBalances() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         System.out.println(
-                new BitfinexClient(apiKey, secret).
+                bitfinexClient.
                         getBalances());
-
     }
 
     @Test
@@ -39,7 +39,8 @@ public class BitfinexClientTest {
     @Test
     public void addOrder() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         System.out.println(
-                bitfinexClient.addOrder("NEOBTC", 1.0, 1.0)
+                bitfinexClient.addOrder("NEOBTC", 1, 0.01405, Action.buy)
         );
     }
+
 }
