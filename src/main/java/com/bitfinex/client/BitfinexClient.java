@@ -13,6 +13,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BitfinexClient {
@@ -66,5 +67,19 @@ public class BitfinexClient {
         additionals.put("type", "exchange limit");
         return new BitfinexHttpHandler("/v1/order/new", additionals)
                 .invokePrivate(apiKey, apiKeySecret);
+    }
+
+    public String cancelOrder(String orderId) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+
+        return new BitfinexHttpHandler("/v1/order/cancel",
+                ImmutableMap.of("order_id", orderId)
+                ).invokePrivate(apiKey, apiKeySecret);
+    }
+
+    public String cancellAllOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+            return new BitfinexHttpHandler("/v1/order/cancel/all",
+                    Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
+
+
     }
 }
