@@ -52,18 +52,18 @@ public class BitfinexClient {
 
 
     public String getMyActiveOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        return new BitfinexHttpHandler("/v1/orders", Collections.EMPTY_MAP).invokePublic();
+        return new BitfinexHttpHandler("/v1/orders", Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
     }
 
 
-    public String addOrder(String symbol, double amount, double price) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public String addOrder(String symbol, double amount, double price, Action action) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         Map<String, String> additionals = new HashMap<>();
         additionals.put("symbol" , symbol );
         additionals.put("amount", Double.toString(amount));
         additionals.put("price", Double.toString(price));
         additionals.put("exchange", "bitfinex");
-        additionals.put("side", "sell");
-        additionals.put("type", "exchange market");
+        additionals.put("side", action.name());
+        additionals.put("type", "exchange limit");
         return new BitfinexHttpHandler("/v1/order/new", additionals)
                 .invokePrivate(apiKey, apiKeySecret);
     }
