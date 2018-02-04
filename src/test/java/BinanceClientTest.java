@@ -6,19 +6,35 @@ import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.domain.account.request.CancelOrderRequest;
 import com.binance.api.client.domain.account.request.OrderRequest;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import com.romanobori.PropertyHandler;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 
 public class BinanceClientTest {
 
 
-    String apiKey = System.getenv("BINANCE_API_KEY");
-    String apiSecret = System.getenv("BINANCE_API_SECRET");
+    private static String apiKey;
+    private static String apiSecret;
     private final BinanceApiRestClient client = new BinanceApiRestClientImpl(apiKey, apiSecret);
 
+
+    @BeforeClass
+    public static void setup() throws IOException {
+        Properties p = PropertyHandler.loadProps("/Users/mborinsky/mich/arbCalc/src/test/resources/props");
+        apiKey = p.getProperty("BINANCE_API_KEY");
+        apiSecret = p.getProperty("BINANCE_API_SECRET");
+    }
+
+    @Test
+    public void pr(){
+        System.out.println(apiKey);
+    }
     @Test
     public void getOpenOrders(){
         System.out.println(
