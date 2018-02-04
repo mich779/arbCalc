@@ -15,8 +15,8 @@ import java.security.NoSuchAlgorithmException;
 public class BinanceClientTest {
 
 
-    String apiKey = "XXXX";
-    String apiSecret = "XXXX";
+    String apiKey = "gcDXmZVxv0rmYB75pJSoktlhaeAyCMkDjJmFtsWEEZU3w8EFx2H1U8ZZBMSZxLeK";
+    String apiSecret = "8gYeSlYjnFPP4BNn7rpiDQXUvx9hx4d1abhuwRaXkwER7nreqfkhDj98ntgyVjp6";
     private final BinanceApiRestClient client = new BinanceApiRestClientImpl(apiKey, apiSecret);
 
     @Test
@@ -29,7 +29,7 @@ public class BinanceClientTest {
     @Test
     public void getMyOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
         System.out.println(
-                client.getOpenOrders(new OrderRequest("INSBTC"))
+                client.getOpenOrders(new OrderRequest("VIBEETH"))
         );
     }
     @Test

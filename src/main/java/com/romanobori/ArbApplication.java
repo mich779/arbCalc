@@ -6,7 +6,7 @@ public class ArbApplication {
 
     }
 
-    public void run(int times){
+    public void run(int times, ApiClient binanceApiClient, ApiClient bitfinextClient){
 
     }
 }

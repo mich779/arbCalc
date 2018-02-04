@@ -16,6 +16,15 @@ public class OrderBookEntry {
   private String price;
   private String qty;
 
+
+  public OrderBookEntry(String price, String qty) {
+    this.price = price;
+    this.qty = qty;
+  }
+
+  public OrderBookEntry() {
+  }
+
   public String getPrice() {
     return price;
   }

@@ -25,6 +25,13 @@ public class OrderBook {
    */
   private List<OrderBookEntry> asks;
 
+
+  public OrderBook(List<OrderBookEntry> bids, List<OrderBookEntry> asks) {
+    this.bids = bids;
+    this.asks = asks;
+  }
+
+
   public long getLastUpdateId() {
     return lastUpdateId;
   }
