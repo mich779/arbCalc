@@ -8,8 +8,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class BitfinexClientTest {
 
-    private final String apiKey = "e58UImoX6j1JL2iweJv0Z8owJiNCwffpOC5z4P6gCU6";
-    private final String secret = "ZAZaB3zyib8m8SKrHsWpzaN4dN8unPs2K59I7gQ71yx";
+    private final String apiKey = System.getenv("BITFINEX_API_KEY");
+    private final String secret = System.getenv("BITFINEX_API_SECRET");
 
     //private final String apiKey = System.getenv("api.key");
     @Test

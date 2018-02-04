@@ -15,8 +15,8 @@ import java.security.NoSuchAlgorithmException;
 public class BinanceClientTest {
 
 
-    String apiKey = "XXXXX";
-    String apiSecret = "XXXX";
+    String apiKey = System.getenv("BINANCE_API_KEY");
+    String apiSecret = System.getenv("BINANCE_API_SECRET");
     private final BinanceApiRestClient client = new BinanceApiRestClientImpl(apiKey, apiSecret);
 
     @Test
