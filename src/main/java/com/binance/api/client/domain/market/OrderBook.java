@@ -1,5 +1,6 @@
 package com.binance.api.client.domain.market;
 
+import com.romanobori.ArbOrderEntry;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 

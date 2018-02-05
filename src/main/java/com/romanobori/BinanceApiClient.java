@@ -1,6 +1,13 @@
 package com.romanobori;
 
 import com.binance.api.client.BinanceApiRestClient;
+import com.binance.api.client.domain.account.Order;
+import com.binance.api.client.domain.account.request.OrderRequest;
+import com.binance.api.client.domain.market.OrderBook;
+import com.binance.api.client.domain.market.OrderBookEntry;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BinanceApiClient implements ApiClient {
 
@@ -14,8 +21,25 @@ public class BinanceApiClient implements ApiClient {
 
     @Override
     public ArbOrders getOpenOrders(String symbol) {
-        return null;
+
+        OrderBook orderBook = binanceApi.getOrderBook(symbol, orderBookLimit);
+        List<ArbOrderEntry> arbOrderEntryListBids =  new ArrayList<>();
+        List<ArbOrderEntry> arbOrderEntryListAsks =  new ArrayList<>();
+
+
+        for(OrderBookEntry order: orderBook.getBids()){
+            arbOrderEntryListBids.add(order.toArbOrderEntry());
+        }
+
+        for(OrderBookEntry order: orderBook.getAsks()){
+            arbOrderEntryListAsks.add(order.toArbOrderEntry());
+        }
+
+     //   arbOrderEntryListAsks.add(new ArbOrderEntry(Double.parseDouble("0.1"),Double.parseDouble("3")));
+     //   arbOrderEntryListBids.add(new ArbOrderEntry(Double.parseDouble("0.1"),Double.parseDouble("3")));
+        return new ArbOrders(arbOrderEntryListBids, arbOrderEntryListAsks);
     }
+
 
     @Override
     public MyArbOrders getMyOrders() {
