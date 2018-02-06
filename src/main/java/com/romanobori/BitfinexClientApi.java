@@ -59,7 +59,8 @@ public class BitfinexClientApi implements ApiClient {
                             orderObj.get("id").getAsString(),
                             orderObj.get("price").getAsDouble(),
                             orderObj.get("original_amount").getAsDouble(),
-                            orderObj.get("executed_amount").getAsDouble(), ARBTradeAction.SELL,
+                            orderObj.get("executed_amount").getAsDouble(),
+                            orderObj.get("side").getAsString().equals("sell") ?ARBTradeAction.SELL : ARBTradeAction.BUY,
                             (long)(orderObj.get("timestamp").getAsDouble())
                     ));
 
