@@ -26,7 +26,9 @@ public class BinanceClientTest {
 
     @BeforeClass
     public static void setup() throws IOException {
-        Properties p = PropertyHandler.loadProps("/Users/mborinsky/mich/arbCalc/src/test/resources/props");
+        System.out.println("Working Directory = " +
+                System.getProperty("user.dir"));
+        Properties p = PropertyHandler.loadProps("src/test/resources/props");
         apiKey = p.getProperty("BINANCE_API_KEY");
         apiSecret = p.getProperty("BINANCE_API_SECRET");
     }

@@ -17,7 +17,7 @@ public class BitfinexClientTest {
 
     @BeforeClass
     public static void setup() throws IOException {
-        Properties p = PropertyHandler.loadProps("/Users/mborinsky/mich/arbCalc/src/test/resources/props");
+        Properties p = PropertyHandler.loadProps("src/test/resources/props");
         apiKey = p.getProperty("BITFINEX_API_KEY");
         secret  = p.getProperty("BITFINEX_API_SECRET");
 
