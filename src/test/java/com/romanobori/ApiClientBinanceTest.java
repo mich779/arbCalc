@@ -57,16 +57,15 @@ public class ApiClientBinanceTest {
     @Test
     public void getMyOrdersTest(){
 
-        Order openOrder = createOpenOrder();
-        List<Order> openOrders = new ArrayList<>();
-        openOrders.add(openOrder);
+        List<Order> openOrders = createOpenOrders();
         when(binanceApi.getOpenOrders(any()))
                 .thenReturn(openOrders);
     }
+    
+    private List<Order> createOpenOrders(){
 
+        List<Order> openOrders = new ArrayList<>();
 
-
-    private Order createOpenOrder(){
         Order openOrder = new Order();
         openOrder.setSymbol("VIBEETH");
         openOrder.setOrderId(new Long(12));
@@ -77,7 +76,9 @@ public class ApiClientBinanceTest {
         openOrder.setSide(OrderSide.SELL);
         openOrder.setTime(new Long(12));
 
-        return openOrder;
+        openOrders.add(openOrder);
+
+        return openOrders;
     }
 
 
