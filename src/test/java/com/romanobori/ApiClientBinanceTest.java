@@ -60,12 +60,21 @@ public class ApiClientBinanceTest {
         List<Order> openOrders = createOpenOrders();
         when(binanceApi.getOpenOrders(any()))
                 .thenReturn(openOrders);
+
+        assertTrue(client.getMyOrders().contains(createArbOpenOrder()));
     }
-    
+
+
     private List<Order> createOpenOrders(){
 
         List<Order> openOrders = new ArrayList<>();
+        Order openOrder = createOpenOrder();
+        openOrders.add(openOrder);
 
+        return openOrders;
+    }
+
+    private Order createOpenOrder(){
         Order openOrder = new Order();
         openOrder.setSymbol("VIBEETH");
         openOrder.setOrderId(new Long(12));
@@ -76,11 +85,13 @@ public class ApiClientBinanceTest {
         openOrder.setSide(OrderSide.SELL);
         openOrder.setTime(new Long(12));
 
-        openOrders.add(openOrder);
-
-        return openOrders;
+        return openOrder;
     }
-
+    private MyArbOrder createArbOpenOrder(){
+        MyArbOrder openOrder = new MyArbOrder("VIBEETH","12", Double.parseDouble("12"),
+        Double.parseDouble("12"), Double.parseDouble("0"),ARBTradeAction.SELL,Long.parseLong("12"));
+        return openOrder;
+    }
 
 
     private OrderBook createOrderBook() {
