@@ -20,7 +20,7 @@ public class BinanceApiClient implements ApiClient {
     }
 
     @Override
-    public ArbOrders getOpenOrders(String symbol) {
+    public ArbOrders getOrderBook(String symbol) {
 
         OrderBook orderBook = binanceApi.getOrderBook(symbol, orderBookLimit);
         List<ArbOrderEntry> arbOrderEntryListBids =  new ArrayList<>();

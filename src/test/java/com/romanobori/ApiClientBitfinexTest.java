@@ -1,11 +1,9 @@
 package com.romanobori;
 
-import com.binance.api.client.BinanceApiRestClient;
 import com.bitfinex.client.BitfinexClient;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -33,7 +31,7 @@ public class ApiClientBitfinexTest {
                 "\"asks\":[{\"price\":\"0.12408\",\"amount\":\"16.62475748\",\"timestamp\":\"1517938950.0\"}]}");
 
 
-        ArbOrders openOrders = client.getOpenOrders("NEOBTC");
+        ArbOrders openOrders = client.getOrderBook("NEOBTC");
 
         List<ArbOrderEntry> asks = openOrders.asks;
         List<ArbOrderEntry> bids = openOrders.bids;

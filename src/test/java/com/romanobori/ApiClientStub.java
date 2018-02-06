@@ -9,7 +9,7 @@ public class ApiClientStub implements ApiClient {
     }
 
     @Override
-    public ArbOrders getOpenOrders(String symbol) {
+    public ArbOrders getOrderBook(String symbol) {
         return orders;
     }
 
