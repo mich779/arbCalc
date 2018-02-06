@@ -34,10 +34,10 @@ public class BitfinexClientTest {
     private final BitfinexClient bitfinexClient = new BitfinexClient(apiKey, secret);
 
     @Test
-    public void getOpenOrders() throws IOException {
+    public void getBookOrder() throws IOException {
         System.out.println(
                 bitfinexClient
-                        .getOpenOrders("NEOETH")
+                        .getOrderBook("NEOETH")
         );
     }
 

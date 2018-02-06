@@ -25,7 +25,7 @@ public class ApiClientBitfinexTest {
 
     @Test
     public void getOpenOrdersTest() {
-        when(bitfinexClient.getOpenOrders("NEOBTC")).thenReturn(
+        when(bitfinexClient.getOrderBook("NEOBTC")).thenReturn(
         "{\"bids\":" +
                 "[{\"price\":\"0.12334\",\"amount\":\"76.2\",\"timestamp\":\"1517938950.0\"}]," +
                 "\"asks\":[{\"price\":\"0.12408\",\"amount\":\"16.62475748\",\"timestamp\":\"1517938950.0\"}]}");
@@ -58,6 +58,16 @@ public class ApiClientBitfinexTest {
         assertTrue(entries.contains(new ArbWalletEntry(
                 "btc", 0.00008475, 0.00008475
         )));
+
+    }
+
+    @Test
+    public void getMyOrders(){
+        when(bitfinexClient.getMyActiveOrders())
+                .thenReturn("[{\"id\":8006868061,\"cid\":68019124840,\"cid_date\":\"2018-02-06\",\"gid\":null,\"symbol\":\"neobtc\",\"exchange\":null,\"price\":\"0.02315\",\"avg_execution_price\":\"0.0\",\"side\":\"sell\",\"type\":\"exchange limit\",\"timestamp\":\"1517943222.0\",\"is_live\":true,\"is_cancelled\":false,\"is_hidden\":false,\"oco_order\":null,\"was_forced\":false,\"original_amount\":\"0.2\",\"remaining_amount\":\"0.2\",\"executed_amount\":\"0.0\",\"src\":\"web\"}]\n");
+
+
+        List<MyArbOrder> myOrders = client.getMyOrders();
 
     }
 

@@ -1,9 +1,11 @@
 package com.romanobori;
 
+import java.util.List;
+
 public interface ApiClient {
 
     public ArbOrders getOrderBook(String symbol);
-    public MyArbOrders getMyOrders();
+    public List<MyArbOrder> getMyOrders();
     public void addArbOrder(NewArbOrder order);
     public void cancelOrder(long orderId);
     public void cancelAllOrders();
