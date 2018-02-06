@@ -37,4 +37,10 @@ public class ApiClientStub implements ApiClient {
     public void withdrawal(long withrawalId) {
 
     }
+
+    @Override
+    public ArbWallet getWallet() {
+
+        return null;
+    }
 }

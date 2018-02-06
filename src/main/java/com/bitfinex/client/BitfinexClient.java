@@ -26,8 +26,12 @@ public class BitfinexClient {
         this.apiKeySecret = apiKeySecret;
     }
 
-    public String getBalances() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        return new BitfinexHttpHandler("/v1/balances", Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
+    public String getBalances() {
+        try {
+            return new BitfinexHttpHandler("/v1/balances", Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getOpenOrders(String symbol) {

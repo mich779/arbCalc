@@ -62,4 +62,29 @@ public class BitfinexClientApi implements ApiClient {
     public void withdrawal(long withrawalId) {
 
     }
+
+    @Override
+    public ArbWallet getWallet() {
+        String balanceJson = bitfinexClient.getBalances();
+
+        JsonArray balances = new Gson().fromJson(balanceJson, JsonArray.class);
+
+        return new ArbWallet(extractWalletEntriesFromJson(balances));
+
+    }
+
+    private List<ArbWalletEntry> extractWalletEntriesFromJson(JsonArray balances) {
+        List<ArbWalletEntry> entries = new ArrayList<>();
+        balances.forEach(
+                balance -> {
+                    JsonObject asJsonObject = balance.getAsJsonObject();
+                    entries.add(new ArbWalletEntry(
+                            asJsonObject.get("currency").getAsString(),
+                            asJsonObject.get("amount").getAsDouble(),
+                            asJsonObject.get("available").getAsDouble()
+                ));
+                }
+        );
+        return entries;
+    }
 }

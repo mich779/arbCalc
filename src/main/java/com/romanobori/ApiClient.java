@@ -8,5 +8,6 @@ public interface ApiClient {
     public void cancelOrder(long orderId);
     public void cancelAllOrders();
     public void withdrawal(long withrawalId);
+    public ArbWallet getWallet();
 
 }

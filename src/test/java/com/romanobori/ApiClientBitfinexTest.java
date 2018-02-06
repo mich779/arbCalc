@@ -26,7 +26,7 @@ public class ApiClientBitfinexTest {
     }
 
     @Test
-    public void getOpenOrdersTest() throws IOException {
+    public void getOpenOrdersTest() {
         when(bitfinexClient.getOpenOrders("NEOBTC")).thenReturn(
         "{\"bids\":" +
                 "[{\"price\":\"0.12334\",\"amount\":\"76.2\",\"timestamp\":\"1517938950.0\"}]," +
@@ -43,6 +43,24 @@ public class ApiClientBitfinexTest {
 
         assertTrue(bids.contains(new ArbOrderEntry(0.12334, 76.2)));
         assertTrue(asks.contains(new ArbOrderEntry(0.12408, 16.62475748)));
+    }
+
+    @Test
+    public void getWallet(){
+        when(bitfinexClient.getBalances())
+                .thenReturn("[{\"type\":\"exchange\",\"currency\":\"btc\"," +
+                        "\"amount\":\"0.00008475\",\"available\":\"0.00008475\"}]");
+
+
+        ArbWallet wallet = client.getWallet();
+
+        List<ArbWalletEntry> entries = wallet.entries;
+
+        assertEquals(entries.size(), 1);
+        assertTrue(entries.contains(new ArbWalletEntry(
+                "btc", 0.00008475, 0.00008475
+        )));
+
     }
 
 

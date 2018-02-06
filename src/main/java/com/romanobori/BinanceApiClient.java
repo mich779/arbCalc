@@ -67,4 +67,9 @@ public class BinanceApiClient implements ApiClient {
     public void withdrawal(long withrawalId) {
 
     }
+
+    @Override
+    public ArbWallet getWallet() {
+        return null;
+    }
 }
