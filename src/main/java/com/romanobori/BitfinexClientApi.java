@@ -1,5 +1,6 @@
 package com.romanobori;
 
+import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -40,26 +41,54 @@ public class BitfinexClientApi implements ApiClient {
 
     @Override
     public List<MyArbOrder> getMyOrders() {
-        return null;
+        String myActiveOrders = bitfinexClient.getMyActiveOrders();
+
+        JsonArray ordersArray = new Gson().fromJson(myActiveOrders, JsonArray.class);
+
+        return extractMyArbOrdersFromArray(ordersArray);
+    }
+
+    private List<MyArbOrder> extractMyArbOrdersFromArray(JsonArray ordersArray) {
+        List<MyArbOrder> myArbOrders = new ArrayList<>();
+        ordersArray.forEach(
+                order -> {
+                    JsonObject orderObj = order.getAsJsonObject();
+
+                    myArbOrders.add(new MyArbOrder(
+                            orderObj.get("symbol").getAsString(),
+                            orderObj.get("id").getAsString(),
+                            orderObj.get("price").getAsDouble(),
+                            orderObj.get("original_amount").getAsDouble(),
+                            orderObj.get("executed_amount").getAsDouble(),
+                            orderObj.get("side").getAsString().equals("sell") ?ARBTradeAction.SELL : ARBTradeAction.BUY,
+                            (long)(orderObj.get("timestamp").getAsDouble())
+                    ));
+
+                }
+        );
+        return myArbOrders;
     }
 
     @Override
     public void addArbOrder(NewArbOrder order) {
-
+            bitfinexClient.addOrder(order.symbol, order.quantity, order.price,
+                    order.action == ARBTradeAction.BUY? Action.buy : Action.sell);
     }
 
     @Override
     public void cancelOrder(long orderId) {
-
+        bitfinexClient.cancelOrder(Long.toString(orderId));
     }
 
     @Override
     public void cancelAllOrders() {
-
+        bitfinexClient.cancellAllOrders();
     }
 
     @Override
     public void withdrawal(long withrawalId) {
+
+        bitfinexClient.withdrawal(Long.toString(withrawalId));
 
     }
 

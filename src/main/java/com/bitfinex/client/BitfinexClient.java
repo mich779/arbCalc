@@ -55,7 +55,7 @@ public class BitfinexClient {
     }
 
 
-    public String addOrder(String symbol, double amount, double price, Action action) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public String addOrder(String symbol, double amount, double price, Action action) {
         Map<String, String> additionals = new HashMap<>();
         additionals.put("symbol" , symbol );
         additionals.put("amount", Double.toString(amount));
@@ -63,32 +63,47 @@ public class BitfinexClient {
         additionals.put("exchange", "bitfinex");
         additionals.put("side", action.name());
         additionals.put("type", "exchange limit");
-        return new BitfinexHttpHandler("/v1/order/new", additionals)
-                .invokePrivate(apiKey, apiKeySecret);
+
+        try {
+            return new BitfinexHttpHandler("/v1/order/new", additionals)
+                    .invokePrivate(apiKey, apiKeySecret);
+        } catch (Exception e) {
+            throw  new RuntimeException(e);
+        }
     }
 
-    public String cancelOrder(String orderId) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public String cancelOrder(String orderId) {
 
-        return new BitfinexHttpHandler("/v1/order/cancel",
-                ImmutableMap.of("order_id", orderId)
-                ).invokePrivate(apiKey, apiKeySecret);
+        try {
+            return new BitfinexHttpHandler("/v1/order/cancel",
+                    ImmutableMap.of("order_id", orderId)
+                    ).invokePrivate(apiKey, apiKeySecret);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public String cancellAllOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public String cancellAllOrders()  {
+        try {
             return new BitfinexHttpHandler("/v1/order/cancel/all",
                     Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
-
-
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public String withdrawal(String amount) throws NoSuchAlgorithmException, InvalidKeyException, IOException {
+    public String withdrawal(String amount) {
 
-        return new BitfinexHttpHandler("/v1/withdraw",
-                ImmutableMap.of("withdraw_type", "neo",
-                        "walletselected", "exchange",
-                        "amount", amount,
-                        "address", "AX3akz59X88sQ3sWgjyqYWK9RUKUdg9cYk"
-                        )
-        ).invokePrivate(apiKey, apiKeySecret);
+        try {
+            return new BitfinexHttpHandler("/v1/withdraw",
+                    ImmutableMap.of("withdraw_type", "neo",
+                            "walletselected", "exchange",
+                            "amount", amount,
+                            "address", "AX3akz59X88sQ3sWgjyqYWK9RUKUdg9cYk"
+                            )
+            ).invokePrivate(apiKey, apiKeySecret);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
