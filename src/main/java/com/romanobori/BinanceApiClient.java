@@ -44,7 +44,7 @@ public class BinanceApiClient implements ApiClient {
 
 
     @Override
-    public MyArbOrders getMyOrders() {
+    public List<MyArbOrder> getMyOrders() {
         return null;
     }
 
