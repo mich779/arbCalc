@@ -39,7 +39,7 @@ public class BitfinexClientApi implements ApiClient {
 
 
     @Override
-    public MyArbOrders  getMyOrders() {
+    public List<MyArbOrder> getMyOrders() {
         return null;
     }
 

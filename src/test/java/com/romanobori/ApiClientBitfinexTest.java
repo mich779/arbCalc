@@ -70,7 +70,8 @@ public class ApiClientBitfinexTest {
         List<MyArbOrder> myOrders = client.getMyOrders();
 
         assertEquals(myOrders.size(), 1);
-        //assertTrue(myOrders.contains(new MyArbOrder()));
+        assertTrue(myOrders.contains(new MyArbOrder("neobtc", "8006868061",
+                0.02315,  0.2, 0.0, ARBTradeAction.SELL, 1517943222)));
 
     }
 

@@ -1,5 +1,7 @@
 package com.romanobori;
 
+import java.util.List;
+
 public class ApiClientStub implements ApiClient {
 
     ArbOrders orders;
@@ -14,7 +16,7 @@ public class ApiClientStub implements ApiClient {
     }
 
     @Override
-    public MyArbOrders getMyOrders() {
+    public List<MyArbOrder> getMyOrders() {
         return null;
     }
 
