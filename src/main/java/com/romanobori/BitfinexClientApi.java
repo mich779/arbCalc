@@ -17,9 +17,8 @@ public class BitfinexClientApi implements ApiClient {
     @Override
     public ArbOrders getOpenOrders(String symbol) {
 
-        String openOrdersJson = bitfinexClient.getOpenOrders(symbol);
-
-        JsonObject jsonObject = new Gson().fromJson(openOrdersJson, JsonObject.class);
+        JsonObject jsonObject = new Gson().fromJson(bitfinexClient.getOpenOrders(symbol),
+                JsonObject.class);
 
         return new ArbOrders(extractOrdersFromJson(jsonObject.getAsJsonArray("bids")),
                 extractOrdersFromJson(jsonObject.getAsJsonArray("asks")));
