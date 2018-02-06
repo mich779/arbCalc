@@ -69,6 +69,9 @@ public class ApiClientBitfinexTest {
 
         List<MyArbOrder> myOrders = client.getMyOrders();
 
+        assertEquals(myOrders.size(), 1);
+        //assertTrue(myOrders.contains(new MyArbOrder()));
+
     }
 
 
