@@ -34,7 +34,7 @@ public class BitfinexClient {
         }
     }
 
-    public String getOpenOrders(String symbol) {
+    public String getOrderBook(String symbol) {
 
         try {
             return new BitfinexHttpHandler("/v1/book/" + symbol, Collections.EMPTY_MAP).invokePublic();
@@ -44,8 +44,14 @@ public class BitfinexClient {
     }
 
 
-    public String getMyActiveOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-        return new BitfinexHttpHandler("/v1/orders", Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
+    public String getMyActiveOrders() {
+
+        try {
+            return new BitfinexHttpHandler("/v1/orders", Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+
+        }
     }
 
 
