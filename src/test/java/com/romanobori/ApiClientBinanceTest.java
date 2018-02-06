@@ -1,23 +1,17 @@
 package com.romanobori;
 
 import com.binance.api.client.BinanceApiRestClient;
-import com.binance.api.client.domain.OrderSide;
-import com.binance.api.client.domain.OrderType;
-import com.binance.api.client.domain.account.Order;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,59 +34,18 @@ public class ApiClientBinanceTest {
         when(binanceApi.getOrderBook("NEOBTC", 1000))
                 .thenReturn(book);
 
-        ArbOrders orderBook = client.getOrderBook("NEOBTC");
+        ArbOrders openOrders = client.getOrderBook("NEOBTC");
 
 
-        assertEquals(orderBook.bids.size(), 1);
-        assertEquals(orderBook.asks.size(), 1);
+        assertEquals(openOrders.bids.size(), 1);
+        assertEquals(openOrders.asks.size(), 1);
 
-        assertTrue(orderBook.bids.contains(new ArbOrderEntry(0.1, 5.0)));
+        assertTrue(openOrders.bids.contains(new ArbOrderEntry(0.1, 5.0)));
 
-        assertTrue(orderBook.asks.contains(new ArbOrderEntry(0.2, 5.0)));
+        assertTrue(openOrders.asks.contains(new ArbOrderEntry(0.2, 5.0)));
 
 
     }
-
-
-    @Test
-    public void getMyOrdersTest(){
-
-        List<Order> openOrders = createOpenOrders();
-        when(binanceApi.getOpenOrders(any()))
-                .thenReturn(openOrders);
-
-        assertTrue(client.getMyOrders().contains(createArbOpenOrder()));
-    }
-
-
-    private List<Order> createOpenOrders(){
-
-        List<Order> openOrders = new ArrayList<>();
-        Order openOrder = createOpenOrder();
-        openOrders.add(openOrder);
-
-        return openOrders;
-    }
-
-    private Order createOpenOrder(){
-        Order openOrder = new Order();
-        openOrder.setSymbol("VIBEETH");
-        openOrder.setOrderId(new Long(12));
-        openOrder.setPrice("12");
-        openOrder.setOrigQty("12");
-        openOrder.setExecutedQty("0");
-        openOrder.setType(OrderType.LIMIT);
-        openOrder.setSide(OrderSide.SELL);
-        openOrder.setTime(new Long(12));
-
-        return openOrder;
-    }
-    private MyArbOrder createArbOpenOrder(){
-        MyArbOrder openOrder = new MyArbOrder("VIBEETH","12", Double.parseDouble("12"),
-        Double.parseDouble("12"), Double.parseDouble("0"),ARBTradeAction.SELL,Long.parseLong("12"));
-        return openOrder;
-    }
-
 
     private OrderBook createOrderBook() {
         OrderBookEntry asks = new OrderBookEntry();
@@ -108,5 +61,8 @@ public class ApiClientBinanceTest {
         return book;
     }
 
+    @Test
+    public void getMyOrdersTest(){
 
+    }
 }

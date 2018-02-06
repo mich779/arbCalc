@@ -1,7 +1,6 @@
 package com.romanobori;
 
 import com.binance.api.client.BinanceApiRestClient;
-import com.binance.api.client.domain.OrderSide;
 import com.binance.api.client.domain.account.Order;
 import com.binance.api.client.domain.account.request.OrderRequest;
 import com.binance.api.client.domain.market.OrderBook;
@@ -46,25 +45,7 @@ public class BinanceApiClient implements ApiClient {
 
     @Override
     public List<MyArbOrder> getMyOrders() {
-
-        List<MyArbOrder> arbOpenOrders = new ArrayList<>();
-        List<Order> binanceOpenOrders = binanceApi.getOpenOrders(new OrderRequest("VIBEETH"));
-
-        for(Order order: binanceOpenOrders){
-            arbOpenOrders.add(new MyArbOrder(order.getSymbol(), order.getOrderId().toString(),
-                    Double.parseDouble(order.getPrice()), Double.parseDouble(order.getOrigQty()),
-                    Double.parseDouble(order.getExecutedQty()),
-                    getAction(order)
-                    ,order.getTime()
-            ));
-        }
-
-
-        return arbOpenOrders;
-    }
-
-    private ARBTradeAction getAction(Order order) {
-        return order.getSide() == OrderSide.BUY  ? ARBTradeAction.BUY : ARBTradeAction.SELL;
+        return null;
     }
 
     @Override
