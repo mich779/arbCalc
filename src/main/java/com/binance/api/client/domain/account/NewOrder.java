@@ -7,8 +7,6 @@ import com.binance.api.client.domain.TimeInForce;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.util.Objects;
-
 /**
  * A trade order to enter or exit a position.
  */
@@ -224,33 +222,6 @@ public class NewOrder {
   public static NewOrder limitSell(String symbol, TimeInForce timeInForce, String quantity, String price) {
     return new NewOrder(symbol, OrderSide.SELL, OrderType.LIMIT, timeInForce, quantity, price);
   }
-
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    NewOrder newOrder = (NewOrder) o;
-    return timestamp == newOrder.timestamp &&
-            Objects.equals(symbol, newOrder.symbol) &&
-            side == newOrder.side &&
-            type == newOrder.type &&
-            timeInForce == newOrder.timeInForce &&
-            Objects.equals(quantity, newOrder.quantity) &&
-            Objects.equals(price, newOrder.price) &&
-            Objects.equals(newClientOrderId, newOrder.newClientOrderId) &&
-            Objects.equals(stopPrice, newOrder.stopPrice) &&
-            Objects.equals(icebergQty, newOrder.icebergQty) &&
-            Objects.equals(recvWindow, newOrder.recvWindow);
-  }
-
-  @Override
-  public int hashCode() {
-
-    return Objects.hash(symbol, side, type, timeInForce, quantity, price, newClientOrderId, stopPrice, icebergQty, recvWindow, timestamp);
-  }
-
-
 
   @Override
   public String toString() {

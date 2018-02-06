@@ -28,11 +28,13 @@ public class BinanceApiClient implements ApiClient {
 
 
         for(OrderBookEntry order: orderBook.getBids()){
-            arbOrderEntryListBids.add(order.toArbOrderEntry());
+            arbOrderEntryListBids.add(new ArbOrderEntry(Double.parseDouble(order.getPrice()),
+                    Double.parseDouble(order.getQty())));
         }
 
         for(OrderBookEntry order: orderBook.getAsks()){
-            arbOrderEntryListAsks.add(order.toArbOrderEntry());
+            arbOrderEntryListAsks.add(new ArbOrderEntry(Double.parseDouble(order.getPrice()),
+                    Double.parseDouble(order.getQty())));
         }
 
      //   arbOrderEntryListAsks.add(new ArbOrderEntry(Double.parseDouble("0.1"),Double.parseDouble("3")));

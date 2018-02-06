@@ -31,15 +31,10 @@ public class ApiClientBinanceTest {
     @Test
     public void getOrdersTest(){
 
+        OrderBook book = createOrderBook();
+
         when(binanceApi.getOrderBook("NEOBTC", 1000))
-                .thenReturn(new OrderBook(
-                        Arrays.asList(
-                                new OrderBookEntry("0.2", "5")
-                        ),
-                        Arrays.asList(
-                                new OrderBookEntry("0.1", "5")
-                        )
-                ));
+                .thenReturn(book);
 
         ArbOrders openOrders = client.getOpenOrders("NEOBTC");
 
@@ -47,40 +42,29 @@ public class ApiClientBinanceTest {
         assertEquals(openOrders.bids.size(), 1);
         assertEquals(openOrders.asks.size(), 1);
 
-        assertTrue(openOrders.bids.contains(new ArbOrderEntry(0.2, 5.0)));
+        assertTrue(openOrders.bids.contains(new ArbOrderEntry(0.1, 5.0)));
 
-
-        assertTrue(openOrders.asks.contains(new ArbOrderEntry(0.1, 5.0)));
+        assertTrue(openOrders.asks.contains(new ArbOrderEntry(0.2, 5.0)));
 
 
     }
 
+    private OrderBook createOrderBook() {
+        OrderBookEntry asks = new OrderBookEntry();
+        asks.setPrice("0.2");
+        asks.setQty("5");
+        OrderBookEntry bids = new OrderBookEntry();
+        bids.setPrice("0.1");
+        bids.setQty("5");
+
+        OrderBook book = new OrderBook();
+        book.setAsks(Arrays.asList(asks));
+        book.setBids(Arrays.asList(bids));
+        return book;
+    }
+
     @Test
     public void getMyOrdersTest(){
-
-        when(binanceApi.getOrderBook("NEOBTC", 1000))
-                .thenReturn(new OrderBook(
-                        Arrays.asList(
-                                new OrderBookEntry("0.2", "5"),new OrderBookEntry("0.2", "4"),new OrderBookEntry("0.2", "3")
-                        ),
-                        Arrays.asList(
-                                new OrderBookEntry("0.1", "5"),new OrderBookEntry("0.1", "4"),new OrderBookEntry("0.1", "3")
-                        )
-                ));
-
-        ArbOrders openOrders = client.getOpenOrders("NEOBTC");
-
-
-        assertEquals(openOrders.bids.size(), 3);
-        assertEquals(openOrders.asks.size(), 3);
-
-        assertTrue(openOrders.bids.contains(new ArbOrderEntry(0.2, 3.0)));
-        assertTrue(openOrders.bids.contains(new ArbOrderEntry(0.2, 4.0)));
-        assertTrue(openOrders.bids.contains(new ArbOrderEntry(0.2, 5.0)));
-
-        assertTrue(openOrders.asks.contains(new ArbOrderEntry(0.1, 3.0)));
-        assertTrue(openOrders.asks.contains(new ArbOrderEntry(0.1, 4.0)));
-        assertTrue(openOrders.asks.contains(new ArbOrderEntry(0.1, 5.0)));
 
     }
 }

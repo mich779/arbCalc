@@ -1,6 +1,5 @@
 package com.binance.api.client.domain.market;
 
-import com.romanobori.ArbOrderEntry;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -25,13 +24,6 @@ public class OrderBook {
    * List of asks (price/qty).
    */
   private List<OrderBookEntry> asks;
-
-
-  public OrderBook(List<OrderBookEntry> bids, List<OrderBookEntry> asks) {
-    this.bids = bids;
-    this.asks = asks;
-  }
-
 
   public long getLastUpdateId() {
     return lastUpdateId;

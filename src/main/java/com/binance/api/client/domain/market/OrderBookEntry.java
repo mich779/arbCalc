@@ -3,7 +3,6 @@ package com.binance.api.client.domain.market;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import com.romanobori.ArbOrderEntry;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -17,17 +16,6 @@ public class OrderBookEntry {
   private String price;
   private String qty;
 
-
-  public OrderBookEntry(String price, String qty) {
-    this.price = price;
-    this.qty = qty;
-  }
-
-  public OrderBookEntry() {
-  }
-  public ArbOrderEntry toArbOrderEntry(){
-    return new ArbOrderEntry(Double.parseDouble(this.price), Double.parseDouble(this.qty));
-  }
   public String getPrice() {
     return price;
   }
