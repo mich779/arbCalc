@@ -30,9 +30,13 @@ public class BitfinexClient {
         return new BitfinexHttpHandler("/v1/balances", Collections.EMPTY_MAP).invokePrivate(apiKey, apiKeySecret);
     }
 
-    public String getOpenOrders(String symbol) throws IOException {
+    public String getOpenOrders(String symbol) {
 
-        return new BitfinexHttpHandler("/v1/book/" + symbol, Collections.EMPTY_MAP).invokePublic();
+        try {
+            return new BitfinexHttpHandler("/v1/book/" + symbol, Collections.EMPTY_MAP).invokePublic();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
