@@ -2,19 +2,26 @@ package com.romanobori;
 
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.OrderSide;
+import com.binance.api.client.domain.OrderType;
+import com.binance.api.client.domain.TimeInForce;
+import com.binance.api.client.domain.account.AssetBalance;
+import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.domain.account.Order;
+import com.binance.api.client.domain.account.request.CancelOrderRequest;
 import com.binance.api.client.domain.account.request.OrderRequest;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BinanceApiClient implements ApiClient {
 
     BinanceApiRestClient binanceApi;
     int orderBookLimit;
-
+    Map<String, String> currencyToAdress = ImmutableMap.of("BTC", "", "NEO", "");
     public BinanceApiClient(BinanceApiRestClient binanceApi, int orderBookLimit) {
         this.binanceApi = binanceApi;
         this.orderBookLimit = orderBookLimit;
@@ -38,8 +45,6 @@ public class BinanceApiClient implements ApiClient {
                     Double.parseDouble(order.getQty())));
         }
 
-     //   arbOrderEntryListAsks.add(new ArbOrderEntry(Double.parseDouble("0.1"),Double.parseDouble("3")));
-     //   arbOrderEntryListBids.add(new ArbOrderEntry(Double.parseDouble("0.1"),Double.parseDouble("3")));
         return new ArbOrders(arbOrderEntryListBids, arbOrderEntryListAsks);
     }
 
@@ -59,7 +64,6 @@ public class BinanceApiClient implements ApiClient {
             ));
         }
 
-
         return arbOpenOrders;
     }
 
@@ -67,14 +71,19 @@ public class BinanceApiClient implements ApiClient {
         return order.getSide() == OrderSide.BUY  ? ARBTradeAction.BUY : ARBTradeAction.SELL;
     }
 
-    @Override
-    public void addArbOrder(NewArbOrder order) {
-
+    private OrderSide getSide(NewArbOrder order) {
+        return order.action == ARBTradeAction.BUY  ? OrderSide.BUY : OrderSide.SELL;
     }
 
     @Override
-    public void cancelOrder(long orderId) {
+    public void addArbOrder(NewArbOrder order) {
+        binanceApi.newOrder(new NewOrder(order.symbol, getSide(order), OrderType.LIMIT,
+                TimeInForce.GTC,Double.toString(order.quantity),Double.toString(order.price)));
+    }
 
+    @Override
+    public void cancelOrder(MyArbOrder order) {
+        binanceApi.cancelOrder(new CancelOrderRequest(order.symbol, order.orderId));
     }
 
     @Override
@@ -83,12 +92,21 @@ public class BinanceApiClient implements ApiClient {
     }
 
     @Override
-    public void withdrawal(long withrawalId) {
-
+    public void withdrawal(ArbWalletEntry withdrawalDetails) {
+        binanceApi.withdraw(withdrawalDetails.currency, currencyToAdress.get(withdrawalDetails.currency)
+                ,Double.toString(withdrawalDetails.amount), "");
     }
 
     @Override
     public ArbWallet getWallet() {
-        return null;
+        List<AssetBalance> balances = binanceApi.getAccount().getBalances();
+
+        List<ArbWalletEntry> arbBalances = new ArrayList<>();
+        for(AssetBalance assetBalance: balances){
+            Double free = Double.parseDouble(assetBalance.getFree());
+            arbBalances.add(new ArbWalletEntry(assetBalance.getAsset(),  free+Double.parseDouble(assetBalance.getLocked()), free));
+        }
+        return new ArbWallet(arbBalances);
     }
 }
+

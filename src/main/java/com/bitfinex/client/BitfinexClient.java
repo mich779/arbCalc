@@ -92,14 +92,14 @@ public class BitfinexClient {
         }
     }
 
-    public String withdrawal(String amount) {
+    public String withdrawal(String currency ,String adress, String amount) {
 
         try {
             return new BitfinexHttpHandler("/v1/withdraw",
-                    ImmutableMap.of("withdraw_type", "neo",
+                    ImmutableMap.of("withdraw_type", currency,
                             "walletselected", "exchange",
                             "amount", amount,
-                            "address", "AX3akz59X88sQ3sWgjyqYWK9RUKUdg9cYk"
+                            "address", adress
                             )
             ).invokePrivate(apiKey, apiKeySecret);
         } catch (Exception e) {

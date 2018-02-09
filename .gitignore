@@ -2,6 +2,7 @@
 /build/
 .idea
 gradle
+arbCalc.iml
 src/test/resources/props
 # Ignore Gradle GUI config
 gradle-app.setting

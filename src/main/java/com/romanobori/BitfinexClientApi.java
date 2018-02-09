@@ -2,18 +2,21 @@ package com.romanobori;
 
 import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BitfinexClientApi implements ApiClient {
     BitfinexClient bitfinexClient;
     public BitfinexClientApi(BitfinexClient bitfinexClient) {
         this.bitfinexClient = bitfinexClient;
     }
+    Map<String, String> currencyToAdress = ImmutableMap.of("BTC", "", "NEO", "");
 
     @Override
     public ArbOrders getOrderBook(String symbol) {
@@ -76,8 +79,8 @@ public class BitfinexClientApi implements ApiClient {
     }
 
     @Override
-    public void cancelOrder(long orderId) {
-        bitfinexClient.cancelOrder(Long.toString(orderId));
+    public void cancelOrder(MyArbOrder order) {
+        bitfinexClient.cancelOrder(order.orderId);
     }
 
     @Override
@@ -86,9 +89,10 @@ public class BitfinexClientApi implements ApiClient {
     }
 
     @Override
-    public void withdrawal(long withrawalId) {
+    public void withdrawal(ArbWalletEntry withdrawalDetails) {
 
-        bitfinexClient.withdrawal(Long.toString(withrawalId));
+        bitfinexClient.withdrawal(withdrawalDetails.currency, currencyToAdress.get(withdrawalDetails.currency),
+                Double.toString(withdrawalDetails.amount));
 
     }
 

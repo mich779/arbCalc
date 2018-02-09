@@ -21,14 +21,14 @@ public class ApiClientStub implements ApiClient {
     }
 
     @Override
-    public void addArbOrder(NewArbOrder order) {
-
+    public void addArbOrder(NewArbOrder newArbOrder) {
     }
 
     @Override
-    public void cancelOrder(long orderId) {
+    public void cancelOrder(MyArbOrder order) {
 
     }
+
 
     @Override
     public void cancelAllOrders() {
@@ -36,7 +36,7 @@ public class ApiClientStub implements ApiClient {
     }
 
     @Override
-    public void withdrawal(long withrawalId) {
+    public void withdrawal(ArbWalletEntry withdrawalDetails) {
 
     }
 
