@@ -16,7 +16,7 @@ public class ArbApplication {
 
         ArbOrderEntry highestBitfinexAsk = bitfinexOrderBook.asks.get(0);
 
-        if(highestBitfinexAsk.price * 1.0033 >=  highestBinanceAsk.price){
+        if(highestBitfinexAsk.price  >=  highestBinanceAsk.price * 1.0033){
             binanceApiClient.addArbOrder(new NewArbOrder("NEOETH", ARBTradeAction.BUY,
                     highestBinanceAsk.amount, highestBinanceAsk.price));
         }

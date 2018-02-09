@@ -62,8 +62,6 @@ public class ITTest {
 
         NewArbOrder binanceOrder = binanceApiClient.getLatestOrder();
 
-        NewArbOrder bitfinexOrder = bitfinextClient.getLatestOrder();
-
         assertEquals(binanceOrder,new NewArbOrder("NEOETH", ARBTradeAction.BUY, 0.2, 0.2));
     }
 }
