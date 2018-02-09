@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class BitfinexClientApi implements ApiClient {
+public class BitfinexClientApi extends ApiClient {
     BitfinexClient bitfinexClient;
     public BitfinexClientApi(BitfinexClient bitfinexClient) {
         this.bitfinexClient = bitfinexClient;
@@ -73,9 +73,10 @@ public class BitfinexClientApi implements ApiClient {
     }
 
     @Override
-    public void addArbOrder(NewArbOrder order) {
-            bitfinexClient.addOrder(order.symbol, order.quantity, order.price,
+    public String addArbOrder(NewArbOrder order) {
+            String answer = bitfinexClient.addOrder(order.symbol, order.quantity, order.price,
                     order.action == ARBTradeAction.BUY? Action.buy : Action.sell);
+            return new Gson().fromJson(answer, JsonObject.class).get("id").getAsString();
     }
 
     @Override

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class BinanceApiClient implements ApiClient {
+public class BinanceApiClient extends ApiClient {
 
     BinanceApiRestClient binanceApi;
     int orderBookLimit;
@@ -76,9 +76,13 @@ public class BinanceApiClient implements ApiClient {
     }
 
     @Override
-    public void addArbOrder(NewArbOrder order) {
-        binanceApi.newOrder(new NewOrder(order.symbol, getSide(order), OrderType.LIMIT,
-                TimeInForce.GTC,Double.toString(order.quantity),Double.toString(order.price)));
+    public String addArbOrder(NewArbOrder order) {
+        return  Long.toString(binanceApi.newOrder(
+                new NewOrder(order.symbol, getSide(order), OrderType.LIMIT,
+                    TimeInForce.GTC,
+                    Double.toString(order.quantity),
+                    Double.toString(order.price)))
+                .getOrderId());
     }
 
     @Override
