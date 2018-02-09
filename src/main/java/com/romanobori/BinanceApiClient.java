@@ -45,8 +45,6 @@ public class BinanceApiClient implements ApiClient {
                     Double.parseDouble(order.getQty())));
         }
 
-     //   arbOrderEntryListAsks.add(new ArbOrderEntry(Double.parseDouble("0.1"),Double.parseDouble("3")));
-     //   arbOrderEntryListBids.add(new ArbOrderEntry(Double.parseDouble("0.1"),Double.parseDouble("3")));
         return new ArbOrders(arbOrderEntryListBids, arbOrderEntryListAsks);
     }
 
@@ -80,7 +78,7 @@ public class BinanceApiClient implements ApiClient {
     @Override
     public void addArbOrder(NewArbOrder order) {
         binanceApi.newOrder(new NewOrder(order.symbol, getSide(order), OrderType.LIMIT,
-                TimeInForce.GTC,""+order.quantity,""+order.price));
+                TimeInForce.GTC,Double.toString(order.quantity),Double.toString(order.price)));
     }
 
     @Override

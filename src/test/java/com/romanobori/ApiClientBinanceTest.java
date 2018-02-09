@@ -38,7 +38,6 @@ public class ApiClientBinanceTest {
     private static String apiSecret;
 
     private BinanceApiRestClient binanceApi;
-    //private BinanceApiRestClient binanceApi2 = new BinanceApiRestClientImpl(apiKey, apiSecret);
     private ApiClient client;
 
     @Before
@@ -47,7 +46,6 @@ public class ApiClientBinanceTest {
         apiKey = p.getProperty("BINANCE_API_KEY");
         apiSecret = p.getProperty("BINANCE_API_SECRET");
 
-      //  binanceApi2 = new BinanceApiRestClientImpl(apiKey, apiSecret);
         binanceApi = mock(BinanceApiRestClient.class);
         client = new BinanceApiClient(binanceApi, 1000);
     }
