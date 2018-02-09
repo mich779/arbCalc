@@ -14,18 +14,12 @@ public abstract class ApiClient {
     abstract public ArbWallet getWallet();
 
     boolean isOrderDone(String orderId){
-        List<MyArbOrder> myOrders = getMyOrders();
 
-        for(MyArbOrder order : myOrders){
-            if(order.orderId.equals(orderId)){
-                if(order.executedQuantity == order.origQuantity){
-                    return true;
-                }else {
-                   return false;
-                }
-            }
-        }
+        return getMyOrders().stream().anyMatch(order ->
+                order.orderId.equals(orderId) &&
+                        order.executedQuantity == order.origQuantity
+            );
 
-        return false;
+
     }
 }
