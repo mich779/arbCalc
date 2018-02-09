@@ -78,7 +78,7 @@ public class ITTest {
     public void shouldNotSellInBitfinexIf_BuyDidntSucceedInBinance(){
         ClientsCreator clientsCreator = new ClientsCreator().Scenrio_sellInBitfinexBuyInBinance();
         ApiClientStub binanceApiClient = clientsCreator.getBinanceApiClient();
-        ApiClientStub bitfinextClient = spy(clientsCreator.getBitfinextClient());
+        ApiClientStub bitfinextClient =  clientsCreator.getBitfinextClient();
 
         binanceApiClient.setOrderSuccess(false);
         ArbApplication application = new ArbApplication(binanceApiClient, bitfinextClient);
