@@ -1,28 +1,27 @@
-//import com.bitfinex.client.Action;
-//import com.bitfinex.client.BitfinexClient;
-//import com.romanobori.PropertyHandler;
-//import org.junit.BeforeClass;
-//import org.junit.Test;
-//
-//import java.io.IOException;
-//import java.security.InvalidKeyException;
-//import java.security.NoSuchAlgorithmException;
-//import java.util.Properties;
-//
-//public class BitfinexClientTest {
-//
-//    private static String apiKey = System.getenv("BITFINEX_API_KEY");
-//    private static String secret = System.getenv("BITFINEX_API_SECRET");
-//
-//
-//    @BeforeClass
-//    public static void setup() throws IOException {
-//        Properties p = PropertyHandler.loadProps("src/test/resources/props");
-//        apiKey = p.getProperty("BITFINEX_API_KEY");
-//        secret  = p.getProperty("BITFINEX_API_SECRET");
-//
-//    }
-//    //private final String apiKey = System.getenv("api.key");
+import com.bitfinex.client.Action;
+import com.bitfinex.client.BitfinexClient;
+import com.romanobori.PropertyHandler;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
+
+public class BitfinexClientTest {
+
+    private static String apiKey = System.getenv("BITFINEX_API_KEY");
+    private static String secret = System.getenv("BITFINEX_API_SECRET");
+
+
+    @BeforeClass
+    public static void setup() throws IOException {
+        Properties p = PropertyHandler.loadProps("src/test/resources/props");
+        apiKey = p.getProperty("BITFINEX_API_KEY");
+        secret  = p.getProperty("BITFINEX_API_SECRET");
+
+    }
 //    @Test
 //    public void getBalances() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
 //        System.out.println(
@@ -30,7 +29,6 @@
 //                        getBalances());
 //    }
 //
-//    //private final String secret = System.getenv("api.secret");
 //    private final BitfinexClient bitfinexClient = new BitfinexClient(apiKey, secret);
 //
 //    @Test
@@ -53,7 +51,7 @@
 //    @Test
 //    public void addOrder() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
 //        System.out.println(
-//                bitfinexClient.addOrder("NEOBTC", 0.9, 0.5, Action.sell)
+//                bitfinexClient.addOrder("NEOBTC", 0.5, 0.5, Action.sell)
 //        );
 //    }
 //
@@ -78,4 +76,4 @@
 //        );
 //    }
 //
-//}
+}

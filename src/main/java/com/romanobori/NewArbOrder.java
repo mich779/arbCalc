@@ -22,6 +22,22 @@ public class NewArbOrder {
         this.price = price;
     }
 
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public ARBTradeAction getAction() {
+        return action;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

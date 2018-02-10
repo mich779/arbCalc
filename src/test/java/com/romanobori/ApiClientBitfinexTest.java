@@ -1,12 +1,15 @@
 package com.romanobori;
 
+import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -72,6 +75,25 @@ public class ApiClientBitfinexTest {
         assertEquals(myOrders.size(), 1);
         assertTrue(myOrders.contains(new MyArbOrder("neobtc", "8006868061",
                 0.02315,  0.2, 0.0, ARBTradeAction.SELL, 1517943222)));
+
+    }
+
+    @Test
+    public void addOrderTest(){
+        when(bitfinexClient.addOrder("NEOBTC", 0.5, 0.5, Action.sell))
+                .thenReturn("{\"id\":8127500914,\"cid\":75468100725,\"cid_date\":\"2018-02-09\",\"gid\":null,\"symbol\":\"neobtc\"," +
+                        "\"exchange\":\"bitfinex\",\"price\":\"0.5\"," +
+                        "\"avg_execution_price\":\"0.0\",\"side\":\"sell\",\"type\":\"exchange limit\"," +
+                        "\"timestamp\":\"1518209868.124380797\",\"is_live\":true,\"is_cancelled\":false," +
+                        "\"is_hidden\":false,\"oco_order\":null,\"was_forced\":false,\"original_amount\":\"0.5\"," +
+                        "\"remaining_amount\":\"0.5\",\"executed_amount\":\"0.0\"," +
+                        "\"src\":\"api\",\"order_id\":8127500914}\n");
+
+
+        String orderId = client.addArbOrder(
+                new NewArbOrder("NEOBTC", ARBTradeAction.SELL,0.5, 0.5));
+        assertThat(orderId, is("8127500914"));
+
 
     }
 
