@@ -1,5 +1,7 @@
 package com.romanobori;
 
+import support.BinanceApiWebSocketClientStub;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +16,8 @@ public class ApiClientStub extends ApiClient {
     String orderId = "100";
 
     boolean orderSuccess = true;
+
+    BinanceApiWebSocketClientStub streamClient;
 
     public ApiClientStub(ArbOrders orders) {
         this.orders = orders;
