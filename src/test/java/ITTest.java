@@ -94,5 +94,8 @@ public class ITTest {
         assertNull(bitfinexOrder);
     }
 
-
+    @Test
+    public void shouldSellInBitfinexAfter_BuySuccessInBinance(){
+        
+    }
 }
