@@ -15,6 +15,7 @@ import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import javafx.beans.binding.When;
 import org.junit.Before;
 import org.junit.Test;
+import support.BinanceApiRestClientStub;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -81,11 +82,40 @@ public class ApiClientBinanceTest {
     }
 
     @Test
-    public void addOrderTest(){
-        //Live order, commented to not order accedently
-        //client.addArbOrder(new NewArbOrder("NEOETH", ARBTradeAction.SELL,0.2,0.142251));
+    public void addOrderTestLimit(){
+        BinanceApiRestClientStub binanceClient = new BinanceApiRestClientStub();
+        ApiClient client = new BinanceApiClient(binanceClient, 100);
+
+        client.addArbOrder(new NewArbOrderLimit("NEOETH", ARBTradeAction.BUY, 0.2, 100));
+
+        NewOrder latestOrder = binanceClient.getLatestOrder();
+
+        assertThat(latestOrder.getSymbol(), is("NEOETH"));
+
+        assertThat(latestOrder.getType(), is(OrderType.LIMIT));
+
+        assertThat(latestOrder.getPrice(), is("100.0"));
 
     }
+
+    @Test
+    public void addOrderTestMarket(){
+        BinanceApiRestClientStub binanceClient = new BinanceApiRestClientStub();
+        ApiClient client = new BinanceApiClient(binanceClient, 100);
+
+        client.addArbOrder(new NewArbOrderMarket("NEOETH", ARBTradeAction.SELL, 0.2));
+
+        NewOrder latestOrder = binanceClient.getLatestOrder();
+
+        assertThat(latestOrder.getSymbol(), is("NEOETH"));
+
+        assertThat(latestOrder.getType(), is(OrderType.MARKET));
+
+        assertThat(latestOrder.getQuantity(), is("0.2"));
+
+    }
+
+
     @Test
     public void getWalletTest(){
 

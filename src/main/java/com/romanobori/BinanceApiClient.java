@@ -76,14 +76,24 @@ public class BinanceApiClient extends ApiClient {
     }
 
     @Override
-    public String addArbOrder(NewArbOrder order) {
+    public String addArbOrder(NewArbOrderMarket order) {
         return  Long.toString(binanceApi.newOrder(
-                new NewOrder(order.symbol, getSide(order), OrderType.LIMIT,
-                    TimeInForce.GTC,
-                    Double.toString(order.quantity),
-                    Double.toString(order.price)))
+                new NewOrder(order.symbol, getSide(order), OrderType.MARKET,
+                        TimeInForce.GTC,
+                        Double.toString(order.quantity)))
                 .getOrderId());
     }
+
+    @Override
+    public String addArbOrder(NewArbOrderLimit order) {
+         return  Long.toString(binanceApi.newOrder(
+                new NewOrder(order.symbol, getSide(order), OrderType.LIMIT,
+                        TimeInForce.GTC,
+                        Double.toString(order.quantity),
+                        Double.toString(order.price)))
+                .getOrderId());
+    }
+
 
     @Override
     public void cancelOrder(MyArbOrder order) {
@@ -111,6 +121,10 @@ public class BinanceApiClient extends ApiClient {
             arbBalances.add(new ArbWalletEntry(assetBalance.getAsset(),  free+Double.parseDouble(assetBalance.getLocked()), free));
         }
         return new ArbWallet(arbBalances);
+    }
+
+    public void setBinanceApi(BinanceApiRestClient binanceApi) {
+        this.binanceApi = binanceApi;
     }
 }
 

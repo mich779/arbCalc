@@ -80,7 +80,7 @@ public class ApiClientBitfinexTest {
 
     @Test
     public void addOrderTest(){
-        when(bitfinexClient.addOrder("NEOBTC", 0.5, 0.5, Action.sell))
+        when(bitfinexClient.addOrder("NEOBTC", 0.5, Action.sell))
                 .thenReturn("{\"id\":8127500914,\"cid\":75468100725,\"cid_date\":\"2018-02-09\",\"gid\":null,\"symbol\":\"neobtc\"," +
                         "\"exchange\":\"bitfinex\",\"price\":\"0.5\"," +
                         "\"avg_execution_price\":\"0.0\",\"side\":\"sell\",\"type\":\"exchange limit\"," +
@@ -90,8 +90,8 @@ public class ApiClientBitfinexTest {
                         "\"src\":\"api\",\"order_id\":8127500914}\n");
 
 
-        String orderId = client.addArbOrder(
-                new NewArbOrder("NEOBTC", ARBTradeAction.SELL,0.5, 0.5));
+        String orderId = client.addArbOrder(new NewArbOrderLimit("NEOBTC", ARBTradeAction.SELL,0.5, 0.5));
+
         assertThat(orderId, is("8127500914"));
 
 

@@ -36,24 +36,24 @@ public class BinanceClientTest {
     }
 
 
-    @Test
-    public void streamTest(){
-
-        BinanceApiWebSocketClient webSocketClient = new BinanceApiWebSocketClientImpl();
-
-        webSocketClient.onUserDataUpdateEvent("iKRxZuSCD0dBWo7UGzxv5pL0ZEXZqIBB1OZVUKsEfRmJQqf96TIFtLFKRr2P"
-        , response -> {
-                    System.out.println(response);
-
-                });
-
-
-
-        while(true){
-
-        }
-
-    }
+//    @Test
+//    public void streamTest(){
+//
+//        BinanceApiWebSocketClient webSocketClient = new BinanceApiWebSocketClientImpl();
+//
+//        webSocketClient.onUserDataUpdateEvent("iKRxZuSCD0dBWo7UGzxv5pL0ZEXZqIBB1OZVUKsEfRmJQqf96TIFtLFKRr2P"
+//        , response -> {
+//                    System.out.println(response);
+//
+//                });
+//
+//
+//
+//        while(true){
+//
+//        }
+//
+//    }
 //    @Test
 //    public void pr(){
 //        System.out.println(apiKey);

@@ -1,12 +1,14 @@
 package com.romanobori;
 
-import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.OrderStatus;
 import com.binance.api.client.domain.event.OrderTradeUpdateEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 class BuyFromBinanceSellInBitfinexCommand {
 
@@ -25,14 +27,22 @@ class BuyFromBinanceSellInBitfinexCommand {
     }
 
     public boolean invoke() {
-        ArbOrderEntry highestBinanceAsk = getHighestAsk(binanceApi.getOrderBook("NEOETH"));
+        ArbOrderEntry highestBinanceAsk = getHighestNthAsk(binanceApi.getOrderBook("NEOETH"), 1);
 
-        ArbOrderEntry highestBitfinexAsk = getHighestAsk(bitfinexApi.getOrderBook("NEOETH"));
+        ArbOrderEntry highestBitfinexAsk = getHighestNthAsk(bitfinexApi.getOrderBook("NEOETH"), 3);
 
         if(highestBitfinexAsk.price  >=  highestBinanceAsk.price * 1.0033){
             String orderId = buyFromBinance(highestBinanceAsk);
             this.socketClient.onUserDataUpdateEvent("listenKey",
-                    handleResponse(highestBitfinexAsk, orderId));
+            response -> {
+                if(responseTypeIsOrderTradeUpdate(response)){
+                    if(currentOrderHasFilled(orderId, response.getOrderTradeUpdateEvent())){
+                        sellInBitfinexInMarketRate(highestBinanceAsk.amount);
+
+                        finished.set(true);
+                    }
+                }
+            });
 
             while(!finished.get()){
                 try {
@@ -46,25 +56,13 @@ class BuyFromBinanceSellInBitfinexCommand {
     }
 
     private String buyFromBinance(ArbOrderEntry highestBinanceAsk) {
-        return binanceApi.addArbOrder(new NewArbOrder("NEOETH", ARBTradeAction.BUY,
-                highestBinanceAsk.amount, highestBinanceAsk.price));
+
+        return binanceApi.addArbOrder(new NewArbOrderLimit("NEOETH", ARBTradeAction.BUY, highestBinanceAsk.amount
+        ,highestBinanceAsk.price ));
     }
 
-    private BinanceApiCallback<UserDataUpdateEvent> handleResponse(ArbOrderEntry highestBitfinexAsk, String orderId) {
-        return response -> {
-            if(responseTypeIsOrderTradeUpdate(response)){
-                if(currentOrderHasFilled(orderId, response.getOrderTradeUpdateEvent())){
-                    sellInBitfinex(highestBitfinexAsk);
-
-                    finished.set(true);
-                }
-            }
-};
-    }
-
-    private void sellInBitfinex(ArbOrderEntry highestBitfinexAsk) {
-        bitfinexApi.addArbOrder(new NewArbOrder("NEOETH", ARBTradeAction.SELL,
-                highestBitfinexAsk.amount, highestBitfinexAsk.price));
+    private void sellInBitfinexInMarketRate(double amount) {
+            bitfinexApi.addArbOrder(new NewArbOrderMarket("NEOETH", ARBTradeAction.SELL, amount));
     }
 
     private boolean responseTypeIsOrderTradeUpdate(UserDataUpdateEvent response) {
@@ -76,7 +74,10 @@ class BuyFromBinanceSellInBitfinexCommand {
                 orderTradeUpdateEvent.getOrderStatus() == OrderStatus.FILLED;
     }
 
-    private ArbOrderEntry getHighestAsk(ArbOrders binanceOrderBook) {
-        return binanceOrderBook.asks.get(0);
+    private ArbOrderEntry getHighestNthAsk(ArbOrders binanceOrderBook, int n) {
+        List<ArbOrderEntry> asks = binanceOrderBook.asks;
+        List<ArbOrderEntry> sortedAsks = asks.stream().sorted(Comparator.comparingDouble(ask -> ask.price)).collect(Collectors.toList());
+        return sortedAsks.get(sortedAsks.size() - n);
+
     }
 }

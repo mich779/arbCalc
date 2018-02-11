@@ -72,6 +72,22 @@ public class BitfinexClient {
         }
     }
 
+    public String addOrder(String symbol, double amount, Action action) {
+        Map<String, String> additionals = new HashMap<>();
+        additionals.put("symbol" , symbol );
+        additionals.put("amount", Double.toString(amount));
+        additionals.put("exchange", "bitfinex");
+        additionals.put("side", action.name());
+        additionals.put("type", "exchange market");
+
+        try {
+            return new BitfinexHttpHandler("/v1/order/new", additionals)
+                    .invokePrivate(apiKey, apiKeySecret);
+        } catch (Exception e) {
+            throw  new RuntimeException(e);
+        }
+    }
+
     public String cancelOrder(String orderId) {
 
         try {

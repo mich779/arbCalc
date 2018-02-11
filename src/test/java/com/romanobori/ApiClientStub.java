@@ -33,9 +33,9 @@ public class ApiClientStub extends ApiClient {
 
     @Override
     public List<MyArbOrder> getMyOrders() {
-
+        //todo fix
         return Arrays.asList(new MyArbOrder(
-                order.symbol, this.orderId, order.price,
+                order.symbol, this.orderId, 0.2,
                 order.quantity, this.orderSuccess ? order.quantity : 0.0
                 , order.action,
                 System.currentTimeMillis())
@@ -43,10 +43,17 @@ public class ApiClientStub extends ApiClient {
     }
 
     @Override
-    public String addArbOrder(NewArbOrder newArbOrder) {
-        order = newArbOrder;
+    public String addArbOrder(NewArbOrderMarket order) {
+        this.order = order;
         return this.orderId;
     }
+
+    @Override
+    public String addArbOrder(NewArbOrderLimit order) {
+        this.order = order;
+        return this.orderId;
+    }
+
 
     @Override
     public void cancelOrder(MyArbOrder order) {

@@ -7,19 +7,21 @@ import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.domain.account.Order;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
-public class NewArbOrder {
+public abstract class NewArbOrder {
 
     String symbol;
     ARBTradeAction action;
     double quantity;
-    double price;
 
-    public NewArbOrder(String symbol, ARBTradeAction action, double quantity, double price) {
+    public NewArbOrder() {
+    }
+
+    public NewArbOrder(String symbol, ARBTradeAction action, double quantity) {
         this.symbol = symbol;
         this.action = action;
         this.quantity = quantity;
-        this.price = price;
     }
 
     public String getSymbol() {
@@ -34,33 +36,20 @@ public class NewArbOrder {
         return quantity;
     }
 
-    public double getPrice() {
-        return price;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof NewArbOrder)) return false;
 
         NewArbOrder that = (NewArbOrder) o;
-
-        if (Double.compare(that.quantity, quantity) != 0) return false;
-        if (Double.compare(that.price, price) != 0) return false;
-        if (symbol != null ? !symbol.equals(that.symbol) : that.symbol != null) return false;
-        return action == that.action;
+        return Double.compare(that.quantity, quantity) == 0 &&
+                Objects.equals(symbol, that.symbol) &&
+                action == that.action;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        result = symbol != null ? symbol.hashCode() : 0;
-        result = 31 * result + (action != null ? action.hashCode() : 0);
-        temp = Double.doubleToLongBits(quantity);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(price);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
+
+        return Objects.hash(symbol, action, quantity);
     }
 }
