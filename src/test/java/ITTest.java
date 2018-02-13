@@ -12,6 +12,8 @@ import support.ClientsCreator;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -25,7 +27,7 @@ public class ITTest {
 
 
     @Test
-    public void shouldBuyBitfinexAfterStreamDecideSellSuccessInBinance(){
+    public void shouldBuyBitfinexAfterStreamDecideSellSuccessInBinance() throws InterruptedException, ExecutionException {
 
         BinanceApiWebSocketClientStub streamClient = createStreamClient();
 
@@ -34,7 +36,7 @@ public class ITTest {
         ApiClientStub binanceApiClient = clientsCreator.getBinanceApiClient();
         ApiClientStub bitfinextClient = clientsCreator.getBitfinextClient();
 
-        ArbApplication application = new ArbApplication(binanceApiClient, bitfinextClient, streamClient);
+        ArbApplication application = new ArbApplication(binanceApiClient, bitfinextClient, streamClient, "");
 
         application.run();
 
@@ -48,7 +50,7 @@ public class ITTest {
     }
 
     @Test
-    public void shouldNotDoAnything(){
+    public void shouldNotDoAnything() throws InterruptedException, ExecutionException {
         BinanceApiWebSocketClientStub streamClient = createStreamClient();
 
 
@@ -56,7 +58,7 @@ public class ITTest {
         ApiClientStub binanceApiClient = clientsCreator.getBinanceApiClient();
         ApiClientStub bitfinextClient = clientsCreator.getBitfinextClient();
 
-        ArbApplication application = new ArbApplication(binanceApiClient, bitfinextClient, streamClient);
+        ArbApplication application = new ArbApplication(binanceApiClient, bitfinextClient, streamClient, "");
 
         application.run();
 
@@ -67,8 +69,6 @@ public class ITTest {
         assertNull(binanceOrder);
         assertNull(bitfinexOrder);
     }
-
-
 
     private BinanceApiWebSocketClientStub createStreamClient() {
         BinanceApiWebSocketClientStub streamClient = new BinanceApiWebSocketClientStub();

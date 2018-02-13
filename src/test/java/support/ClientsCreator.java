@@ -5,6 +5,7 @@ import com.romanobori.ArbOrderEntry;
 import com.romanobori.ArbOrders;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 public class ClientsCreator {
     private ApiClientStub binanceApiClient;
@@ -26,14 +27,14 @@ public class ClientsCreator {
 
         binanceApiClient.setOrderBook(
                 new ArbOrders(
-                        Arrays.asList(new ArbOrderEntry(0.2, 0.2)),
-                        Arrays.asList(new ArbOrderEntry(0.2, 0.2))
+                        Collections.singletonList(new ArbOrderEntry(0.2, 0.2)),
+                        Collections.singletonList(new ArbOrderEntry(0.2, 0.2))
                 )
         );
 
         bitfinextClient.setOrderBook(
                 new ArbOrders(
-                        Arrays.asList(new ArbOrderEntry(0.2 , 0.2)),
+                        Collections.singletonList(new ArbOrderEntry(0.2, 0.2)),
                         Arrays.asList(new ArbOrderEntry(0.2 * 1.005, 0.2),
                                 new ArbOrderEntry(0.2 * 1.0045, 0.2),
                                 new ArbOrderEntry(0.2 * 1.004, 0.2))
@@ -50,17 +51,15 @@ public class ClientsCreator {
 
         binanceApiClient.setOrderBook(
                 new ArbOrders(
-                        Arrays.asList(new ArbOrderEntry(0.2, 0.2)),
-                        Arrays.asList(new ArbOrderEntry(0.2, 0.2))
+                        Collections.singletonList(new ArbOrderEntry(0.2, 0.2)),
+                        Collections.singletonList(new ArbOrderEntry(0.2, 0.2))
                 )
         );
 
         bitfinextClient.setOrderBook(
                 new ArbOrders(
-                        Arrays.asList(new ArbOrderEntry(0.2 , 0.2)),
-                        Arrays.asList(new ArbOrderEntry(0.2 * 1.005, 0.2),
-                                new ArbOrderEntry(0.2 * 1.0045, 0.2),
-                                new ArbOrderEntry(0.2 * 1.003, 0.2))
+                        Collections.singletonList(new ArbOrderEntry(0.2, 0.2)),
+                        Arrays.asList(new ArbOrderEntry(0.2 * 1.003, 0.2))
                 )
         );
         return this;

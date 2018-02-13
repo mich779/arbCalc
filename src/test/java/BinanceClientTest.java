@@ -36,6 +36,11 @@ public class BinanceClientTest {
     }
 
 
+    @Test
+    public void getListenKey() {
+        System.out.println(client.startUserDataStream());
+    }
+
 //    @Test
 //    public void streamTest(){
 //

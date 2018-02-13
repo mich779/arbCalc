@@ -4,9 +4,11 @@ import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.OrderStatus;
 import com.binance.api.client.domain.event.OrderTradeUpdateEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
+import com.sun.scenario.effect.ImageData;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -26,38 +28,42 @@ class BuyFromBinanceSellInBitfinexCommand {
         this.socketClient = socketClient;
     }
 
-    public boolean invoke() {
+    public boolean invoke(String listenKey) throws InterruptedException, ExecutionException {
         ArbOrderEntry highestBinanceAsk = getHighestNthAsk(binanceApi.getOrderBook("NEOETH"), 1);
 
-        ArbOrderEntry highestBitfinexAsk = getHighestNthAsk(bitfinexApi.getOrderBook("NEOETH"), 3);
+        ArbOrderEntry highestBitfinexAsk = getHighestNthAsk(bitfinexApi.getOrderBook("NEOETH"), 1);
 
         if(highestBitfinexAsk.price  >=  highestBinanceAsk.price * 1.0033){
-            String orderId = buyFromBinance(highestBinanceAsk);
-            this.socketClient.onUserDataUpdateEvent("listenKey",
+            String orderId = buyFromBinance(highestBinanceAsk, 1.0);
+            BuyFromBinanceSellInBitfinexCommandThread t = new BuyFromBinanceSellInBitfinexCommandThread(highestBinanceAsk.price , orderId, "NEOETH", binanceApi, bitfinexApi);
+            final ExecutorService pool = Executors.newFixedThreadPool(10);
+
+            Future<Boolean> future = pool.submit(t);
+            this.socketClient.onUserDataUpdateEvent(listenKey,
             response -> {
                 if(responseTypeIsOrderTradeUpdate(response)){
                     if(currentOrderHasFilled(orderId, response.getOrderTradeUpdateEvent())){
                         sellInBitfinexInMarketRate(highestBinanceAsk.amount);
-
-                        finished.set(true);
+                        t.setFinished();
                     }
                 }
             });
-
-            while(!finished.get()){
-                try {
-                    Thread.sleep(30);
-                } catch (InterruptedException e) {
-
-                }
+            boolean success = future.get();
+            if(success){
+                return true;
+            }
+            else{
+                Thread.sleep(1000);
+                return new BuyFromBinanceSellInBitfinexCommand(binanceApi, bitfinexApi, socketClient).invoke(listenKey);
             }
         }
-        return true;
+        Thread.sleep(1000);
+        return new BuyFromBinanceSellInBitfinexCommand(binanceApi, bitfinexApi, socketClient).invoke(listenKey);
     }
 
-    private String buyFromBinance(ArbOrderEntry highestBinanceAsk) {
+    private String buyFromBinance(ArbOrderEntry highestBinanceAsk, double amount) {
 
-        return binanceApi.addArbOrder(new NewArbOrderLimit("NEOETH", ARBTradeAction.BUY, highestBinanceAsk.amount
+        return binanceApi.addArbOrder(new NewArbOrderLimit("NEOETH", ARBTradeAction.BUY, amount
         ,highestBinanceAsk.price ));
     }
 

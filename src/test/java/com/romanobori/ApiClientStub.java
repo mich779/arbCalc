@@ -17,6 +17,8 @@ public class ApiClientStub extends ApiClient {
 
     boolean orderSuccess = true;
 
+    String canceledOrder = null;
+
     BinanceApiWebSocketClientStub streamClient;
 
     public ApiClientStub(ArbOrders orders) {
@@ -28,7 +30,9 @@ public class ApiClientStub extends ApiClient {
 
     @Override
     public ArbOrders getOrderBook(String symbol) {
-        return orders;
+        synchronized (this) {
+            return orders;
+        }
     }
 
     @Override
@@ -54,14 +58,16 @@ public class ApiClientStub extends ApiClient {
         return this.orderId;
     }
 
-
     @Override
-    public void cancelOrder(MyArbOrder order) {
-
+    public void cancelOrder(String symbol, String orderId) {
+        this.canceledOrder = orderId;
     }
 
+
     public void setOrderBook(ArbOrders orders) {
-        this.orders = orders;
+        synchronized (this) {
+            this.orders = orders;
+        }
     }
 
     @Override
@@ -86,5 +92,9 @@ public class ApiClientStub extends ApiClient {
 
     public void setOrderSuccess(boolean orderSuccess) {
         this.orderSuccess = orderSuccess;
+    }
+
+    public String getCanceledOrder() {
+        return canceledOrder;
     }
 }

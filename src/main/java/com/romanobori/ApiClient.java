@@ -8,7 +8,8 @@ public abstract class ApiClient {
     abstract public List<MyArbOrder> getMyOrders();
     abstract public String addArbOrder(NewArbOrderMarket order);
     abstract public String addArbOrder(NewArbOrderLimit order);
-    abstract public void cancelOrder(MyArbOrder order);
+    public abstract void cancelOrder(String symbol, String orderId);
+
     abstract public void cancelAllOrders();
     abstract public void withdrawal(ArbWalletEntry withdrawalDetails);
 

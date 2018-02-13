@@ -87,9 +87,10 @@ public class BitfinexClientApi extends ApiClient {
     }
 
     @Override
-    public void cancelOrder(MyArbOrder order) {
-        bitfinexClient.cancelOrder(order.orderId);
+    public void cancelOrder(String symbol, String orderId) {
+        bitfinexClient.cancelOrder(orderId);
     }
+
 
     @Override
     public void cancelAllOrders() {

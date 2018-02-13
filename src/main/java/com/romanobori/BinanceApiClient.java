@@ -96,8 +96,8 @@ public class BinanceApiClient extends ApiClient {
 
 
     @Override
-    public void cancelOrder(MyArbOrder order) {
-        binanceApi.cancelOrder(new CancelOrderRequest(order.symbol, order.orderId));
+    public void cancelOrder(String symbol, String orderId) {
+        binanceApi.cancelOrder(new CancelOrderRequest(symbol, orderId));
     }
 
     @Override
