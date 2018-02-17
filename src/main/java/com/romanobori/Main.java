@@ -12,9 +12,9 @@ public class Main {
 
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-        BinanceApiRestClient binanceApi = new BinanceApiRestClientImpl();
+        BinanceApiRestClient binanceApi = new BinanceApiRestClientImpl("", "");
 
-        BitfinexClient bitfinexClient = new BitfinexClient();
+        BitfinexClient bitfinexClient = new BitfinexClient("", "");
 
 
         ApiClient binanceClient = new BinanceApiClient(binanceApi, 10);

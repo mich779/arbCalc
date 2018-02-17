@@ -1,3 +1,4 @@
+import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.OrderSide;
@@ -6,6 +7,8 @@ import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.domain.account.request.CancelOrderRequest;
 import com.binance.api.client.domain.account.request.OrderRequest;
+import com.binance.api.client.domain.event.DepthEvent;
+import com.binance.api.client.exception.BinanceApiException;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import org.junit.Before;
@@ -41,34 +44,30 @@ public class BinanceClientTest {
         System.out.println(client.startUserDataStream());
     }
 
-//    @Test
-//    public void streamTest(){
-//
-//        BinanceApiWebSocketClient webSocketClient = new BinanceApiWebSocketClientImpl();
-//
-//        webSocketClient.onUserDataUpdateEvent("iKRxZuSCD0dBWo7UGzxv5pL0ZEXZqIBB1OZVUKsEfRmJQqf96TIFtLFKRr2P"
-//        , response -> {
-//                    System.out.println(response);
-//
-//                });
-//
-//
-//
-//        while(true){
-//
-//        }
-//
-//    }
+    @Test
+    public void streamTest(){
+
+        BinanceApiWebSocketClient webSocketClient = new BinanceApiWebSocketClientImpl();
+
+        webSocketClient.onDepthEvent("neobtc", System.out::println);
+
+//        webSocketClient.onUserDataUpdateEvent("y6uSBWKH4UxNRfyfuiBtUY7NxMBc1qTeGRsop5JWj0ORagGm8fN65Y2oyXJQ"
+//        , System.out::println);
+        while(true){
+
+        }
+
+    }
 //    @Test
 //    public void pr(){
 //        System.out.println(apiKey);
 //    }`
-//    @Test
-//    public void getOpenOrders(){
-//        System.out.println(
-//                client.getOrderBook("NEOBTC", 1000)
-//        );
-//    }
+    @Test
+    public void getOpenOrders(){
+        System.out.println(
+                client.getOrderBook("NEOBTC", 1000)
+        );
+    }
 //
 //    @Test
 //    public void getMyOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
