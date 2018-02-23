@@ -1,25 +1,21 @@
-import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.BinanceApiWebSocketClient;
-import com.binance.api.client.domain.OrderSide;
-import com.binance.api.client.domain.OrderType;
-import com.binance.api.client.domain.TimeInForce;
-import com.binance.api.client.domain.account.NewOrder;
-import com.binance.api.client.domain.account.request.CancelOrderRequest;
-import com.binance.api.client.domain.account.request.OrderRequest;
-import com.binance.api.client.domain.event.DepthEvent;
-import com.binance.api.client.exception.BinanceApiException;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
-import org.junit.Before;
+import com.bitfinex.client.BitfinexClient;
+import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.*;
+import com.github.jnidzwetzki.bitfinex.v2.manager.OrderbookManager;
+import com.github.jnidzwetzki.bitfinex.v2.manager.RawOrderbookManager;
+import com.romanobori.BitfinexClientApi;
+import com.romanobori.BitfinexOrderBookUpdated;
+import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.romanobori.PropertyHandler;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
+import java.util.function.BiConsumer;
 
 public class BinanceClientTest {
 //
@@ -62,12 +58,81 @@ public class BinanceClientTest {
 //    public void pr(){
 //        System.out.println(apiKey);
 //    }`
+//    @Test
+//    public void getOpenOrders(){
+//        System.out.println(
+//                client.getOrderBook("NEOBTC", 1000)
+//        );
+//    }
+
     @Test
-    public void getOpenOrders(){
-        System.out.println(
-                client.getOrderBook("NEOBTC", 1000)
-        );
+    public void consumeOrderBookTest() throws APIException {
+
+        BitfinexApiBroker bitfinexApiBroker = new BitfinexApiBroker();
+        bitfinexApiBroker.connect();
+        final OrderbookConfiguration orderbookConfiguration = new OrderbookConfiguration(
+                BitfinexCurrencyPair.BTC_USD, OrderBookPrecision.P0, OrderBookFrequency.F0, 25);
+
+        final OrderbookManager orderbookManager = bitfinexApiBroker.getOrderbookManager();
+
+        final BiConsumer<OrderbookConfiguration, OrderbookEntry> callback = (orderbookConfig, entry) -> {
+            System.out.format("Got entry (%s) for orderbook (%s)\n", entry, orderbookConfig);
+        };
+
+        orderbookManager.registerOrderbookCallback(orderbookConfiguration, callback);
+
+
+        while(true){
+
+        }
     }
+
+    @Test
+    public void orderBookRaw() throws APIException {
+
+        BitfinexApiBroker bitfinexClient = new BitfinexApiBroker();
+
+        final RawOrderbookConfiguration orderbookConfiguration = new RawOrderbookConfiguration(
+                BitfinexCurrencyPair.BTC_USD);
+
+        final RawOrderbookManager rawOrderbookManager = bitfinexClient.getRawOrderbookManager();
+
+        final BiConsumer<RawOrderbookConfiguration, RawOrderbookEntry> callback = (orderbookConfig, entry) -> {
+            System.out.format("Got entry (%s) for orderbook (%s)\n", entry, orderbookConfig);
+        };
+
+        rawOrderbookManager.registerOrderbookCallback(orderbookConfiguration, callback);
+        rawOrderbookManager.subscribeOrderbook(orderbookConfiguration);
+
+        while(true){
+
+        }
+    }
+
+    @Test
+    public void romanoCode() throws APIException {
+
+        BitfinexApiBroker bitfinexClient = new BitfinexApiBroker();
+
+        final OrderbookConfiguration orderbookConfiguration = new OrderbookConfiguration(
+                BitfinexCurrencyPair.BTC_USD, OrderBookPrecision.P0, OrderBookFrequency.F0, 25);
+
+        final OrderbookManager orderbookManager = bitfinexClient.getOrderbookManager();
+        final BiConsumer<OrderbookConfiguration, OrderbookEntry> callback = (orderbookConfig, entry) -> {
+            System.out.format("price: (%s), amount: (%s), count: (%s) --- for orderbook (%s)\n",
+                    entry.getPrice(), entry.getAmount(), entry.getCount(), orderbookConfig);
+        };
+
+        orderbookManager.registerOrderbookCallback(orderbookConfiguration, callback);
+
+
+        while(true){
+
+        }
+    }
+
+
+
 //
 //    @Test
 //    public void getMyOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {

@@ -7,6 +7,23 @@ public class ArbOrderEntry {
     double price;
     double amount;
 
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -20,6 +37,14 @@ public class ArbOrderEntry {
     public int hashCode() {
 
         return Objects.hash(price, amount);
+    }
+
+    @Override
+    public String toString() {
+        return "ArbOrderEntry{" +
+                "price=" + price +
+                ", amount=" + amount +
+                '}';
     }
 
     public ArbOrderEntry(double price, double amount) {

@@ -1,15 +1,10 @@
 package com.romanobori;
 
-import com.binance.api.client.BinanceApiCallback;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.BinanceApiWebSocketClient;
-import com.binance.api.client.domain.account.request.OrderRequest;
 import com.binance.api.client.domain.event.DepthEvent;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
-import com.binance.api.client.exception.BinanceApiException;
-import com.binance.api.client.impl.BinanceApiRestClientImpl;
-import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 
 import java.util.Comparator;
 import java.util.List;
@@ -47,7 +42,6 @@ public class BinanceOrderBookUpdated {
                 update(response);
             }
         });
-
     }
 
     private void update(DepthEvent response) {
@@ -68,19 +62,7 @@ public class BinanceOrderBookUpdated {
                 .filter(orderBookEntry -> orderBookEntry.getPrice().equals(entry.getPrice()))
                 .findFirst();
 
-        if (quantity == 0.0) {
-            first.ifPresent(origAsks::remove);
-        }else{
-            if(first.isPresent()){
-                OrderBookEntry orderBookEntry = first.get();
-                orderBookEntry.setQty(entry.getQty());
-            }else{
-                origAsks.add(entry);
-                updatedOrderBook.setAsks(origAsks.stream()
-                        .sorted(Comparator.comparingDouble(ask -> Double.parseDouble(ask.getPrice())))
-                        .collect(Collectors.toList()));
-            }
-        }
+        insertOdAdd(entry, origAsks, quantity, first);
     }
     private void updateWithNewBid(OrderBookEntry entry, List<OrderBookEntry> origBids) {
         double quantity = Double.parseDouble(entry.getQty());
@@ -88,6 +70,10 @@ public class BinanceOrderBookUpdated {
                 .filter(orderBookEntry -> orderBookEntry.getPrice().equals(entry.getPrice()))
                 .findFirst();
 
+        insertOdAdd(entry, origBids, quantity, first);
+    }
+
+    private void insertOdAdd(OrderBookEntry entry, List<OrderBookEntry> origBids, double quantity, Optional<OrderBookEntry> first) {
         if (quantity == 0.0) {
             first.ifPresent(origBids::remove);
         }else{
@@ -96,9 +82,6 @@ public class BinanceOrderBookUpdated {
                 orderBookEntry.setQty(entry.getQty());
             }else{
                 origBids.add(entry);
-                updatedOrderBook.setBids(origBids.stream()
-                        .sorted(Comparator.comparingDouble(bid -> Double.parseDouble(bid.getPrice())))
-                        .collect(Collectors.toList()));
             }
         }
     }
