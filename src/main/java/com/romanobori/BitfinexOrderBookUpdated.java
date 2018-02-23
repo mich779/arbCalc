@@ -5,15 +5,14 @@ import com.github.jnidzwetzki.bitfinex.v2.entity.*;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderbookManager;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class BitfinexOrderBookUpdated {
     BitfinexApiBroker bitfinexClient;
     ArbOrders orderBook;
-    int counter;
 
-    public BitfinexOrderBookUpdated(BitfinexClientApi bitfinexClientApi, BitfinexApiBroker bitfinexClient ){
+    public BitfinexOrderBookUpdated(ApiClient bitfinexClientApi, BitfinexApiBroker bitfinexClient ){
         orderBook = bitfinexClientApi.getOrderBook("NEOETH");
         this.bitfinexClient = bitfinexClient;
         subscribe();
@@ -25,16 +24,10 @@ public class BitfinexOrderBookUpdated {
 
         final OrderbookManager orderbookManager = bitfinexClient.getOrderbookManager();
         final BiConsumer<OrderbookConfiguration, OrderbookEntry> callback = (orderbookConfig, entry) -> {
-
-            if(entry.getCount() > 0){
-                setAmountOrAdd(entry, entry.getAmount() > 0 ? orderBook.bids : orderBook.asks, entry.getPrice());
-                counter ++;
-            }else{
-                if(entry.getAmount() == 1.0){
-                    orderBook.bids.removeIf(e -> e.price == entry.getPrice());
-                }else{
-                    orderBook.asks.removeIf(e -> e.price == entry.getPrice());
-                }
+            if(entry.getCount() > 0.0){
+                setAmountOrAddByAmountSign(entry);
+            }else if(entry.getCount() == 0.0){
+                filterAllEntriesWithPricebyAmount(entry.getPrice(), entry.getAmount());
             }
         };
 
@@ -44,25 +37,58 @@ public class BitfinexOrderBookUpdated {
             throw new RuntimeException(e);
         }
         orderbookManager.subscribeOrderbook(orderbookConfiguration);
-
-
     }
 
-    private void setAmountOrAdd(OrderbookEntry entry, List<ArbOrderEntry> lst, double price) {
-        Optional<ArbOrderEntry> arbEntry = lst.stream()
-                .filter(arbOrderEntry -> arbOrderEntry.price == price)
-                .findFirst();
-
-        if(arbEntry.isPresent()){
-            ArbOrderEntry arbOrderEntry = arbEntry.get();
-            arbOrderEntry.setAmount(entry.getAmount());
+    private void setAmountOrAddByAmountSign(OrderbookEntry entry) {
+        if(entry.getAmount() > 0 ){
+            orderBook.bids = setAmountOrAdd(entry, orderBook.bids);
         }else{
-            lst.add(new ArbOrderEntry(entry.getPrice(), entry.getAmount()));
+            orderBook.asks = setAmountOrAdd(new OrderbookEntry(entry.getPrice()
+                    ,entry.getCount(), Math.abs(entry.getAmount()))
+                    , orderBook.asks);
         }
     }
 
-    public int getCounter() {
-        return counter;
+    private void filterAllEntriesWithPricebyAmount(double price, double amount) {
+        if(amount == 1.0){
+            orderBook.bids = removePriceFromList(price, orderBook.bids);
+        }else if( amount == -1){
+            orderBook.asks = removePriceFromList(price, orderBook.asks);
+        }
+
+    }
+
+
+    private List<ArbOrderEntry> removePriceFromList(double price, List<ArbOrderEntry> bids) {
+        return bids
+                .stream()
+                .filter(e -> e.price != price)
+                .collect(Collectors.toList());
+    }
+
+    private List<ArbOrderEntry> setAmountOrAdd(OrderbookEntry entry, List<ArbOrderEntry> lst) {
+        double price = entry.getPrice();
+        if(listHasPrice(lst, price)){
+            updateLst(lst, entry.getAmount(), price);
+        }else{
+            addToList(entry, lst);
+        }
+        return lst;
+    }
+
+    private boolean listHasPrice(List<ArbOrderEntry> lst, double price) {
+        return lst.stream().anyMatch(arbOrderEntry -> arbOrderEntry.price == price);
+    }
+
+    private void addToList(OrderbookEntry entry, List<ArbOrderEntry> lst) {
+         lst.add(new ArbOrderEntry(entry.getPrice(), entry.getAmount()));
+    }
+
+    private void updateLst(List<ArbOrderEntry> lst, double amount, double price) {
+        ArbOrderEntry arbOrderEntry = lst.stream().filter(entry -> entry.price == price).findFirst().get();
+
+        arbOrderEntry.setAmount(amount);
+
     }
 
     public ArbOrders getOrderBook() {

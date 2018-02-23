@@ -1,92 +1,136 @@
 package com.romanobori;
 
+
+import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.BinanceApiWebSocketClient;
-import com.binance.api.client.domain.event.DepthEvent;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import java.util.*;
 
+/**
+ * Illustrates how to use the depth event stream to create a local cache of bids/asks for a symbol.
+ */
 public class BinanceOrderBookUpdated {
-    BinanceApiWebSocketClient streamClient;
-    BinanceApiRestClient client;
-    OrderBook updatedOrderBook;
-    public long last_u = 0;
-    boolean canUpdate = false;
-    int updates  = 0;
 
-    public BinanceOrderBookUpdated(BinanceApiWebSocketClient streamClient, BinanceApiRestClient client) {
-        this.streamClient = streamClient;
-        this.client = client;
-        register();
-        this.updatedOrderBook = client.getOrderBook("NEOETH", 100);
+    private static final String BIDS  = "BIDS";
+    private static final String ASKS  = "ASKS";
+
+    private long lastUpdateId;
+
+    private Map<String, NavigableMap<BigDecimal, BigDecimal>> depthCache;
+
+    public BinanceOrderBookUpdated(String symbol) {
+        initializeDepthCache(symbol);
+        startDepthEventStreaming(symbol);
     }
 
-    public void register(){
-        streamClient.onDepthEvent("neoeth", response -> {
-            long lastUpdateId = updatedOrderBook.getLastUpdateId();
-            if (response.getFinalUpdateId() < lastUpdateId)
-                return;
+    /**
+     * Initializes the depth cache by using the REST API.
+     */
+    private void initializeDepthCache(String symbol) {
+        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance();
+        BinanceApiRestClient client = factory.newRestClient();
+        OrderBook orderBook = client.getOrderBook(symbol.toUpperCase(), 10);
 
-            if(canUpdate){
-                if(response.getFirstUpdateId() == this.last_u +1) {
-                    update(response);
-                }
-            }
-            else if (response.getFirstUpdateId() <= lastUpdateId + 1 && response.getFinalUpdateId() >= lastUpdateId + 1) {
-                canUpdate = true;
-                update(response);
+        this.depthCache = new HashMap<>();
+        this.lastUpdateId = orderBook.getLastUpdateId();
+
+        NavigableMap<BigDecimal, BigDecimal> asks = new TreeMap<>(Comparator.reverseOrder());
+        for (OrderBookEntry ask : orderBook.getAsks()) {
+            asks.put(new BigDecimal(ask.getPrice()), new BigDecimal(ask.getQty()));
+        }
+        depthCache.put(ASKS, asks);
+
+        NavigableMap<BigDecimal, BigDecimal> bids = new TreeMap<>(Comparator.reverseOrder());
+        for (OrderBookEntry bid : orderBook.getBids()) {
+            bids.put(new BigDecimal(bid.getPrice()), new BigDecimal(bid.getQty()));
+        }
+        depthCache.put(BIDS, bids);
+    }
+
+    /**
+     * Begins streaming of depth events.
+     */
+    private void startDepthEventStreaming(String symbol) {
+        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance();
+        BinanceApiWebSocketClient client = factory.newWebSocketClient();
+
+        client.onDepthEvent(symbol.toLowerCase(), response -> {
+            if (response.getFinalUpdateId() > lastUpdateId) {
+                lastUpdateId = response.getFinalUpdateId();
+                updateOrderBook(getAsks(), response.getAsks());
+                updateOrderBook(getBids(), response.getBids());
             }
         });
     }
 
-    private void update(DepthEvent response) {
-
-        response.getAsks().forEach(ask -> updateWithNewAsk(ask, updatedOrderBook.getAsks()));
-
-        response.getBids().forEach(bid -> updateWithNewBid(bid, updatedOrderBook.getBids()));
-
-        this.last_u = response.getFinalUpdateId();
-
-        updates++;
-
-    }
-
-    private void updateWithNewAsk(OrderBookEntry entry, List<OrderBookEntry> origAsks) {
-        double quantity = Double.parseDouble(entry.getQty());
-        Optional<OrderBookEntry> first = origAsks.stream()
-                .filter(orderBookEntry -> orderBookEntry.getPrice().equals(entry.getPrice()))
-                .findFirst();
-
-        insertOdAdd(entry, origAsks, quantity, first);
-    }
-    private void updateWithNewBid(OrderBookEntry entry, List<OrderBookEntry> origBids) {
-        double quantity = Double.parseDouble(entry.getQty());
-        Optional<OrderBookEntry> first = origBids.stream()
-                .filter(orderBookEntry -> orderBookEntry.getPrice().equals(entry.getPrice()))
-                .findFirst();
-
-        insertOdAdd(entry, origBids, quantity, first);
-    }
-
-    private void insertOdAdd(OrderBookEntry entry, List<OrderBookEntry> origBids, double quantity, Optional<OrderBookEntry> first) {
-        if (quantity == 0.0) {
-            first.ifPresent(origBids::remove);
-        }else{
-            if(first.isPresent()){
-                OrderBookEntry orderBookEntry = first.get();
-                orderBookEntry.setQty(entry.getQty());
-            }else{
-                origBids.add(entry);
+    /**
+     * Updates an order book (bids or asks) with a delta received from the server.
+     *
+     * Whenever the qty specified is ZERO, it means the price should was removed from the order book.
+     */
+    private void updateOrderBook(NavigableMap<BigDecimal, BigDecimal> lastOrderBookEntries, List<OrderBookEntry> orderBookDeltas) {
+        for (OrderBookEntry orderBookDelta : orderBookDeltas) {
+            BigDecimal price = new BigDecimal(orderBookDelta.getPrice());
+            BigDecimal qty = new BigDecimal(orderBookDelta.getQty());
+            if (qty.compareTo(BigDecimal.ZERO) == 0) {
+                // qty=0 means remove this level
+                lastOrderBookEntries.remove(price);
+            } else {
+                lastOrderBookEntries.put(price, qty);
             }
         }
     }
 
-    public OrderBook getUpdatedOrderBook() {
-        return updatedOrderBook;
+    public NavigableMap<BigDecimal, BigDecimal> getAsks() {
+        return depthCache.get(ASKS);
+    }
+
+    public NavigableMap<BigDecimal, BigDecimal> getBids() {
+        return depthCache.get(BIDS);
+    }
+
+    /**
+     * @return the best ask in the order book
+     */
+    private Map.Entry<BigDecimal, BigDecimal> getBestAsk() {
+        return getAsks().lastEntry();
+    }
+
+    /**
+     * @return the best bid in the order book
+     */
+    private Map.Entry<BigDecimal, BigDecimal> getBestBid() {
+        return getBids().firstEntry();
+    }
+
+    /**
+     * @return a depth cache, containing two keys (ASKs and BIDs), and for each, an ordered list of book entries.
+     */
+    public Map<String, NavigableMap<BigDecimal, BigDecimal>> getDepthCache() {
+        return depthCache;
+    }
+
+    /**
+     * Pretty prints an order book entry in the format "price / quantity".
+     */
+    private static String toDepthCacheEntryString(Map.Entry<BigDecimal, BigDecimal> depthCacheEntry) {
+        return depthCacheEntry.getKey().toPlainString() + " / " + depthCacheEntry.getValue();
+    }
+
+    public ArbOrders getOrderBook(){
+        List<ArbOrderEntry> bids = new ArrayList<>();
+        List<ArbOrderEntry> asks = new ArrayList<>();
+
+        getAsks().forEach((key, value) -> asks.add(new ArbOrderEntry(key.doubleValue(),
+                value.doubleValue())));
+
+        getBids().forEach((key, value) -> bids.add(new ArbOrderEntry(key.doubleValue(),
+                value.doubleValue())));
+
+        return new ArbOrders(bids, asks);
     }
 }

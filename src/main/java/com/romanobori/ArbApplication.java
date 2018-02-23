@@ -6,21 +6,27 @@ import java.util.concurrent.ExecutionException;
 
 public class ArbApplication {
 
-    ApiClient binanceApiClient;
-    ApiClient bitfinextClient;
-    BinanceApiWebSocketClient streamClientBinance;
-    String binanceStreamListenId;
+    private ApiClient binanceApiClient;
+    private ApiClient bitfinextClient;
+    private BinanceApiWebSocketClient streamClientBinance;
+    private String binanceStreamListenId;
+    private BinanceOrderBookUpdated updatedBinance;
+    private BitfinexOrderBookUpdated updatedBitfinex;
+
     public ArbApplication(ApiClient binanceApiClient, ApiClient bitfinextClient, BinanceApiWebSocketClient streamClient,
-                          String binanceStreamListenId) {
+                          BinanceOrderBookUpdated updatedBinance, BitfinexOrderBookUpdated updatedBitfinex, String binanceStreamListenId) {
         this.binanceApiClient = binanceApiClient;
         this.bitfinextClient = bitfinextClient;
         this.streamClientBinance = streamClient;
         this.binanceStreamListenId = binanceStreamListenId;
+        this.updatedBinance = updatedBinance;
+        this.updatedBitfinex = updatedBitfinex;
     }
 
     public void run() throws InterruptedException, ExecutionException {
 
-        boolean success = new BuyFromBinanceSellInBitfinexCommand(binanceApiClient, bitfinextClient, streamClientBinance).invoke(this.binanceStreamListenId);
+        boolean success = new BuyFromBinanceSellInBitfinexCommand(binanceApiClient, bitfinextClient,
+                streamClientBinance, updatedBinance, updatedBitfinex).invoke(this.binanceStreamListenId);
 
     }
 

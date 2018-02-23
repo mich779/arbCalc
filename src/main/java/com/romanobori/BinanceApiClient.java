@@ -45,7 +45,11 @@ public class BinanceApiClient extends ApiClient {
                     Double.parseDouble(order.getQty())));
         }
 
-        return new ArbOrders(arbOrderEntryListBids, arbOrderEntryListAsks);
+
+        ArbOrders orders = new ArbOrders(arbOrderEntryListBids, arbOrderEntryListAsks);
+        orders.setLastUpdateId(orderBook.getLastUpdateId());
+
+        return orders;
     }
 
 

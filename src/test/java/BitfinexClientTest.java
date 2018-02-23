@@ -2,9 +2,6 @@ import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.*;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderbookManager;
-import com.romanobori.ArbOrders;
-import com.romanobori.BitfinexClientApi;
-import com.romanobori.BitfinexOrderBookUpdated;
 import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +31,7 @@ public class BitfinexClientTest {
 //                        getBalances());
 //    }
 //
-//    private final BitfinexClient bitfinexClient = new BitfinexClient(apiKey, secret);
+    private final BitfinexClient bitfinexClient = new BitfinexClient(apiKey, secret);
 
 
 
@@ -71,28 +68,7 @@ public class BitfinexClientTest {
 
 
 
-    @Test
-    public void shouldBeTheSame() throws InterruptedException, APIException {
-        BitfinexClientApi bitfinexClientApi = new BitfinexClientApi(new BitfinexClient(apiKey, secret));
-        BitfinexApiBroker bitfinexClientBroker = new BitfinexApiBroker();
 
-        bitfinexClientBroker.connect();
-        BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexClientBroker);
-
-        Thread.sleep(1000 * 60 * 10);
-
-        ArbOrders orderBookFromBitfinex = bitfinexClientApi.getOrderBook("NEOETH").sortByPrice();
-
-        ArbOrders orderBook = updated.getOrderBook().sortByPrice();
-
-        System.out.println(orderBookFromBitfinex);
-
-        System.out.println(orderBook);
-
-        System.out.println(updated.getCounter());
-
-    }
 //    @Test
 //    public void getBookOrder() throws IOException {
 //        System.out.println(

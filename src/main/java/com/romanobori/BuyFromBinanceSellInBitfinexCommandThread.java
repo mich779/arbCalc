@@ -14,25 +14,25 @@ public class BuyFromBinanceSellInBitfinexCommandThread implements Callable<Boole
 
     ApiClient binanceApi;
 
-    ApiClient bitfinexApi;
+    BinanceOrderBookUpdated binanceOrderBookUpdated;
 
     AtomicBoolean shouldRun = new AtomicBoolean(true);
 
     double priceInBinance;
 
-    public BuyFromBinanceSellInBitfinexCommandThread(double priceInBinance, String orderId, String symbol, ApiClient binanceApi, ApiClient bitfinexApi) {
+    public BuyFromBinanceSellInBitfinexCommandThread(double priceInBinance, String orderId, String symbol, ApiClient binanceApi, BinanceOrderBookUpdated binanceOrderBookUpdated) {
         this.orderId = orderId;
         this.symbol = symbol;
         this.binanceApi = binanceApi;
-        this.bitfinexApi = bitfinexApi;
+        this.binanceOrderBookUpdated = binanceOrderBookUpdated;
         this.priceInBinance = priceInBinance;
     }
 
 
 
     private ArbOrderEntry getHighestNthAsk(ArbOrders binanceOrderBook, int n) {
-        List<ArbOrderEntry> asks = binanceOrderBook.asks;
-        List<ArbOrderEntry> sortedAsks = asks.stream().sorted(Comparator.comparingDouble(ask -> ask.price)).collect(Collectors.toList());
+        List<ArbOrderEntry> bids = binanceOrderBook.bids;
+        List<ArbOrderEntry> sortedAsks = bids.stream().sorted(Comparator.comparingDouble(bid -> bid.price)).collect(Collectors.toList());
         return sortedAsks.get(sortedAsks.size() - n);
 
     }
@@ -45,9 +45,9 @@ public class BuyFromBinanceSellInBitfinexCommandThread implements Callable<Boole
     public Boolean call() throws Exception {
         while(shouldRun.get()) {
             
-            ArbOrderEntry highestBitfinexAsk = getHighestNthAsk(bitfinexApi.getOrderBook("NEOETH"), 1);
+            ArbOrderEntry highestBitfinexBid = getHighestNthAsk(binanceOrderBookUpdated.getOrderBook(), 1);
 
-            if (!(highestBitfinexAsk.price >= priceInBinance * 1.0033)) {
+            if (!(priceInBinance * 1.001 <= highestBitfinexBid.price)) {
                 binanceApi.cancelOrder(this.symbol, orderId);
                 return Boolean.FALSE;
             }
