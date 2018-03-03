@@ -14,13 +14,13 @@ public class BuyFromBinanceSellInBitfinexCommandThread implements Callable<Boole
 
     ApiClient binanceApi;
 
-    BinanceOrderBookUpdated binanceOrderBookUpdated;
+    ArbOrderBookUpdated binanceOrderBookUpdated;
 
     AtomicBoolean shouldRun = new AtomicBoolean(true);
 
     double priceInBinance;
 
-    public BuyFromBinanceSellInBitfinexCommandThread(double priceInBinance, String orderId, String symbol, ApiClient binanceApi, BinanceOrderBookUpdated binanceOrderBookUpdated) {
+    public BuyFromBinanceSellInBitfinexCommandThread(double priceInBinance, String orderId, String symbol, ApiClient binanceApi, ArbOrderBookUpdated binanceOrderBookUpdated) {
         this.orderId = orderId;
         this.symbol = symbol;
         this.binanceApi = binanceApi;
@@ -47,7 +47,7 @@ public class BuyFromBinanceSellInBitfinexCommandThread implements Callable<Boole
             
             ArbOrderEntry highestBitfinexBid = getHighestNthAsk(binanceOrderBookUpdated.getOrderBook(), 1);
 
-            if (!(priceInBinance * 1.001 <= highestBitfinexBid.price)) {
+            if (!(priceInBinance * 1.003 <= highestBitfinexBid.price)) {
                 binanceApi.cancelOrder(this.symbol, orderId);
                 return Boolean.FALSE;
             }

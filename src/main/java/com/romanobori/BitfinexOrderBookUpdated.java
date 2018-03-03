@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public class BitfinexOrderBookUpdated {
+public class BitfinexOrderBookUpdated implements ArbOrderBookUpdated {
     BitfinexApiBroker bitfinexClient;
     ArbOrders orderBook;
 

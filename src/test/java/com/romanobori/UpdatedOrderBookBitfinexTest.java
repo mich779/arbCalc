@@ -1,8 +1,6 @@
 package com.romanobori;
 
-import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
-import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.entity.OrderbookEntry;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,30 +26,6 @@ public class UpdatedOrderBookBitfinexTest {
         Properties p = PropertyHandler.loadProps("src/test/resources/props");
         apiKey = p.getProperty("BITFINEX_API_KEY");
         secret  = p.getProperty("BITFINEX_API_SECRET");
-    }
-
-    @Test
-    public void shouldBeTheSame() throws InterruptedException, APIException {
-        BitfinexClientApi bitfinexClientApi = new BitfinexClientApi(new BitfinexClient(apiKey, secret));
-        BitfinexApiBroker bitfinexClientBroker = new BitfinexApiBroker();
-
-        bitfinexClientBroker.connect();
-        BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexClientBroker);
-
-        Thread.sleep(1000 * 60 * 2);
-
-        ArbOrders orderBookFromBitfinex = bitfinexClientApi.getOrderBook("NEOETH").sortByPrice();
-
-        ArbOrders orderBook = updated.getOrderBook().sortByPrice();
-
-        System.out.println(orderBookFromBitfinex.bids);
-
-        System.out.println(orderBook.bids);
-
-        System.out.println(orderBookFromBitfinex.asks);
-
-        System.out.println(orderBook.asks);
     }
 
     @Test

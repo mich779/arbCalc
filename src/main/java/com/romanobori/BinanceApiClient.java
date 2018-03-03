@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class BinanceApiClient extends ApiClient {
+public class BinanceApiClient implements ApiClient {
 
     BinanceApiRestClient binanceApi;
     int orderBookLimit;

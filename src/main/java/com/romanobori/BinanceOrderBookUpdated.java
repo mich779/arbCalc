@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Illustrates how to use the depth event stream to create a local cache of bids/asks for a symbol.
  */
-public class BinanceOrderBookUpdated {
+public class BinanceOrderBookUpdated implements ArbOrderBookUpdated {
 
     private static final String BIDS  = "BIDS";
     private static final String ASKS  = "ASKS";

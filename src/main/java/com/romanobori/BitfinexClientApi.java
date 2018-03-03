@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class BitfinexClientApi extends ApiClient {
+public class BitfinexClientApi implements ApiClient {
     BitfinexClient bitfinexClient;
     public BitfinexClientApi(BitfinexClient bitfinexClient) {
         this.bitfinexClient = bitfinexClient;

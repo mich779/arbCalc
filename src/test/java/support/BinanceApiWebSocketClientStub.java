@@ -7,15 +7,14 @@ import com.binance.api.client.domain.market.CandlestickInterval;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class BinanceApiWebSocketClientStub implements BinanceApiWebSocketClient {
 
     private UserDataUpdateEvent updateEvent;
-    private BinanceApiCallback<UserDataUpdateEvent> callback;
+
+    public BinanceApiWebSocketClientStub(UserDataUpdateEvent updateEvent) {
+        this.updateEvent = updateEvent;
+    }
 
     @Override
     public void onDepthEvent(String symbol, BinanceApiCallback<DepthEvent> callback) {
@@ -34,19 +33,7 @@ public class BinanceApiWebSocketClientStub implements BinanceApiWebSocketClient 
 
     @Override
     public void onUserDataUpdateEvent(String listenKey, BinanceApiCallback<UserDataUpdateEvent> callback) {
-        ExecutorService executorService =
-                new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                        new LinkedBlockingQueue<Runnable>());
-
-        executorService.submit(() -> {
-                    try {
-                        Thread.sleep(1000 * 10);
-                        callback.onResponse(updateEvent);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-        );
+        callback.onResponse(this.updateEvent);
     }
 
     @Override

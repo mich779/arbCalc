@@ -1,19 +1,15 @@
 package com.romanobori;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import support.BinanceApiWebSocketClientStub;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class ApiClientStub extends ApiClient {
-
-    ArbOrders orders;
+public class ApiClientStub implements ApiClient {
 
     NewArbOrder order;
 
-    String orderId = "100";
+    String orderId;
 
     boolean orderSuccess = true;
 
@@ -21,29 +17,20 @@ public class ApiClientStub extends ApiClient {
 
     BinanceApiWebSocketClientStub streamClient;
 
-    public ApiClientStub(ArbOrders orders) {
-        this.orders = orders;
-    }
 
-    public ApiClientStub() {
+
+    public ApiClientStub(String orderId) {
+        this.orderId = orderId;
     }
 
     @Override
     public ArbOrders getOrderBook(String symbol) {
-        synchronized (this) {
-            return orders;
-        }
+        throw new NotImplementedException();
     }
 
     @Override
     public List<MyArbOrder> getMyOrders() {
-        //todo fix
-        return Arrays.asList(new MyArbOrder(
-                order.symbol, this.orderId, 0.2,
-                order.quantity, this.orderSuccess ? order.quantity : 0.0
-                , order.action,
-                System.currentTimeMillis())
-        );
+        throw new NotImplementedException();
     }
 
     @Override
@@ -63,12 +50,6 @@ public class ApiClientStub extends ApiClient {
         this.canceledOrder = orderId;
     }
 
-
-    public void setOrderBook(ArbOrders orders) {
-        synchronized (this) {
-            this.orders = orders;
-        }
-    }
 
     @Override
     public void cancelAllOrders() {

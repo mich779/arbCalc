@@ -25,12 +25,9 @@ public class ArbApplication {
 
     public void run() throws InterruptedException, ExecutionException {
 
-        boolean success = new BuyFromBinanceSellInBitfinexCommand(binanceApiClient, bitfinextClient,
+        new BuyFromBinanceSellInBitfinexCommand(binanceApiClient, bitfinextClient,
                 streamClientBinance, updatedBinance, updatedBitfinex).invoke(this.binanceStreamListenId);
 
     }
-
-
-
 
 }
