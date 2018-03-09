@@ -11,7 +11,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 class BuyFromBinanceSellInBitfinexCommand {
@@ -21,8 +20,6 @@ class BuyFromBinanceSellInBitfinexCommand {
     ApiClient bitfinexApi;
 
     BinanceApiWebSocketClient socketClient;
-
-    AtomicBoolean finished = new AtomicBoolean(false);
 
     ArbOrderBookUpdated binanceOrderBookUpdated;
 
@@ -41,7 +38,6 @@ class BuyFromBinanceSellInBitfinexCommand {
         ArbOrderEntry highestBitfinexBid = getHighestNthAsk(bitfinexOrderBookUpdated.getOrderBook(), 1);
 
         if(highestBinanceBid.price * 1.003 <= highestBitfinexBid.price){
-
             System.out.println("contidion matched !!!");
             String orderId = buyFromBinance(highestBinanceBid, 0.2);
             BuyFromBinanceSellInBitfinexCommandThread t = new BuyFromBinanceSellInBitfinexCommandThread(highestBinanceBid.price , orderId, "NEOETH", binanceApi, binanceOrderBookUpdated);
