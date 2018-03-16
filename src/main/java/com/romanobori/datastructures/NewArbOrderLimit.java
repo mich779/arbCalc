@@ -21,6 +21,10 @@ public class NewArbOrderLimit extends NewArbOrder {
         return Double.compare(that.price, price) == 0;
     }
 
+    public double getPrice() {
+        return price;
+    }
+
     @Override
     public int hashCode() {
 

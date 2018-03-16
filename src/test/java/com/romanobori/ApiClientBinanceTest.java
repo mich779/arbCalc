@@ -56,12 +56,12 @@ public class ApiClientBinanceTest {
         ArbOrders orderBook = client.getOrderBook("NEOBTC");
 
 
-        assertEquals(orderBook.bids.size(), 1);
-        assertEquals(orderBook.asks.size(), 1);
+        assertEquals(orderBook.getBids().size(), 1);
+        assertEquals(orderBook.getAsks().size(), 1);
 
-        assertTrue(orderBook.bids.contains(new ArbOrderEntry(0.1, 5.0)));
+        assertTrue(orderBook.getBids().contains(new ArbOrderEntry(0.1, 5.0)));
 
-        assertTrue(orderBook.asks.contains(new ArbOrderEntry(0.2, 5.0)));
+        assertTrue(orderBook.getAsks().contains(new ArbOrderEntry(0.2, 5.0)));
 
 
     }
@@ -124,7 +124,7 @@ public class ApiClientBinanceTest {
 
         ArbWalletEntry arbWalletEntry = new ArbWalletEntry("BTC", 4.5, 4.0);
 
-        assertTrue(client.getWallet().entries.contains(arbWalletEntry));
+        assertTrue(client.getWallet().getEntries().contains(arbWalletEntry));
     }
 
 

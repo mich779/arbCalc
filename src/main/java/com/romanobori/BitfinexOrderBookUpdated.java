@@ -46,26 +46,26 @@ public class BitfinexOrderBookUpdated {
 
     private void setAmountOrAddByAmountSign(OrderbookEntry entry) {
         if (entry.getAmount() > 0) {
-            orderBook.bids = setAmountOrAdd(entry, orderBook.bids);
+            orderBook.setBids(setAmountOrAdd(entry, orderBook.getBids()));
         } else {
-            orderBook.asks = setAmountOrAdd(new OrderbookEntry(entry.getPrice()
+            orderBook.setAsks(setAmountOrAdd(new OrderbookEntry(entry.getPrice()
                             , entry.getCount(), Math.abs(entry.getAmount()))
-                    , orderBook.asks);
+                    , orderBook.getAsks()));
         }
     }
 
     private void filterAllEntriesWithPricebyAmount(double price, double amount) {
         if (amount == 1.0) {
-            orderBook.bids = removePriceFromList(price, orderBook.bids);
+            orderBook.setBids(removePriceFromList(price, orderBook.getBids()));
         } else if (amount == -1){
-            orderBook.asks = removePriceFromList(price, orderBook.asks);
+            orderBook.setAsks(removePriceFromList(price, orderBook.getAsks()));
         }
     }
 
     private List<ArbOrderEntry> removePriceFromList(double price, List<ArbOrderEntry> bids) {
         return bids
                 .stream()
-                .filter(e -> e.price != price)
+                .filter(e -> e.getPrice()!= price)
                 .collect(Collectors.toList());
     }
 
@@ -80,7 +80,7 @@ public class BitfinexOrderBookUpdated {
     }
 
     private boolean listHasPrice(List<ArbOrderEntry> lst, double price) {
-        return lst.stream().anyMatch(arbOrderEntry -> arbOrderEntry.price == price);
+        return lst.stream().anyMatch(arbOrderEntry -> arbOrderEntry.getPrice()== price);
     }
 
     private void addToList(OrderbookEntry entry, List<ArbOrderEntry> lst) {
@@ -88,36 +88,36 @@ public class BitfinexOrderBookUpdated {
     }
 
     private void updateLst(List<ArbOrderEntry> lst, double amount, double price) {
-        ArbOrderEntry arbOrderEntry = lst.stream().filter(entry -> entry.price == price).findFirst().get();
+        ArbOrderEntry arbOrderEntry = lst.stream().filter(entry -> entry.getPrice() == price).findFirst().get();
 
         arbOrderEntry.setAmount(amount);
     }
 
     public double getLowestAsk() {
-        return getMin(orderBook.asks);
+        return getMin(orderBook.getAsks());
     }
 
     public double getHighestAsk() {
-        return getMax(orderBook.asks);
+        return getMax(orderBook.getAsks());
     }
 
     public double getMinBid() {
-        return getMin(orderBook.bids);
+        return getMin(orderBook.getBids());
     }
 
     public double getHighestBid() {
-        return getMax(orderBook.bids);
+        return getMax(orderBook.getBids());
     }
 
     private double getMax(List<ArbOrderEntry> entries) {
         Optional<ArbOrderEntry> max = entries.stream()
-                .max(Comparator.comparingDouble(entry -> entry.price));
+                .max(Comparator.comparingDouble(ArbOrderEntry::getPrice));
         return getOrException(max);
     }
 
     private double getMin(List<ArbOrderEntry> entries) {
         Optional<ArbOrderEntry> min = entries.stream()
-                .min(Comparator.comparingDouble(entry -> entry.price));
+                .min(Comparator.comparingDouble(ArbOrderEntry::getPrice));
         return getOrException(min);
     }
 
@@ -125,7 +125,7 @@ public class BitfinexOrderBookUpdated {
         if (!min.isPresent()) {
             throw new RuntimeException("asd");
         } else {
-            return min.get().price;
+            return min.get().getPrice();
         }
     }
 

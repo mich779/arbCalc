@@ -77,25 +77,25 @@ public class BinanceApiClient implements ApiClient {
     }
 
     private OrderSide getSide(NewArbOrder order) {
-        return order.action == ARBTradeAction.BUY  ? OrderSide.BUY : OrderSide.SELL;
+        return order.getAction()== ARBTradeAction.BUY  ? OrderSide.BUY : OrderSide.SELL;
     }
 
     @Override
     public String addArbOrder(NewArbOrderMarket order) {
         return  Long.toString(binanceApi.newOrder(
-                new NewOrder(order.symbol, getSide(order), OrderType.MARKET,
+                new NewOrder(order.getSymbol(), getSide(order), OrderType.MARKET,
                         TimeInForce.GTC,
-                        Double.toString(order.quantity)))
+                        Double.toString(order.getQuantity())))
                 .getOrderId());
     }
 
     @Override
     public String addArbOrder(NewArbOrderLimit order) {
          return  Long.toString(binanceApi.newOrder(
-                new NewOrder(order.symbol, getSide(order), OrderType.LIMIT,
+                new NewOrder(order.getSymbol(), getSide(order), OrderType.LIMIT,
                         TimeInForce.GTC,
-                        Double.toString(order.quantity),
-                        Double.toString(order.price)))
+                        Double.toString(order.getQuantity()),
+                        Double.toString(order.getPrice())))
                 .getOrderId());
     }
 
@@ -112,8 +112,8 @@ public class BinanceApiClient implements ApiClient {
 
     @Override
     public void withdrawal(ArbWalletEntry withdrawalDetails) {
-        binanceApi.withdraw(withdrawalDetails.currency, currencyToAdress.get(withdrawalDetails.currency)
-                ,Double.toString(withdrawalDetails.amount), "");
+        binanceApi.withdraw(withdrawalDetails.getCurrency(), currencyToAdress.get(withdrawalDetails.getCurrency())
+                ,Double.toString(withdrawalDetails.getAmount()), "");
     }
 
     @Override

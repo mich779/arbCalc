@@ -9,9 +9,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,8 +35,8 @@ public class ApiClientBitfinexTest {
 
         ArbOrders openOrders = client.getOrderBook("NEOBTC");
 
-        List<ArbOrderEntry> asks = openOrders.asks;
-        List<ArbOrderEntry> bids = openOrders.bids;
+        List<ArbOrderEntry> asks = openOrders.getAsks();
+        List<ArbOrderEntry> bids = openOrders.getBids();
 
         assertEquals(asks.size(), 1);
         assertEquals(bids.size(), 1);
@@ -56,7 +54,7 @@ public class ApiClientBitfinexTest {
 
         ArbWallet wallet = client.getWallet();
 
-        List<ArbWalletEntry> entries = wallet.entries;
+        List<ArbWalletEntry> entries = wallet.getEntries();
 
         assertEquals(entries.size(), 1);
         assertTrue(entries.contains(new ArbWalletEntry(

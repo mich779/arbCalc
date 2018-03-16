@@ -47,7 +47,7 @@ public class UpdatedOrderBookBitfinexTest {
 
         ArbOrders orderBook = updated.orderBook;
 
-        assertThat(orderBook.bids.size(), is(0));
+        assertThat(orderBook.getBids().size(), is(0));
     }
 
     private BitfinexOrderBookManagerStub createBitfinexOrderbookManagerStub(BitfinexApiBroker bitfinexApiBroker, OrderbookEntry entry) {
@@ -77,9 +77,9 @@ public class UpdatedOrderBookBitfinexTest {
 
         ArbOrders newArbOrders = updated.orderBook;
 
-        assertThat(newArbOrders.bids.size(), is(1));
+        assertThat(newArbOrders.getBids().size(), is(1));
 
-        assertThat(newArbOrders.bids.get(0).amount, is( 2.2));
+        assertThat(newArbOrders.getBids().get(0).getAmount(), is( 2.2));
 
     }
 
@@ -102,10 +102,10 @@ public class UpdatedOrderBookBitfinexTest {
 
         ArbOrders newArbOrders = updated.orderBook;
 
-        assertThat(newArbOrders.bids.size(), is(2));
+        assertThat(newArbOrders.getBids().size(), is(2));
 
-        assertTrue(newArbOrders.bids.contains(new ArbOrderEntry(0.3, 2.2)));
-        assertTrue(newArbOrders.bids.contains(new ArbOrderEntry(0.2, 30.0)));
+        assertTrue(newArbOrders.getBids().contains(new ArbOrderEntry(0.3, 2.2)));
+        assertTrue(newArbOrders.getBids().contains(new ArbOrderEntry(0.2, 30.0)));
     }
 
     private void mockOrderBok(BitfinexClientApi bitfinexClientApi, List<ArbOrderEntry> bids, List<ArbOrderEntry> asks) {

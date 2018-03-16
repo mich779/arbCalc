@@ -75,15 +75,15 @@ public class BitfinexClientApi implements ApiClient {
 
     @Override
     public String addArbOrder(NewArbOrderMarket order) {
-                    String answer = bitfinexClient.addOrder(order.symbol, order.quantity,
-                    order.action == ARBTradeAction.BUY? Action.buy : Action.sell);
+                    String answer = bitfinexClient.addOrder(order.getSymbol(), order.getQuantity(),
+                    order.getAction()== ARBTradeAction.BUY? Action.buy : Action.sell);
             return new Gson().fromJson(answer, JsonObject.class).get("id").getAsString();
     }
 
     @Override
     public String addArbOrder(NewArbOrderLimit order) {
-        String answer = bitfinexClient.addOrder(order.symbol, order.quantity,
-                order.action == ARBTradeAction.BUY? Action.buy : Action.sell);
+        String answer = bitfinexClient.addOrder(order.getSymbol(), order.getQuantity(),
+                order.getAction()== ARBTradeAction.BUY? Action.buy : Action.sell);
         return new Gson().fromJson(answer, JsonObject.class).get("id").getAsString();
     }
 
@@ -101,8 +101,8 @@ public class BitfinexClientApi implements ApiClient {
     @Override
     public void withdrawal(ArbWalletEntry withdrawalDetails) {
 
-        bitfinexClient.withdrawal(withdrawalDetails.currency, currencyToAdress.get(withdrawalDetails.currency),
-                Double.toString(withdrawalDetails.amount));
+        bitfinexClient.withdrawal(withdrawalDetails.getCurrency(), currencyToAdress.get(withdrawalDetails.getCurrency()),
+                Double.toString(withdrawalDetails.getAmount()));
 
     }
 
