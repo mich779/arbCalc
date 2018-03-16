@@ -30,7 +30,7 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
     private String bitfinexKey;
     private String bitfinexSecret;
     private String binanceListeningKey;
-    public ArbCommandBuyBinanceSellBitfinex(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, String binanceListeningKey, int count) {
+    public ArbCommandBuyBinanceSellBitfinex(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, int count) {
         super(count);
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
@@ -47,7 +47,7 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
         this.binanceSecret = binanceSecret;
         this.bitfinexKey = bitfinexKey;
         this.bitfinexSecret = bitfinexSecret;
-        this.binanceListeningKey = binanceListeningKey;
+        this.binanceListeningKey = binanceClient.startUserDataStream();
     }
 
     @Override
@@ -83,7 +83,7 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
     @Override
     ArbCommand buildAnotherCommand() {
         return new ArbCommandBuyBinanceSellBitfinex(
-                symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret, binanceListeningKey, count - 1
+                symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret, count - 1
         );
     }
 }

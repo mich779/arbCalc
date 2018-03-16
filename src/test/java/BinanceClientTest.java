@@ -2,6 +2,7 @@ import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -24,10 +25,10 @@ public class BinanceClientTest {
     }
 
 
-//    @Test
-//    public void getListenKey() {
-//        System.out.println(client.startUserDataStream());
-//    }
+    @Test
+    public void getListenKey() {
+        System.out.println(client.startUserDataStream());
+    }
 //    @Test
 //    public void pr(){
 //        System.out.println(apiKey);
