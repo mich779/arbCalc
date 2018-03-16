@@ -30,11 +30,10 @@ public abstract class ArbCommand {
             try {
                 Boolean ans = future.get();
             } catch (InterruptedException e) {
-
+                
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-
         }
     }
 

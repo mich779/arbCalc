@@ -13,6 +13,7 @@ import support.BinanceApiWebSocketClientStub;
 
 import java.util.concurrent.ExecutionException;
 
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -34,7 +35,7 @@ public class BuyFromBinanceSellInBitfinexCommandTest {
         event.setEventType(UserDataUpdateEvent.UserDataUpdateEventType.ORDER_TRADE_UPDATE);
 
         OrderTradeUpdateEvent orderTradeUpdateEvent = new OrderTradeUpdateEvent();
-        orderTradeUpdateEvent.setOrderId(1L);
+        orderTradeUpdateEvent.setOrderId(100L);
 
         orderTradeUpdateEvent.setOrderStatus(OrderStatus.FILLED);
 
@@ -42,6 +43,9 @@ public class BuyFromBinanceSellInBitfinexCommandTest {
 
         binanceApiWebSocketClient = new BinanceApiWebSocketClientStub(event);
     }
+
+
+
 
     @Test
     public void shouldSucceed() throws ExecutionException, InterruptedException {
@@ -80,40 +84,41 @@ public class BuyFromBinanceSellInBitfinexCommandTest {
 
     }
 
-//    @Test
-//    public void shouldNotSucceed() throws ExecutionException, InterruptedException {
-//        ArbOrderBookUpdated binanceOrderBookUpdated = prepareUpdatebookMock(
-//                Arrays.asList(new ArbOrderEntry(0.2, 0.2))
-//                , Arrays.asList());
-//
-//        ArbOrderBookUpdated bitfinexOrderBookUpdated = prepareUpdatebookMock(
-//                Arrays.asList(new ArbOrderEntry(0.2 * 1.002, 0.2))
-//                , Arrays.asList());
-//
-//        BuyFromBinanceSellInBitfinexCommand command =
-//                new BuyFromBinanceSellInBitfinexCommand(
-//                        binanceClient,
-//                        bitfinexClient,
-//                        binanceApiWebSocketClient,
-//                        binanceOrderBookUpdated,
-//                        bitfinexOrderBookUpdated);
-//
-//        command.invoke("");
-//
-//        assertNull(binanceClient.getLatestOrder());
-//
-//        assertNull(bitfinexClient.getLatestOrder());
-//    }
-//
-//    private ArbOrderBookUpdated prepareUpdatebookMock( List<ArbOrderEntry> bids, List<ArbOrderEntry> asks) {
-//        ArbOrderBookUpdated orderbookUpdated = mock(ArbOrderBookUpdated.class);
-//
-//        when(orderbookUpdated.getOrderBook()).thenReturn(
-//                new ArbOrders(
-//                        bids,
-//                        asks));
-//        return orderbookUpdated;
-//    }
+    @Test
+    public void shouldNotSucceed_whenConditionNotMet() {
+        BinanceOrderBookUpdated binanceOrderBookUpdated = mock(
+                BinanceOrderBookUpdated.class
+        );
+
+        when(binanceOrderBookUpdated.getLowestAsk())
+                .thenReturn(0.2);
+
+        BitfinexOrderBookUpdated bitfinexOrderBookUpdated =
+                mock(BitfinexOrderBookUpdated.class);
+
+        when(bitfinexOrderBookUpdated.getLowestAsk())
+                .thenReturn(0.2);
+
+        BinanceApiRestClientStub binanceClient = new BinanceApiRestClientStub();
+
+        bitfinexClient = new ApiClientStub("1");
+
+        ArbCommand command = new ArbCommandBuyBinanceSellBitfinex(
+                binanceClient,
+                bitfinexClient,
+                binanceOrderBookUpdated,
+                bitfinexOrderBookUpdated,
+                "symbol",
+                binanceApiWebSocketClient
+        );
+
+        command.execute();
+
+        assertNull(binanceClient.getLatestOrder());
+
+        assertNull(bitfinexClient.getLatestOrder());
+
+    }
 
 
 }
