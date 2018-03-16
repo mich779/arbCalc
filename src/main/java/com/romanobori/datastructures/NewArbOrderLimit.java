@@ -1,4 +1,4 @@
-package com.romanobori;
+package com.romanobori.datastructures;
 
 import java.util.Objects;
 

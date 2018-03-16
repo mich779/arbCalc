@@ -1,10 +1,5 @@
-package com.romanobori;
+package com.romanobori.datastructures;
 
-import com.binance.api.client.domain.OrderSide;
-import com.binance.api.client.domain.OrderType;
-import com.binance.api.client.domain.account.Order;
-
-import java.util.List;
 import java.util.Objects;
 
 public class MyArbOrder {

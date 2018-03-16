@@ -1,5 +1,7 @@
 package com.romanobori;
 
+import com.romanobori.datastructures.*;
+
 import java.util.List;
 
 public interface ApiClient {

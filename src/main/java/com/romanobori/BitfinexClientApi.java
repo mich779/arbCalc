@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.romanobori.datastructures.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public class BitfinexClientApi implements ApiClient {
                             orderObj.get("price").getAsDouble(),
                             orderObj.get("original_amount").getAsDouble(),
                             orderObj.get("executed_amount").getAsDouble(),
-                            orderObj.get("side").getAsString().equals("sell") ?ARBTradeAction.SELL : ARBTradeAction.BUY,
+                            orderObj.get("side").getAsString().equals("sell") ? ARBTradeAction.SELL : ARBTradeAction.BUY,
                             (long)(orderObj.get("timestamp").getAsDouble())
                     ));
 

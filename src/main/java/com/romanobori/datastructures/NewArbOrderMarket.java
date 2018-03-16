@@ -1,4 +1,4 @@
-package com.romanobori;
+package com.romanobori.datastructures;
 
 public class NewArbOrderMarket extends NewArbOrder {
 

@@ -28,13 +28,13 @@ public class Main {
 
         ApiClient binanceClient = new BinanceApiClient(binanceApi, 10);
 
-        ApiClient bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexApiKey, bitfinexApiSecret));
+        BitfinexClientApi bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexApiKey, bitfinexApiSecret));
 
         BinanceApiWebSocketClient stream = new BinanceApiWebSocketClientImpl();
 
         BitfinexApiBroker apiBroker = new BitfinexApiBroker(bitfinexApiKey, bitfinexApiSecret);
         apiBroker.connect();
-        BitfinexOrderBookUpdated updatedBitfinex = new BitfinexOrderBookUpdated(bitfinexClient, apiBroker);
+        BitfinexOrderBookUpdated updatedBitfinex = new BitfinexOrderBookUpdated(bitfinexClient, apiBroker, "");
 
         BinanceOrderBookUpdated updatedBinance = new BinanceOrderBookUpdated("NEOETH");
 

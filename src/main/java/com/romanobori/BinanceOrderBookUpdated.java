@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Illustrates how to use the depth event stream to create a local cache of bids/asks for a symbol.
  */
-public class BinanceOrderBookUpdated implements ArbOrderBookUpdated {
+public class BinanceOrderBookUpdated {
 
     private static final String BIDS  = "BIDS";
     private static final String ASKS  = "ASKS";
@@ -121,16 +121,11 @@ public class BinanceOrderBookUpdated implements ArbOrderBookUpdated {
         return depthCacheEntry.getKey().toPlainString() + " / " + depthCacheEntry.getValue();
     }
 
-    public ArbOrders getOrderBook(){
-        List<ArbOrderEntry> bids = new ArrayList<>();
-        List<ArbOrderEntry> asks = new ArrayList<>();
+    public double getLowestAsk(){
+        return getBestAsk().getValue().doubleValue();
+    }
 
-        getAsks().forEach((key, value) -> asks.add(new ArbOrderEntry(key.doubleValue(),
-                value.doubleValue())));
-
-        getBids().forEach((key, value) -> bids.add(new ArbOrderEntry(key.doubleValue(),
-                value.doubleValue())));
-
-        return new ArbOrders(bids, asks);
+    public double getHighestBid(){
+        return getBestBid().getValue().doubleValue();
     }
 }

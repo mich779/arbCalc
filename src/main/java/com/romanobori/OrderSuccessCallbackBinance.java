@@ -4,6 +4,7 @@ import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.OrderStatus;
 import com.binance.api.client.domain.event.OrderTradeUpdateEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
+import com.romanobori.commands.ConditionKeeperThread;
 
 public class OrderSuccessCallbackBinance extends OrderSuccessCallback {
     BinanceApiWebSocketClient socketClient;

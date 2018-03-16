@@ -2,6 +2,8 @@ package com.romanobori;
 
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.OrderbookEntry;
+import com.romanobori.datastructures.ArbOrderEntry;
+import com.romanobori.datastructures.ArbOrders;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import support.BitfinexOrderBookManagerStub;
@@ -41,11 +43,11 @@ public class UpdatedOrderBookBitfinexTest {
         mockOrderBok(bitfinexClientApi, Arrays.asList(new ArbOrderEntry(0.2, 30.0)), Arrays.asList());
 
         BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker);
+                , bitfinexApiBroker, "");
 
-        ArbOrders newArbOrders = updated.getOrderBook();
+        ArbOrders orderBook = updated.orderBook;
 
-        assertThat(newArbOrders.bids.size(), is(0));
+        assertThat(orderBook.bids.size(), is(0));
     }
 
     private BitfinexOrderBookManagerStub createBitfinexOrderbookManagerStub(BitfinexApiBroker bitfinexApiBroker, OrderbookEntry entry) {
@@ -69,9 +71,11 @@ public class UpdatedOrderBookBitfinexTest {
                 Collections.EMPTY_LIST);
 
         BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker);
+                , bitfinexApiBroker, "NEOETH");
 
-        ArbOrders newArbOrders = updated.getOrderBook();
+        updated.subscribe();
+
+        ArbOrders newArbOrders = updated.orderBook;
 
         assertThat(newArbOrders.bids.size(), is(1));
 
@@ -93,9 +97,10 @@ public class UpdatedOrderBookBitfinexTest {
                 new ArrayList<>(Collections.EMPTY_LIST));
 
         BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker);
+                , bitfinexApiBroker, "NEOETH");
+        updated.subscribe();
 
-        ArbOrders newArbOrders = updated.getOrderBook();
+        ArbOrders newArbOrders = updated.orderBook;
 
         assertThat(newArbOrders.bids.size(), is(2));
 
