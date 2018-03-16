@@ -7,36 +7,35 @@ import java.util.function.Supplier;
 
 public class ConditionKeeperThread implements Callable<Boolean> {
     Supplier<Boolean> condition;
-    AtomicBoolean shouldRun = new AtomicBoolean(true);
+    AtomicBoolean orderComplete;
     Consumer<String> actionIfNotMet;
     String orderId;
-    public ConditionKeeperThread(Supplier<Boolean> condition,  Consumer<String> actionIfNotMet, String orderId) {
+    public ConditionKeeperThread(Supplier<Boolean> condition, Consumer<String> actionIfNotMet, String orderId, AtomicBoolean orderComplete) {
         this.condition = condition;
         this.actionIfNotMet = actionIfNotMet;
         this.orderId = orderId;
+        this.orderComplete = orderComplete;
     }
 
     @Override
     public Boolean call() throws Exception {
-        while (shouldRun.get()) {
-
-
-            if (!condition.get()) {
+        while (orderNotCompleted()) {
+            if (actionBreaked(condition)) {
                 actionIfNotMet.accept(orderId);
                 return Boolean.FALSE;
             }
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-            }
+            Thread.sleep(500);
         }
-
         return Boolean.TRUE;
     }
 
-    public void stop(){
-        shouldRun.set(false);
+    private boolean actionBreaked(Supplier<Boolean> condition) {
+        return !condition.get();
     }
+
+    private boolean orderNotCompleted() {
+        return !orderComplete.get();
+    }
+
 }
 

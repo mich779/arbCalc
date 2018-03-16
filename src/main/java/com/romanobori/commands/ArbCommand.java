@@ -3,38 +3,44 @@ package com.romanobori.commands;
 
 import com.romanobori.OrderSuccessCallback;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class ArbCommand {
+    int count;
 
-    public void execute(){
+    public ArbCommand(int count) {
+        this.count = count;
+    }
+
+    public void execute(BlockingQueue<ArbCommand> commandsQueue) throws ExecutionException, InterruptedException {
         if(condition().get()) {
             String orderId = firstOrder();
 
-            ConditionKeeperThread thread = new ConditionKeeperThread(
-                    condition(), cancelOrder(), orderId);
+            AtomicBoolean firstOrderComplete = new AtomicBoolean(false);
 
-            final ExecutorService pool = Executors.newFixedThreadPool(1);
-
-            Future<Boolean> future = pool.submit(thread);
+            Future<Boolean> future = orderComplete(orderId, firstOrderComplete);
 
             getOrderSuccessCallback().register(
-                    orderId, secondOrder(), thread
-            );
+                    orderId, secondOrder(), firstOrderComplete);
 
-            try {
-                Boolean ans = future.get();
-            } catch (InterruptedException e) {
-                
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+            Boolean ans = future.get();
+
+            if(count > 0){
+                commandsQueue.add(buildAnotherCommand());
             }
         }
+    }
+
+    private Future<Boolean> orderComplete(String orderId, AtomicBoolean firstOrderComplete) {
+        ConditionKeeperThread thread = new ConditionKeeperThread(
+                condition(), cancelOrder(), orderId, firstOrderComplete);
+
+        final ExecutorService pool = Executors.newFixedThreadPool(1);
+
+        return pool.submit(thread);
     }
 
 
@@ -47,4 +53,6 @@ public abstract class ArbCommand {
     abstract Runnable secondOrder();
 
     abstract OrderSuccessCallback getOrderSuccessCallback();
+
+    abstract ArbCommand buildAnotherCommand();
 }

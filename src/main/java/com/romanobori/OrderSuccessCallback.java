@@ -1,8 +1,8 @@
 package com.romanobori;
 
-import com.romanobori.commands.ConditionKeeperThread;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class OrderSuccessCallback {
 
-    public abstract void register(String orderId, Runnable action, ConditionKeeperThread t);
+    public abstract void register(String orderId, Runnable action, AtomicBoolean orderCompletionMarker);
 }

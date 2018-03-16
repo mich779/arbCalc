@@ -6,12 +6,13 @@ import com.binance.api.client.domain.event.OrderTradeUpdateEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
 import com.romanobori.commands.ArbCommand;
 import com.romanobori.commands.ArbCommandBuyBinanceSellBitfinex;
+import com.romanobori.commands.CommandsRunner;
 import org.junit.Before;
 import org.junit.Test;
 import support.BinanceApiRestClientStub;
 import support.BinanceApiWebSocketClientStub;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Arrays;
 
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertNotNull;
@@ -48,7 +49,7 @@ public class BuyFromBinanceSellInBitfinexCommandTest {
 
 
     @Test
-    public void shouldSucceed() throws ExecutionException, InterruptedException {
+    public void shouldSucceed() throws InterruptedException {
 
         BinanceOrderBookUpdated binanceOrderBookUpdated = mock(
                 BinanceOrderBookUpdated.class
@@ -73,10 +74,13 @@ public class BuyFromBinanceSellInBitfinexCommandTest {
                 binanceOrderBookUpdated,
                 bitfinexOrderBookUpdated,
                 "symbol",
-                binanceApiWebSocketClient
+                binanceApiWebSocketClient,
+                () -> null
         );
 
-        command.execute();
+        CommandsRunner runner = new CommandsRunner();
+
+        runner.start(Arrays.asList(command));
 
         assertNotNull(binanceClient.getLatestOrder());
 
@@ -85,7 +89,7 @@ public class BuyFromBinanceSellInBitfinexCommandTest {
     }
 
     @Test
-    public void shouldNotSucceed_whenConditionNotMet() {
+    public void shouldNotSucceed_whenConditionNotMet() throws InterruptedException {
         BinanceOrderBookUpdated binanceOrderBookUpdated = mock(
                 BinanceOrderBookUpdated.class
         );
@@ -109,10 +113,13 @@ public class BuyFromBinanceSellInBitfinexCommandTest {
                 binanceOrderBookUpdated,
                 bitfinexOrderBookUpdated,
                 "symbol",
-                binanceApiWebSocketClient
+                binanceApiWebSocketClient,
+                () -> null
         );
 
-        command.execute();
+        CommandsRunner runner = new CommandsRunner();
+
+        runner.start(Arrays.asList(command));
 
         assertNull(binanceClient.getLatestOrder());
 
