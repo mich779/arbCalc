@@ -54,7 +54,7 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
     String firstOrder() {
         return Long.toString(
                 binanceClient.newOrder(
-                new NewOrder(symbol, OrderSide.BUY, OrderType.LIMIT, TimeInForce.GTC, "0.2")
+                new NewOrder(symbol, OrderSide.BUY, OrderType.LIMIT, TimeInForce.GTC, "0.02")
         ).getOrderId());
     }
 
@@ -71,7 +71,7 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
     @Override
     Runnable secondOrder() {
         return () -> bitfinexClient.addArbOrder(new NewArbOrderMarket(
-                symbol, ARBTradeAction.SELL, 0.2
+                symbol, ARBTradeAction.SELL, 0.02
         ));
     }
 
