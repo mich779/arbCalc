@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 public class Main {
 
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException, APIException {
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
         Properties properties = PropertyHandler.loadProps("src/test/resources/props");
 
         String binanceKey = properties.getProperty("BINANCE_API_KEY");
