@@ -26,7 +26,6 @@ public class BitfinexOrderBookUpdated {
     public void subscribe() {
         final OrderbookConfiguration orderbookConfiguration = new OrderbookConfiguration(
                 BitfinexCurrencyPair.NEO_ETH, OrderBookPrecision.P0, OrderBookFrequency.F0, 25);
-
         final OrderbookManager orderbookManager = bitfinexClient.getOrderbookManager();
         final BiConsumer<OrderbookConfiguration, OrderbookEntry> callback = (orderbookConfig, entry) -> {
             if (entry.getCount() > 0.0) {

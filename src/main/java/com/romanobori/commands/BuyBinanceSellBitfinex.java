@@ -18,7 +18,7 @@ import com.romanobori.datastructures.NewArbOrderMarket;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
+public class BuyBinanceSellBitfinex extends ArbCommand {
     private BinanceApiRestClient binanceClient;
     private BinanceOrderBookUpdated binanceOrderBookUpdated;
     BitfinexOrderBookUpdated bitfinexOrderBookUpdated;
@@ -30,7 +30,7 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
     private String bitfinexKey;
     private String bitfinexSecret;
     private String binanceListeningKey;
-    public ArbCommandBuyBinanceSellBitfinex(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, int count) {
+    public BuyBinanceSellBitfinex(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, int count) {
         super(count);
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
@@ -54,13 +54,13 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
     String firstOrder() {
         return Long.toString(
                 binanceClient.newOrder(
-                new NewOrder(symbol, OrderSide.BUY, OrderType.LIMIT, TimeInForce.GTC, "0.02")
+                new NewOrder(symbol, OrderSide.BUY, OrderType.LIMIT, TimeInForce.GTC, "0.02", Double.toString(binanceOrderBookUpdated.getHighestBid()))
         ).getOrderId());
     }
 
     @Override
     Supplier<Boolean> condition() {
-        return () -> binanceOrderBookUpdated.getLowestAsk() * 1.003 <= bitfinexOrderBookUpdated.getLowestAsk();
+        return () -> binanceOrderBookUpdated.getHighestBid() * 1.003 <= bitfinexOrderBookUpdated.getHighestBid();
     }
 
     @Override
@@ -81,9 +81,9 @@ public class ArbCommandBuyBinanceSellBitfinex extends ArbCommand {
     }
 
     @Override
-    ArbCommand buildAnotherCommand() {
-        return new ArbCommandBuyBinanceSellBitfinex(
-                symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret, count - 1
+    ArbCommand buildAnotherCommand(int newCount) {
+        return new BuyBinanceSellBitfinex(
+                symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret, newCount
         );
     }
 }

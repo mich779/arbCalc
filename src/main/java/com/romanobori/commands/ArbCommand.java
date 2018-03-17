@@ -26,11 +26,14 @@ public abstract class ArbCommand {
             getOrderSuccessCallback().register(
                     orderId, secondOrder(), firstOrderComplete);
 
-            Boolean ans = future.get();
-
-            if(count > 0){
-                commandsQueue.add(buildAnotherCommand());
+            Boolean success = future.get();
+            if(success) {
+                if (count > 0) {
+                    commandsQueue.add(buildAnotherCommand(count - 1));
+                }
             }
+        }else {
+            commandsQueue.add(buildAnotherCommand(count));
         }
     }
 
@@ -54,5 +57,5 @@ public abstract class ArbCommand {
 
     abstract OrderSuccessCallback getOrderSuccessCallback();
 
-    abstract ArbCommand buildAnotherCommand();
+    abstract ArbCommand buildAnotherCommand(int count);
 }

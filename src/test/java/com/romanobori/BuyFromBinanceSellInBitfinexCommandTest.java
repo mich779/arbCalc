@@ -5,7 +5,7 @@
 //import com.binance.api.client.domain.event.OrderTradeUpdateEvent;
 //import com.binance.api.client.domain.event.UserDataUpdateEvent;
 //import com.romanobori.commands.ArbCommand;
-//import com.romanobori.commands.ArbCommandBuyBinanceSellBitfinex;
+//import com.romanobori.commands.BuyBinanceSellBitfinex;
 //import com.romanobori.commands.CommandsRunner;
 //import org.junit.Before;
 //import org.junit.Test;
@@ -68,7 +68,7 @@
 //
 //        bitfinexClient = new ApiClientStub("1");
 //
-//        ArbCommand command = new ArbCommandBuyBinanceSellBitfinex(
+//        ArbCommand command = new BuyBinanceSellBitfinex(
 //                binanceClient,
 //                bitfinexClient,
 //                binanceOrderBookUpdated,
@@ -107,7 +107,7 @@
 //
 //        bitfinexClient = new ApiClientStub("1");
 //
-//        ArbCommand command = new ArbCommandBuyBinanceSellBitfinex(
+//        ArbCommand command = new BuyBinanceSellBitfinex(
 //                binanceClient,
 //                bitfinexClient,
 //                binanceOrderBookUpdated,
