@@ -18,7 +18,7 @@ import com.romanobori.datastructures.NewArbOrderMarket;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class BuyBinanceSellBitfinex extends ArbCommand {
+public class BuyBinanceSellBitfinexCommand extends ArbCommand {
     private BinanceApiRestClient binanceClient;
     private BinanceOrderBookUpdated binanceOrderBookUpdated;
     BitfinexOrderBookUpdated bitfinexOrderBookUpdated;
@@ -30,7 +30,7 @@ public class BuyBinanceSellBitfinex extends ArbCommand {
     private String bitfinexKey;
     private String bitfinexSecret;
     private String binanceListeningKey;
-    public BuyBinanceSellBitfinex(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, int count) {
+    public BuyBinanceSellBitfinexCommand(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, int count) {
         super(count);
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
@@ -82,7 +82,7 @@ public class BuyBinanceSellBitfinex extends ArbCommand {
 
     @Override
     ArbCommand buildAnotherCommand(int newCount) {
-        return new BuyBinanceSellBitfinex(
+        return new BuyBinanceSellBitfinexCommand(
                 symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret, newCount
         );
     }

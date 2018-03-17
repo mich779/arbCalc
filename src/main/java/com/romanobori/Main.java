@@ -1,7 +1,7 @@
 package com.romanobori;
 
 import com.romanobori.commands.ArbCommand;
-import com.romanobori.commands.BuyBinanceSellBitfinex;
+import com.romanobori.commands.BuyBinanceSellBitfinexCommand;
 import com.romanobori.commands.CommandsRunner;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class Main {
         String bitfinexSecret = properties.getProperty("BITFINEX_API_SECRET");
 
         CommandsRunner commandsRunner = new CommandsRunner();
-        ArbCommand arbCommand = new BuyBinanceSellBitfinex(
+        ArbCommand arbCommand = new BuyBinanceSellBitfinexCommand(
                 "NEOETH",binanceKey, binanceSecret,
                 bitfinexKey, bitfinexSecret,10
         );
