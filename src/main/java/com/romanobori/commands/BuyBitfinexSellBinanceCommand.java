@@ -10,8 +10,11 @@ import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
+import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
+import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderLimit;
 
 import java.util.function.Consumer;
@@ -41,7 +44,7 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
         this.bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret));
         this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
-                this.bitfinexClient ,
+                this.bitfinexClient,
                 new BitfinexApiBroker(binanceKey, bitfinexSecret),
                 symbol
         );
@@ -57,25 +60,41 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     @Override
     String firstOrder() {
         return bitfinexClient.addArbOrder(new NewArbOrderLimit(
-                symbol, ARBTradeAction.BUY, 0.02, bitfinexOrderBookUpdated.getHighestBid()
+                symbol, ARBTradeAction.BUY, 0.2, bitfinexOrderBookUpdated.getHighestBid()
         ));
     }
 
     @Override
-    Supplier<Boolean> condition() {
-        return () -> bitfinexOrderBookUpdated.getHighestBid() * 1.003 <= binanceOrderBookUpdated.getHighestBid();
+    Supplier<ConditionStatus> condition() {
+        return () -> {
+            double bitfinexHighestBid = bitfinexOrderBookUpdated.getHighestBid();
+            double binanceHighestBid = binanceOrderBookUpdated.getHighestBid();
+            return new ConditionStatus(
+                    bitfinexHighestBid * 1.002504 <= binanceHighestBid,
+                    binanceHighestBid, bitfinexHighestBid
+            );
+        };
     }
 
     @Override
     Consumer<String> cancelOrder() {
-        return (orderId) -> bitfinexClient.cancelOrder(symbol, orderId);
+        return (orderId -> {
+            BitfinexApiBroker client = new BitfinexApiBroker(bitfinexKey, bitfinexSecret);
+            try {
+                client.connect();
+                OrderManager orderManager = client.getOrderManager();
+                orderManager.cancelOrder(Long.parseLong(orderId));
+            } catch (APIException e) {
+                throw new RuntimeException("could not connect to bitfinex client");
+            }
+        });
     }
 
     @Override
     Runnable secondOrder() {
         return () -> binanceClient
                 .newOrder(
-                        new NewOrder(symbol, OrderSide.SELL, OrderType.MARKET, TimeInForce.GTC, "0.02"));
+                        new NewOrder(symbol, OrderSide.SELL, OrderType.MARKET, TimeInForce.GTC, "0.2"));
 
     }
 
@@ -87,5 +106,10 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     @Override
     ArbCommand buildAnotherCommand(int count) {
         return new BuyBitfinexSellBinanceCommand(count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret);
+    }
+
+    @Override
+    String type() {
+        return "BuyBitfinexSellBinanceCommand";
     }
 }

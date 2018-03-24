@@ -1,17 +1,13 @@
+import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
-import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
-import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
-import com.github.jnidzwetzki.bitfinex.v2.entity.ExecutedTrade;
-import com.github.jnidzwetzki.bitfinex.v2.entity.symbol.BitfinexExecutedTradeSymbol;
-import com.github.jnidzwetzki.bitfinex.v2.manager.*;
+import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.function.BiConsumer;
 
 public class BitfinexClientTest {
 
@@ -43,6 +39,7 @@ public class BitfinexClientTest {
 //   }
 
 
+
     @Test
     public void shouldThrow() {
 
@@ -57,19 +54,23 @@ public class BitfinexClientTest {
 //    }
 //
 //
-//    @Test
-//    public void addOrder() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-//        System.out.println(
-//                bitfinexClient.addOrder("NEOBTC", 0.5, 0.5, Action.sell)
-//        );
-//    }
+    @Test
+    public void addOrder() throws Exception{
+        System.out.println(
+                bitfinexClient.addOrder("NEOBTC", 0.2, 0.0078, Action.sell)
+        );
+    }
 //
-//    @Test
-//    public void cancelOrder() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
-//        System.out.println(
-//                bitfinexClient.cancelOrder("7758452027")
-//        );
-//    }
+    @Test
+    public void cancelOrder() throws Exception{
+
+        BitfinexApiBroker client = new BitfinexApiBroker(apiKey, secret);
+        client.connect();
+        OrderManager orderManager = client.getOrderManager();
+
+        orderManager.cancelOrder(9743259202l);
+        // cid 51321223288/**/
+    }
 //
 //    @Test
 //    public void cancelAllOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {

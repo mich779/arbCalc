@@ -1,8 +1,6 @@
 package com.romanobori;
 
-import com.romanobori.commands.ArbCommand;
-import com.romanobori.commands.BuyBinanceSellBitfinexCommand;
-import com.romanobori.commands.CommandsRunner;
+import com.romanobori.commands.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,15 +17,25 @@ public class Main {
         String binanceSecret = properties.getProperty("BINANCE_API_SECRET");
         String bitfinexKey = properties.getProperty("BITFINEX_API_KEY");
         String bitfinexSecret = properties.getProperty("BITFINEX_API_SECRET");
-
+        String symbol = "NEOBTC";
         CommandsRunner commandsRunner = new CommandsRunner();
-        ArbCommand arbCommand = new BuyBinanceSellBitfinexCommand(
-                "NEOETH",binanceKey, binanceSecret,
-                bitfinexKey, bitfinexSecret,10
-        );
         commandsRunner.start(
                 Arrays.asList(
-                    arbCommand
+                        new BuyBinanceSellBitfinexCommand(
+                                symbol,binanceKey, binanceSecret,
+                                bitfinexKey, bitfinexSecret,10
+                        ),
+                        new BuyBitfinexSellBinanceCommand(
+                            10, binanceKey, binanceSecret, symbol,
+                            bitfinexKey, bitfinexSecret),
+                        new SellBitfinexBuyBinanceCommand(
+                                10, symbol, binanceKey, binanceSecret,
+                                bitfinexKey, bitfinexSecret
+                        ),
+                        new SellBitfinexBuyBinanceCommand(
+                                10, symbol, binanceKey, binanceSecret,
+                                bitfinexKey, bitfinexSecret
+                        )
                 )
         );
     }

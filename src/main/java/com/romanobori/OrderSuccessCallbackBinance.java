@@ -21,6 +21,7 @@ public class OrderSuccessCallbackBinance extends OrderSuccessCallback {
                 response -> {
                     if(responseTypeIsOrderTradeUpdate(response)){
                         if(currentOrderHasFilled(orderId, response.getOrderTradeUpdateEvent())){
+                            System.out.println("should print this if first order passed !");
                             action.run();
                             orderCompleted.set(true);
                         }

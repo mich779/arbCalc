@@ -7,8 +7,11 @@ import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
+import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
+import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderLimit;
 
 import java.util.function.Consumer;
@@ -40,6 +43,8 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
         this.bitfinexSecret = bitfinexSecret;
         this.binanceKey = binanceKey;
         this.binanceSecret = binanceSecret;
+
+
     }
 
     @Override
@@ -50,13 +55,28 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
     }
 
     @Override
-    Supplier<Boolean> condition() {
-        return ()-> binanceOrderBookUpdated.getLowestAsk() * 1.003 <= bitfinexOrderBookUpdated.getLowestAsk();
+    Supplier<ConditionStatus> condition() {
+        return () -> {
+            double binanceLowestAsk = binanceOrderBookUpdated.getLowestAsk();
+            double bitfinexLowestAsk = bitfinexOrderBookUpdated.getLowestAsk();
+            return new ConditionStatus(
+                    binanceLowestAsk * 1.002504 <= bitfinexLowestAsk,
+                    binanceLowestAsk, bitfinexLowestAsk);
+        };
     }
 
     @Override
     Consumer<String> cancelOrder() {
-        return (orderId -> bitfinexClient.cancelOrder(symbol, orderId));
+        return (orderId ->{
+            BitfinexApiBroker client = new BitfinexApiBroker(bitfinexKey, bitfinexSecret);
+            try {
+                client.connect();
+                OrderManager orderManager = client.getOrderManager();
+                orderManager.cancelOrder(Long.parseLong(orderId));
+            } catch (APIException e) {
+                throw new RuntimeException("could not connect to bitfinex client");
+            }
+        });
     }
 
     @Override
@@ -76,5 +96,10 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
 
         return new SellBitfinexBuyBinanceCommand(
                 count, symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret);
+    }
+
+    @Override
+    String type() {
+        return "SellBitfinexBuyBinanceCommand";
     }
 }

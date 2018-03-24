@@ -16,11 +16,13 @@ public class OrderSuccessCallbackBitfinex extends OrderSuccessCallback {
     }
 
     @Override
-    public void register(String orderId, Runnable action, AtomicBoolean orderCompletionMarker) {
+    public void register(String orderId, Runnable action, AtomicBoolean orderComplete) {
         OrderManager orderManager = bitfinexClient.getOrderManager();
         orderManager.registerCallback(exchangeOrder -> {
             if(isCurrentOrder(orderId, exchangeOrder) && executedSuccessfully(exchangeOrder)){
+                System.out.println("should print this if first order passed !");
                 action.run();
+                orderComplete.set(true);
             }
         });
     }

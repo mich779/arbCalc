@@ -18,7 +18,7 @@ public class BitfinexOrderBookUpdated {
     String symbol;
 
     public BitfinexOrderBookUpdated(BitfinexClientApi bitfinexClientApi, BitfinexApiBroker bitfinexClient, String symbol) {
-        orderBook = bitfinexClientApi.getOrderBook("NEOETH");
+        orderBook = bitfinexClientApi.getOrderBook(symbol);
         this.bitfinexClient = bitfinexClient;
         this.symbol = symbol;
     }

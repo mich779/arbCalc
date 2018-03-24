@@ -83,6 +83,7 @@ public class BitfinexClientApi implements ApiClient {
     @Override
     public String addArbOrder(NewArbOrderLimit order) {
         String answer = bitfinexClient.addOrder(order.getSymbol(), order.getQuantity(),
+                order.getPrice(),
                 order.getAction()== ARBTradeAction.BUY? Action.buy : Action.sell);
         return new Gson().fromJson(answer, JsonObject.class).get("id").getAsString();
     }

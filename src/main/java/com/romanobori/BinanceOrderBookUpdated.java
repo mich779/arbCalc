@@ -122,10 +122,10 @@ public class BinanceOrderBookUpdated {
     }
 
     public double getLowestAsk(){
-        return getBestAsk().getValue().doubleValue();
+        return getBestAsk().getKey().doubleValue();
     }
 
     public double getHighestBid(){
-        return getBestBid().getValue().doubleValue();
+        return getBestBid().getKey().doubleValue();
     }
 }

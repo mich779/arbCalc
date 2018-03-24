@@ -11,6 +11,7 @@ import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
+import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderMarket;
 
 import java.util.function.Consumer;
@@ -63,8 +64,19 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
     }
 
     @Override
-    Supplier<Boolean> condition() {
-        return () -> bitfinexOrderBookUpdated.getLowestAsk() * 1.003 <= binanceOrderBookUpdated.getLowestAsk();
+    Supplier<ConditionStatus> condition() {
+
+        return () -> {
+            double bitfinexLowestAsk = bitfinexOrderBookUpdated.getLowestAsk();
+            double binanceLowestAsk = binanceOrderBookUpdated.getLowestAsk();
+            return new ConditionStatus(
+                    bitfinexLowestAsk * 1.003508 <= binanceLowestAsk,
+                    binanceLowestAsk,
+                    bitfinexLowestAsk
+
+            );
+
+        };
     }
 
     @Override
@@ -93,5 +105,10 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
         return new SellBinanceBuyBitfinexCommand(
                 count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret
         );
+    }
+
+    @Override
+    String type() {
+        return "SellBinanceBuyBitfinexCommand";
     }
 }

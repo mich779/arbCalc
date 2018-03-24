@@ -2,10 +2,7 @@ package com.bitfinex.client;
 
 import com.google.common.collect.ImmutableMap;
 
-
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

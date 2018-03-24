@@ -1,5 +1,10 @@
 import com.binance.api.client.BinanceApiRestClient;
+import com.binance.api.client.domain.OrderSide;
+import com.binance.api.client.domain.OrderType;
+import com.binance.api.client.domain.TimeInForce;
+import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
+import com.romanobori.BinanceOrderBookUpdated;
 import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -39,6 +44,26 @@ public class BinanceClientTest {
 //                client.getOrderBook("NEOBTC", 1000)
 //        );
 //    }
+
+    @Test
+    public void sellInMarket() {
+        BinanceApiRestClient binanceClient = new BinanceApiRestClientImpl(
+                apiKey, apiSecret
+        );
+         binanceClient
+                .newOrder(
+                        new NewOrder("NEOBTC", OrderSide.SELL, OrderType.MARKET, TimeInForce.GTC, "0.2"));
+    }
+
+    @Test
+    public void printEvertXSeconds() throws InterruptedException {
+        BinanceOrderBookUpdated binanceOrderBookUpdated = new BinanceOrderBookUpdated("NEOBTC");
+
+        while(true){
+            System.out.println(binanceOrderBookUpdated.getHighestBid());
+            Thread.sleep(5000);
+        }
+    }
 //
 //    @Test
 //    public void getMyOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {

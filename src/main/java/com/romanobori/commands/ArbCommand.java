@@ -1,12 +1,8 @@
 package com.romanobori.commands;
 
 
-import com.binance.api.client.BinanceApiWebSocketClient;
-import com.binance.api.client.impl.BinanceApiRestClientImpl;
-import com.romanobori.BinanceOrderBookUpdated;
-import com.romanobori.BitfinexClientApi;
-import com.romanobori.BitfinexOrderBookUpdated;
 import com.romanobori.OrderSuccessCallback;
+import com.romanobori.datastructures.ConditionStatus;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,9 +17,13 @@ public abstract class ArbCommand {
     }
 
     public void execute(BlockingQueue<ArbCommand> commandsQueue) throws ExecutionException, InterruptedException {
-        if(condition().get()) {
+        ConditionStatus conditionStatus = condition().get();
+        if(conditionStatus.isPassed()) {
+            System.out.println(String.format(
+                    "the condition has passed , " +
+                    "binance value is %f, bitfinex value is %f for command %s"
+                    , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice(), type()));
             String orderId = firstOrder();
-
             AtomicBoolean firstOrderComplete = new AtomicBoolean(false);
 
             Future<Boolean> future = orderComplete(orderId, firstOrderComplete);
@@ -33,11 +33,13 @@ public abstract class ArbCommand {
 
             Boolean success = future.get();
             if(success) {
-                if (count > 3) {
+                System.out.println("command passed : " + type());
+                if (count > 10) {
                     commandsQueue.add(buildAnotherCommand(count - 1));
                 }
             }
         }else {
+            Thread.sleep(3000);
             commandsQueue.add(buildAnotherCommand(count));
         }
     }
@@ -54,7 +56,7 @@ public abstract class ArbCommand {
 
     abstract String firstOrder();
 
-    abstract Supplier<Boolean> condition();
+    abstract Supplier<ConditionStatus> condition();
 
     abstract Consumer<String> cancelOrder();
 
@@ -63,4 +65,6 @@ public abstract class ArbCommand {
     abstract OrderSuccessCallback getOrderSuccessCallback();
 
     abstract ArbCommand buildAnotherCommand(int count);
+
+    abstract String type();
 }
