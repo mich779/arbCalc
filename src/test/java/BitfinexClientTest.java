@@ -4,7 +4,7 @@ import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.github.jnidzwetzki.bitfinex.v2.entity.ExecutedTrade;
 import com.github.jnidzwetzki.bitfinex.v2.entity.symbol.BitfinexExecutedTradeSymbol;
-import com.github.jnidzwetzki.bitfinex.v2.manager.QuoteManager;
+import com.github.jnidzwetzki.bitfinex.v2.manager.*;
 import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,35 +40,12 @@ public class BitfinexClientTest {
 //                bitfinexClient
 //                        .getOrderBook("NEOETH")
 //        );
-//    }
+//   }
+
 
     @Test
-    public void bitfinexTest() throws APIException {
-        BitfinexApiBroker bitfinexClient = new BitfinexApiBroker(apiKey, secret);
+    public void shouldThrow() {
 
-        bitfinexClient.connect();
-        final BitfinexExecutedTradeSymbol symbol = new BitfinexExecutedTradeSymbol(BitfinexCurrencyPair.NEO_BTC);
-
-        final QuoteManager quoteManager = bitfinexClient.getQuoteManager();
-
-        final BiConsumer<BitfinexExecutedTradeSymbol, ExecutedTrade> callback = (sym, trade) -> {
-            System.out.format("Got executed trade (%s) for symbol (%s)\n", trade, sym);
-        };
-        try {
-
-            quoteManager.registerExecutedTradeCallback(symbol, callback);
-            quoteManager.subscribeExecutedTrades(symbol);
-
-// To unsubscribe the executed trades stream
-            quoteManager.removeExecutedTradeCallback(symbol, callback);
-        }catch (APIException e){
-            System.out.println(e);
-        }
-
-
-        while(true){
-
-        }
     }
 //
 //    @Test

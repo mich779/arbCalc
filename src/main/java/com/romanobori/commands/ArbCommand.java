@@ -1,6 +1,11 @@
 package com.romanobori.commands;
 
 
+import com.binance.api.client.BinanceApiWebSocketClient;
+import com.binance.api.client.impl.BinanceApiRestClientImpl;
+import com.romanobori.BinanceOrderBookUpdated;
+import com.romanobori.BitfinexClientApi;
+import com.romanobori.BitfinexOrderBookUpdated;
 import com.romanobori.OrderSuccessCallback;
 
 import java.util.concurrent.*;
@@ -28,7 +33,7 @@ public abstract class ArbCommand {
 
             Boolean success = future.get();
             if(success) {
-                if (count > 0) {
+                if (count > 3) {
                     commandsQueue.add(buildAnotherCommand(count - 1));
                 }
             }

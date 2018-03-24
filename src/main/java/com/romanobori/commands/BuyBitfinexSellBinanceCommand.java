@@ -22,7 +22,7 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     private BinanceApiRestClient binanceClient;
     private BinanceOrderBookUpdated binanceOrderBookUpdated;
     BitfinexOrderBookUpdated bitfinexOrderBookUpdated;
-    private ApiClient bitfinexClient;
+    private BitfinexClientApi bitfinexClient;
     private String symbol;
     private BinanceApiWebSocketClient socketClient;
     private String binanceKey;
@@ -31,17 +31,20 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     private String bitfinexSecret;
     private String binanceListeningKey;
 
-    public BuyBitfinexSellBinanceCommand(int count) {
+    public BuyBitfinexSellBinanceCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret) {
         super(count);
+        this.binanceKey = binanceKey;
+        this.binanceSecret = binanceSecret;
+        this.bitfinexKey = bitfinexKey;
+        this.bitfinexSecret = bitfinexSecret;
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
-        BitfinexClient bitfinexClient1 = new BitfinexClient(bitfinexKey, bitfinexSecret);
+        this.bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret));
         this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
-                new BitfinexClientApi(bitfinexClient1),
+                this.bitfinexClient ,
                 new BitfinexApiBroker(binanceKey, bitfinexSecret),
                 symbol
         );
-        this.bitfinexClient = new BitfinexClientApi(bitfinexClient1);
         this.symbol = symbol;
         this.socketClient = new BinanceApiWebSocketClientImpl();
         this.binanceKey = binanceKey;
@@ -78,12 +81,11 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
     @Override
     OrderSuccessCallback getOrderSuccessCallback() {
-
-        return null;
+        return new OrderSuccessCallbackBitfinex(new BitfinexApiBroker(this.bitfinexKey, this.bitfinexSecret));
     }
 
     @Override
     ArbCommand buildAnotherCommand(int count) {
-        return null;
+        return new BuyBitfinexSellBinanceCommand(count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret);
     }
 }
