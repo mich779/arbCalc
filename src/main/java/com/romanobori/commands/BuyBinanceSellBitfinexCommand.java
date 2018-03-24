@@ -40,7 +40,7 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
         BitfinexClient bitfinexClient1 = new BitfinexClient(bitfinexKey, bitfinexSecret);
-        BitfinexApiBroker broker = new BitfinexApiBroker(binanceKey, bitfinexSecret);
+        BitfinexApiBroker broker = new BitfinexApiBroker(bitfinexKey, bitfinexSecret);
         this.bitfinexClient = new BitfinexClientApi(bitfinexClient1);
         this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
                 new BitfinexClientApi(bitfinexClient1),

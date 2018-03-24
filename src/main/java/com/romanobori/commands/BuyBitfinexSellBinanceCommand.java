@@ -47,7 +47,7 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
         this.bitfinexCurrencyPair = bitfinexCurrencyPair;
         this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
                 this.bitfinexClient,
-                new BitfinexApiBroker(binanceKey, bitfinexSecret),
+                new BitfinexApiBroker(bitfinexKey, bitfinexSecret),
                 symbol, bitfinexCurrencyPair
         );
         this.symbol = symbol;

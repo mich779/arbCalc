@@ -82,6 +82,7 @@ public class BitfinexClientTest {
     public void printEvertXSeconds() throws InterruptedException, APIException {
         BitfinexApiBroker bitfinexClient = new BitfinexApiBroker(apiKey, secret);
         bitfinexClient.connect();
+        bitfinexClient.connect();
         BitfinexOrderBookUpdated bitfinexOrderBookUpdated= new BitfinexOrderBookUpdated(
                 new BitfinexClientApi(new BitfinexClient(apiKey, secret)),
                 bitfinexClient,

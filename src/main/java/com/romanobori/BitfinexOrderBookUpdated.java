@@ -18,6 +18,11 @@ public class BitfinexOrderBookUpdated {
     String symbol;
     BitfinexCurrencyPair bitfinexCurrencyPair;
     public BitfinexOrderBookUpdated(BitfinexClientApi bitfinexClientApi, BitfinexApiBroker bitfinexClient, String symbol, BitfinexCurrencyPair bitfinexCurrencyPair) {
+        try {
+            bitfinexClient.connect();
+        } catch (APIException e) {
+            throw new RuntimeException(e);
+        }
         orderBook = bitfinexClientApi.getOrderBook(symbol);
         this.bitfinexClient = bitfinexClient;
         this.symbol = symbol;
