@@ -16,16 +16,18 @@ public class BitfinexOrderBookUpdated {
     BitfinexApiBroker bitfinexClient;
     ArbOrders orderBook;
     String symbol;
-
-    public BitfinexOrderBookUpdated(BitfinexClientApi bitfinexClientApi, BitfinexApiBroker bitfinexClient, String symbol) {
+    BitfinexCurrencyPair bitfinexCurrencyPair;
+    public BitfinexOrderBookUpdated(BitfinexClientApi bitfinexClientApi, BitfinexApiBroker bitfinexClient, String symbol, BitfinexCurrencyPair bitfinexCurrencyPair) {
         orderBook = bitfinexClientApi.getOrderBook(symbol);
         this.bitfinexClient = bitfinexClient;
         this.symbol = symbol;
+        this.bitfinexCurrencyPair = bitfinexCurrencyPair;
+        subscribe();
     }
 
     public void subscribe() {
         final OrderbookConfiguration orderbookConfiguration = new OrderbookConfiguration(
-                BitfinexCurrencyPair.NEO_ETH, OrderBookPrecision.P0, OrderBookFrequency.F0, 25);
+                bitfinexCurrencyPair, OrderBookPrecision.P0, OrderBookFrequency.F0, 25);
         final OrderbookManager orderbookManager = bitfinexClient.getOrderbookManager();
         final BiConsumer<OrderbookConfiguration, OrderbookEntry> callback = (orderbookConfig, entry) -> {
             if (entry.getCount() > 0.0) {

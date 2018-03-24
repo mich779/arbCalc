@@ -1,6 +1,7 @@
 package com.romanobori;
 
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.github.jnidzwetzki.bitfinex.v2.entity.OrderbookEntry;
 import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ArbOrders;
@@ -43,7 +44,7 @@ public class UpdatedOrderBookBitfinexTest {
         mockOrderBok(bitfinexClientApi, Arrays.asList(new ArbOrderEntry(0.2, 30.0)), Arrays.asList());
 
         BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker, "");
+                , bitfinexApiBroker, "", BitfinexCurrencyPair.NEO_BTC);
 
         ArbOrders orderBook = updated.orderBook;
 
@@ -71,7 +72,7 @@ public class UpdatedOrderBookBitfinexTest {
                 Collections.EMPTY_LIST);
 
         BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker, "NEOETH");
+                , bitfinexApiBroker, "NEOETH", BitfinexCurrencyPair.NEO_ETH);
 
         updated.subscribe();
 
@@ -97,7 +98,7 @@ public class UpdatedOrderBookBitfinexTest {
                 new ArrayList<>(Collections.EMPTY_LIST));
 
         BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker, "NEOETH");
+                , bitfinexApiBroker, "NEOETH", BitfinexCurrencyPair.NEO_ETH);
         updated.subscribe();
 
         ArbOrders newArbOrders = updated.orderBook;

@@ -1,6 +1,10 @@
 package com.romanobori;
 
-import com.romanobori.commands.*;
+import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
+import com.romanobori.commands.BuyBinanceSellBitfinexCommand;
+import com.romanobori.commands.BuyBitfinexSellBinanceCommand;
+import com.romanobori.commands.CommandsRunner;
+import com.romanobori.commands.SellBitfinexBuyBinanceCommand;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -23,18 +27,18 @@ public class Main {
                 Arrays.asList(
                         new BuyBinanceSellBitfinexCommand(
                                 symbol,binanceKey, binanceSecret,
-                                bitfinexKey, bitfinexSecret,10
+                                bitfinexKey, bitfinexSecret,10, BitfinexCurrencyPair.NEO_BTC
                         ),
                         new BuyBitfinexSellBinanceCommand(
                             10, binanceKey, binanceSecret, symbol,
-                            bitfinexKey, bitfinexSecret),
+                            bitfinexKey, bitfinexSecret,  BitfinexCurrencyPair.NEO_BTC),
                         new SellBitfinexBuyBinanceCommand(
                                 10, symbol, binanceKey, binanceSecret,
-                                bitfinexKey, bitfinexSecret
+                                bitfinexKey, bitfinexSecret, BitfinexCurrencyPair.NEO_BTC
                         ),
                         new SellBitfinexBuyBinanceCommand(
                                 10, symbol, binanceKey, binanceSecret,
-                                bitfinexKey, bitfinexSecret
+                                bitfinexKey, bitfinexSecret,BitfinexCurrencyPair.NEO_BTC
                         )
                 )
         );

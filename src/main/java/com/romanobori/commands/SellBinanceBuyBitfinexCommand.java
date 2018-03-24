@@ -9,6 +9,7 @@ import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
 import com.romanobori.datastructures.ConditionStatus;
@@ -29,9 +30,9 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
     BitfinexClientApi bitfinexClient;
     String binanceListeningKey;
     BinanceApiWebSocketClientImpl socketClient;
+    BitfinexCurrencyPair bitfinexCurrencyPair;
 
-
-    public SellBinanceBuyBitfinexCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret) {
+    public SellBinanceBuyBitfinexCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret, BitfinexCurrencyPair bitfinexCurrencyPair) {
         super(count);
         this.binanceKey = binanceKey;
         this.binanceSecret = binanceSecret;
@@ -43,8 +44,10 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
         this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
                 new BitfinexClientApi(bitfinexClient1),
                 new BitfinexApiBroker(binanceKey, bitfinexSecret),
-                symbol
+                symbol,
+                bitfinexCurrencyPair
         );
+        this.bitfinexCurrencyPair = bitfinexCurrencyPair;
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret));
         this.binanceListeningKey = binanceClient.startUserDataStream();
@@ -103,7 +106,7 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
     @Override
     ArbCommand buildAnotherCommand(int count) {
         return new SellBinanceBuyBitfinexCommand(
-                count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret
+                count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret, bitfinexCurrencyPair
         );
     }
 

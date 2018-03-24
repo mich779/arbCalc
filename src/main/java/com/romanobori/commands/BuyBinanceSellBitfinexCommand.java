@@ -11,6 +11,7 @@ import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
 import com.romanobori.datastructures.ConditionStatus;
@@ -31,8 +32,10 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
     private String bitfinexKey;
     private String bitfinexSecret;
     private String binanceListeningKey;
+    BitfinexCurrencyPair bitfinexCurrencyPair;
 
-    public BuyBinanceSellBitfinexCommand(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, int count) {
+    public BuyBinanceSellBitfinexCommand(String symbol, String binanceKey, String binanceSecret, String bitfinexKey, String bitfinexSecret, int count,
+                                         BitfinexCurrencyPair bitfinexCurrencyPair) {
         super(count);
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
@@ -42,8 +45,10 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
         this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
                 new BitfinexClientApi(bitfinexClient1),
                 broker,
-                symbol
+                symbol,
+                bitfinexCurrencyPair
         );
+        this.bitfinexCurrencyPair = bitfinexCurrencyPair;
         this.symbol = symbol;
         this.socketClient = new BinanceApiWebSocketClientImpl();
         this.binanceKey = binanceKey;
@@ -92,7 +97,7 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
     @Override
     ArbCommand buildAnotherCommand(int newCount) {
         return new BuyBinanceSellBitfinexCommand(
-                symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret, newCount
+                symbol, binanceKey, binanceSecret, bitfinexKey, bitfinexSecret, newCount, bitfinexCurrencyPair
         );
     }
 

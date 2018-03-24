@@ -11,6 +11,7 @@ import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
+import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
@@ -33,8 +34,8 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     private String bitfinexKey;
     private String bitfinexSecret;
     private String binanceListeningKey;
-
-    public BuyBitfinexSellBinanceCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret) {
+    BitfinexCurrencyPair bitfinexCurrencyPair;
+    public BuyBitfinexSellBinanceCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret, BitfinexCurrencyPair bitfinexCurrencyPair) {
         super(count);
         this.binanceKey = binanceKey;
         this.binanceSecret = binanceSecret;
@@ -43,10 +44,11 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
         this.bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret));
+        this.bitfinexCurrencyPair = bitfinexCurrencyPair;
         this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
                 this.bitfinexClient,
                 new BitfinexApiBroker(binanceKey, bitfinexSecret),
-                symbol
+                symbol, bitfinexCurrencyPair
         );
         this.symbol = symbol;
         this.socketClient = new BinanceApiWebSocketClientImpl();
@@ -105,7 +107,7 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
     @Override
     ArbCommand buildAnotherCommand(int count) {
-        return new BuyBitfinexSellBinanceCommand(count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret);
+        return new BuyBitfinexSellBinanceCommand(count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret, bitfinexCurrencyPair);
     }
 
     @Override

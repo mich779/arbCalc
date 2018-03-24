@@ -1,7 +1,11 @@
 import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
+import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
+import com.romanobori.BitfinexClientApi;
+import com.romanobori.BitfinexOrderBookUpdated;
 import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -70,6 +74,23 @@ public class BitfinexClientTest {
 
         orderManager.cancelOrder(9743259202l);
         // cid 51321223288/**/
+    }
+
+
+
+    @Test
+    public void printEvertXSeconds() throws InterruptedException, APIException {
+        BitfinexApiBroker bitfinexClient = new BitfinexApiBroker(apiKey, secret);
+        bitfinexClient.connect();
+        BitfinexOrderBookUpdated bitfinexOrderBookUpdated= new BitfinexOrderBookUpdated(
+                new BitfinexClientApi(new BitfinexClient(apiKey, secret)),
+                bitfinexClient,
+                "NEOBTC", BitfinexCurrencyPair.NEO_BTC);
+
+        while(true){
+            System.out.println(bitfinexOrderBookUpdated.getHighestBid());
+            Thread.sleep(500);
+        }
     }
 //
 //    @Test

@@ -1,5 +1,6 @@
 package com.romanobori;
 
+import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ArbOrders;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class BitfinexOrderBookUpdatedTest {
                         new ArbOrderEntry(0.3, 0.3)
                 )
         ));
-        BitfinexOrderBookUpdated bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(bitfinexClient, null, null);
+        BitfinexOrderBookUpdated bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(bitfinexClient, null, null, BitfinexCurrencyPair.NEO_ETH);
 
         assertThat(bitfinexOrderBookUpdated.getLowestAsk(), is(0.2));
     }
