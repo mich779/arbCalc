@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static java.lang.String.format;
+
 public abstract class ArbCommand {
     int count;
 
@@ -19,11 +21,13 @@ public abstract class ArbCommand {
     public void execute(BlockingQueue<ArbCommand> commandsQueue) throws ExecutionException, InterruptedException {
         ConditionStatus conditionStatus = condition().get();
         if(conditionStatus.isPassed()) {
-            System.out.println(String.format(
-                    "the condition has passed , " +
-                    "binance value is %f, bitfinex value is %f for command %s"
-                    , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice(), type()));
+
             String orderId = firstOrder();
+
+            System.out.println(format(
+                    "the condition has passed , " +
+                            "binance value is %f, bitfinex value is %f order id is %s for command %s and the "
+                    , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice(),orderId, type()));
             AtomicBoolean firstOrderComplete = new AtomicBoolean(false);
 
             Future<Boolean> future = orderComplete(orderId, firstOrderComplete);
@@ -37,9 +41,13 @@ public abstract class ArbCommand {
                 if (count > 10) {
                     commandsQueue.add(buildAnotherCommand(count - 1));
                 }
+            }else{
+                System.out.println(format("building command after cancellation %s", type()));
+                commandsQueue.add(buildAnotherCommand(count));
             }
         }else {
             Thread.sleep(3000);
+            System.out.println(format("building another command with type %s", type()));
             commandsQueue.add(buildAnotherCommand(count));
         }
     }

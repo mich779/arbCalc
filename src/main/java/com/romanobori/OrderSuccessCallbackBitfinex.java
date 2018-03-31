@@ -1,6 +1,7 @@
 package com.romanobori;
 
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.entity.ExchangeOrder;
 import com.github.jnidzwetzki.bitfinex.v2.entity.ExchangeOrderState;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
@@ -17,14 +18,25 @@ public class OrderSuccessCallbackBitfinex extends OrderSuccessCallback {
 
     @Override
     public void register(String orderId, Runnable action, AtomicBoolean orderComplete) {
+        connectToBroker();
         OrderManager orderManager = bitfinexClient.getOrderManager();
         orderManager.registerCallback(exchangeOrder -> {
+            System.out.println(exchangeOrder);
             if(isCurrentOrder(orderId, exchangeOrder) && executedSuccessfully(exchangeOrder)){
                 System.out.println("should print this if first order passed !");
                 action.run();
                 orderComplete.set(true);
             }
         });
+
+    }
+
+    private void connectToBroker() {
+        try {
+            bitfinexClient.connect();
+        } catch (APIException e) {
+         throw new RuntimeException(e);
+        }
     }
 
     private boolean executedSuccessfully(ExchangeOrder exchangeOrder) {

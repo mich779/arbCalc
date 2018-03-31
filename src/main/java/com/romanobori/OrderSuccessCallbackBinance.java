@@ -19,6 +19,7 @@ public class OrderSuccessCallbackBinance extends OrderSuccessCallback {
     public void register(String orderId, Runnable action, AtomicBoolean orderCompleted) {
         this.socketClient.onUserDataUpdateEvent(binanceListenKey,
                 response -> {
+                    System.out.println(response);
                     if(responseTypeIsOrderTradeUpdate(response)){
                         if(currentOrderHasFilled(orderId, response.getOrderTradeUpdateEvent())){
                             System.out.println("should print this if first order passed !");

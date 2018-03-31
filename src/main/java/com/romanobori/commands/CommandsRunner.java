@@ -17,13 +17,7 @@ public class CommandsRunner{
     private void looping() throws InterruptedException, ExecutionException {
         while(true) {
             ArbCommand command = commandsQueue.take();
-            try {
-                command.execute(commandsQueue);
-            }catch (Exception e){
-                System.out.println("Caught an exception: "
-                + e.getMessage());
-            }
-
+            command.execute(commandsQueue);
         }
     }
 

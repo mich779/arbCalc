@@ -8,6 +8,7 @@ import com.romanobori.datastructures.ArbOrders;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -103,26 +104,20 @@ public class BitfinexOrderBookUpdated {
         return getMin(orderBook.getAsks());
     }
 
-    public double getHighestAsk() {
-        return getMax(orderBook.getAsks());
-    }
-
-    public double getMinBid() {
-        return getMin(orderBook.getBids());
-    }
-
     public double getHighestBid() {
         return getMax(orderBook.getBids());
     }
 
     private double getMax(List<ArbOrderEntry> entries) {
         Optional<ArbOrderEntry> max = entries.stream()
+                .filter(Objects::nonNull)
                 .max(Comparator.comparingDouble(ArbOrderEntry::getPrice));
         return getOrException(max);
     }
 
     private double getMin(List<ArbOrderEntry> entries) {
         Optional<ArbOrderEntry> min = entries.stream()
+                .filter(Objects::nonNull)
                 .min(Comparator.comparingDouble(ArbOrderEntry::getPrice));
         return getOrException(min);
     }

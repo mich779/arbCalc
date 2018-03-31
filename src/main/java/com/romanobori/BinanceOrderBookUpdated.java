@@ -33,7 +33,7 @@ public class BinanceOrderBookUpdated {
     private void initializeDepthCache(String symbol) {
         BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance();
         BinanceApiRestClient client = factory.newRestClient();
-        OrderBook orderBook = client.getOrderBook(symbol.toUpperCase(), 10);
+        OrderBook orderBook = client.getOrderBook(symbol, 10);
 
         this.depthCache = new HashMap<>();
         this.lastUpdateId = orderBook.getLastUpdateId();

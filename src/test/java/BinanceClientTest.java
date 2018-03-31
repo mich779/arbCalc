@@ -64,6 +64,15 @@ public class BinanceClientTest {
             Thread.sleep(5000);
         }
     }
+
+    @Test
+    public void newOrder() {
+        BinanceApiRestClient  client = new BinanceApiRestClientImpl(apiKey, apiSecret);
+
+        client
+                .newOrder(
+                        new NewOrder("NEOBTC", OrderSide.SELL, OrderType.MARKET, TimeInForce.GTC, "0.2"));
+    }
 //
 //    @Test
 //    public void getMyOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {

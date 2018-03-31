@@ -93,6 +93,21 @@ public class BitfinexClientTest {
             Thread.sleep(500);
         }
     }
+
+    @Test
+    public void shouldPrintStuff() throws Exception {
+        BitfinexApiBroker bitfinexClient = new BitfinexApiBroker(apiKey, secret);
+        bitfinexClient.connect();
+        OrderManager orderManager = bitfinexClient.getOrderManager();
+        orderManager.registerCallback(exchangeOrder -> {
+            System.out.println(exchangeOrder);
+            }
+        );
+
+        while (true){
+            Thread.sleep(200);
+        }
+    }
 //
 //    @Test
 //    public void cancelAllOrders() throws NoSuchAlgorithmException, InvalidKeyException, IOException {

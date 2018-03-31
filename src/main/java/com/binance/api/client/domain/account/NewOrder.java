@@ -74,7 +74,6 @@ public class NewOrder {
     this.symbol = symbol;
     this.side = side;
     this.type = type;
-    this.timeInForce = timeInForce;
     this.quantity = quantity;
     this.timestamp = System.currentTimeMillis();
     this.recvWindow = BinanceApiConstants.DEFAULT_RECEIVING_WINDOW;
@@ -85,6 +84,7 @@ public class NewOrder {
    */
   public NewOrder(String symbol, OrderSide side, OrderType type, TimeInForce timeInForce, String quantity, String price) {
     this(symbol, side, type, timeInForce, quantity);
+    this.timeInForce = timeInForce;
     this.price = price;
   }
 

@@ -1,17 +1,14 @@
 package com.romanobori.commands;
 
 import com.binance.api.client.BinanceApiRestClient;
-import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.OrderSide;
 import com.binance.api.client.domain.OrderType;
 import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
-import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
-import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
@@ -25,38 +22,29 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
     private BinanceApiRestClient binanceClient;
     private BinanceOrderBookUpdated binanceOrderBookUpdated;
-    BitfinexOrderBookUpdated bitfinexOrderBookUpdated;
+    private BitfinexOrderBookUpdated bitfinexOrderBookUpdated;
     private BitfinexClientApi bitfinexClient;
     private String symbol;
-    private BinanceApiWebSocketClient socketClient;
     private String binanceKey;
     private String binanceSecret;
     private String bitfinexKey;
     private String bitfinexSecret;
-    private String binanceListeningKey;
-    BitfinexCurrencyPair bitfinexCurrencyPair;
-    public BuyBitfinexSellBinanceCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret, BitfinexCurrencyPair bitfinexCurrencyPair) {
+
+    public BuyBitfinexSellBinanceCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret, BinanceOrderBookUpdated binanceOrderBookUpdated, BitfinexOrderBookUpdated bitfinexOrderBookUpdated) {
         super(count);
         this.binanceKey = binanceKey;
         this.binanceSecret = binanceSecret;
         this.bitfinexKey = bitfinexKey;
         this.bitfinexSecret = bitfinexSecret;
         this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
-        this.binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
+        this.binanceOrderBookUpdated = binanceOrderBookUpdated;
+        this.bitfinexOrderBookUpdated = bitfinexOrderBookUpdated;
         this.bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret));
-        this.bitfinexCurrencyPair = bitfinexCurrencyPair;
-        this.bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
-                this.bitfinexClient,
-                new BitfinexApiBroker(bitfinexKey, bitfinexSecret),
-                symbol, bitfinexCurrencyPair
-        );
         this.symbol = symbol;
-        this.socketClient = new BinanceApiWebSocketClientImpl();
         this.binanceKey = binanceKey;
         this.binanceSecret = binanceSecret;
         this.bitfinexKey = bitfinexKey;
         this.bitfinexSecret = bitfinexSecret;
-        this.binanceListeningKey = binanceClient.startUserDataStream();
     }
 
     @Override
@@ -72,7 +60,7 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
             double bitfinexHighestBid = bitfinexOrderBookUpdated.getHighestBid();
             double binanceHighestBid = binanceOrderBookUpdated.getHighestBid();
             return new ConditionStatus(
-                    bitfinexHighestBid * 1.002504 <= binanceHighestBid,
+                    bitfinexHighestBid * 1.001502 <= binanceHighestBid,
                     binanceHighestBid, bitfinexHighestBid
             );
         };
@@ -107,7 +95,7 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
     @Override
     ArbCommand buildAnotherCommand(int count) {
-        return new BuyBitfinexSellBinanceCommand(count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret, bitfinexCurrencyPair);
+        return new BuyBitfinexSellBinanceCommand(count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret, binanceOrderBookUpdated, bitfinexOrderBookUpdated);
     }
 
     @Override
