@@ -12,10 +12,12 @@ import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
+import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderMarket;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class BuyBinanceSellBitfinexCommand extends ArbCommand {
@@ -55,21 +57,36 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
     }
 
     @Override
-    String firstOrder() {
-        return Long.toString(
-                binanceClient.newOrder(
-                        new NewOrder(symbol, OrderSide.BUY, OrderType.LIMIT, TimeInForce.GTC, "0.2", Double.toString(binanceOrderBookUpdated.getHighestBid()))
-                ).getOrderId());
+    LimitOrderDetails firstOrder() {
+      ArbOrderEntry bestBid =   binanceOrderBookUpdated.getHighestBid();
+      String orderId = Long.toString(
+              binanceClient.newOrder(
+                      new NewOrder(symbol, OrderSide.BUY, OrderType.LIMIT, TimeInForce.GTC, "0.2", Double.toString(bestBid.getPrice()))
+              ).getOrderId());
+
+        return new LimitOrderDetails(orderId, bestBid.getPrice());
     }
 
     @Override
-    Supplier<ConditionStatus> condition() {
+    Supplier<ConditionStatus> placeOrderCondition() {
         return () -> {
-            double binanceHighestBid = binanceOrderBookUpdated.getHighestBid();
-            double bitfinexHighestBid = bitfinexOrderBookUpdated.getHighestBid();
+            double binanceHighestBidPrice = binanceOrderBookUpdated.getHighestBid().getPrice();
+            double bitfinexHighestBidPrice = bitfinexOrderBookUpdated.getHighestBid().getPrice();
 
-            return new ConditionStatus(binanceHighestBid * 1.002505 <= bitfinexHighestBid,
-            binanceHighestBid, bitfinexHighestBid);
+            return new ConditionStatus(binanceHighestBidPrice * 1.003508 <= bitfinexHighestBidPrice,
+            binanceHighestBidPrice, bitfinexHighestBidPrice);
+        };
+    }
+
+    @Override
+    Function<Double,ConditionStatus> keepOrderCondition() {
+        return (myBidPrice) -> {
+
+            double bitfinexHighestBid = bitfinexOrderBookUpdated.getHighestBid().getPrice();
+
+            return new ConditionStatus(myBidPrice * 1.003508 <= bitfinexHighestBid
+                    && myBidPrice == binanceOrderBookUpdated.getHighestBid().getPrice() /// TODO: change restriction
+,                    myBidPrice, bitfinexHighestBid);
         };
     }
 

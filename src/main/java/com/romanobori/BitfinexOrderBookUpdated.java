@@ -100,33 +100,36 @@ public class BitfinexOrderBookUpdated {
         arbOrderEntry.setAmount(amount);
     }
 
-    public double getLowestAsk() {
+    public ArbOrderEntry getLowestAsk() {
+        System.out.println("bitfinexOrderBook size = "+(orderBook.getAsks().size()+orderBook.getBids().size()));
         return getMin(orderBook.getAsks());
     }
 
-    public double getHighestBid() {
+    public ArbOrderEntry getHighestBid(){
+        System.out.println("bitfinexOrderBook size = "+(orderBook.getAsks().size()+orderBook.getBids().size()));
         return getMax(orderBook.getBids());
     }
 
-    private double getMax(List<ArbOrderEntry> entries) {
+
+    private ArbOrderEntry getMax(List<ArbOrderEntry> entries) {
         Optional<ArbOrderEntry> max = entries.stream()
                 .filter(Objects::nonNull)
                 .max(Comparator.comparingDouble(ArbOrderEntry::getPrice));
         return getOrException(max);
     }
 
-    private double getMin(List<ArbOrderEntry> entries) {
+    private ArbOrderEntry getMin(List<ArbOrderEntry> entries) {
         Optional<ArbOrderEntry> min = entries.stream()
                 .filter(Objects::nonNull)
                 .min(Comparator.comparingDouble(ArbOrderEntry::getPrice));
         return getOrException(min);
     }
 
-    private double getOrException(Optional<ArbOrderEntry> min) {
+    private ArbOrderEntry getOrException(Optional<ArbOrderEntry> min) {
         if (!min.isPresent()) {
             throw new RuntimeException("asd");
         } else {
-            return min.get().getPrice();
+            return min.get();
         }
     }
 

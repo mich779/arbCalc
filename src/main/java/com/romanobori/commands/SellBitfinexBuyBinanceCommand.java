@@ -11,10 +11,12 @@ import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
+import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderLimit;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SellBitfinexBuyBinanceCommand extends ArbCommand {
@@ -44,19 +46,34 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
     }
 
     @Override
-    String firstOrder() {
-        return bitfinexClient.addArbOrder( new NewArbOrderLimit(
-                symbol, ARBTradeAction.SELL, 0.2, bitfinexOrderBookUpdated.getLowestAsk()
+    LimitOrderDetails firstOrder() {
+        ArbOrderEntry bestAsk = bitfinexOrderBookUpdated.getLowestAsk();
+        String orderId = bitfinexClient.addArbOrder( new NewArbOrderLimit(
+                symbol, ARBTradeAction.SELL, 0.2, bestAsk.getPrice()
         ));
+        return new LimitOrderDetails(orderId,bestAsk.getPrice());
+
     }
 
     @Override
-    Supplier<ConditionStatus> condition() {
+    Supplier<ConditionStatus> placeOrderCondition() {
         return () -> {
-            double binanceLowestAsk = binanceOrderBookUpdated.getLowestAsk();
-            double bitfinexLowestAsk = bitfinexOrderBookUpdated.getLowestAsk();
+            double binanceLowestAsk = binanceOrderBookUpdated.getLowestAsk().getPrice();
+            double bitfinexLowestAsk = bitfinexOrderBookUpdated.getLowestAsk().getPrice();
             return new ConditionStatus(
-                    binanceLowestAsk * 1.001502 <= bitfinexLowestAsk,
+                    binanceLowestAsk * 1.002504 <= bitfinexLowestAsk,
+                    binanceLowestAsk, bitfinexLowestAsk);
+        };
+    }
+
+    @Override
+    Function<Double,ConditionStatus> keepOrderCondition() {
+        return (myAskPrice) -> {
+            double binanceLowestAsk = binanceOrderBookUpdated.getLowestAsk().getPrice();
+            double bitfinexLowestAsk = myAskPrice;
+            return new ConditionStatus(
+                    binanceLowestAsk * 1.002504 <= bitfinexLowestAsk
+                    && myAskPrice == bitfinexOrderBookUpdated.getLowestAsk().getPrice(),
                     binanceLowestAsk, bitfinexLowestAsk);
         };
     }

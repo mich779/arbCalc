@@ -7,6 +7,7 @@ import com.romanobori.datastructures.ConditionStatus;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
@@ -19,21 +20,23 @@ public abstract class ArbCommand {
     }
 
     public void execute(BlockingQueue<ArbCommand> commandsQueue) throws ExecutionException, InterruptedException {
-        ConditionStatus conditionStatus = condition().get();
+        ConditionStatus conditionStatus = placeOrderCondition().get();
         if(conditionStatus.isPassed()) {
 
-            String orderId = firstOrder();
+            LimitOrderDetails limitOrderDetails = firstOrder();
 
             System.out.println(format(
                     "the condition has passed , " +
                             "binance value is %f, bitfinex value is %f order id is %s for command %s and the "
-                    , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice(),orderId, type()));
+                    , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice()
+                    ,limitOrderDetails.getOrderId(), type()));
             AtomicBoolean firstOrderComplete = new AtomicBoolean(false);
 
-            Future<Boolean> future = orderComplete(orderId, firstOrderComplete);
+            Future<Boolean> future = orderComplete(limitOrderDetails.getOrderId(),
+                    limitOrderDetails.getPrice(), firstOrderComplete);
 
             getOrderSuccessCallback().register(
-                    orderId, secondOrder(), firstOrderComplete);
+                    limitOrderDetails.getOrderId(), secondOrder(), firstOrderComplete);
 
             Boolean success = future.get();
             if(success) {
@@ -46,25 +49,29 @@ public abstract class ArbCommand {
                 commandsQueue.add(buildAnotherCommand(count));
             }
         }else {
-            Thread.sleep(3000);
+            Thread.sleep(1000);
             System.out.println(format("building another command with type %s", type()));
             commandsQueue.add(buildAnotherCommand(count));
         }
     }
 
-    private Future<Boolean> orderComplete(String orderId, AtomicBoolean firstOrderComplete) {
+    private Future<Boolean> orderComplete(String orderId, Double price, AtomicBoolean firstOrderComplete) {
         ConditionKeeperThread thread = new ConditionKeeperThread(
-                condition(), cancelOrder(), orderId, firstOrderComplete);
+                keepOrderCondition(), cancelOrder(), orderId, firstOrderComplete, price);
 
         final ExecutorService pool = Executors.newFixedThreadPool(1);
 
         return pool.submit(thread);
+
+
     }
 
 
-    abstract String firstOrder();
+    abstract LimitOrderDetails firstOrder();
 
-    abstract Supplier<ConditionStatus> condition();
+    abstract Supplier<ConditionStatus> placeOrderCondition();
+
+    abstract Function<Double,ConditionStatus> keepOrderCondition();
 
     abstract Consumer<String> cancelOrder();
 

@@ -6,6 +6,7 @@ import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
+import com.romanobori.datastructures.ArbOrderEntry;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -121,11 +122,14 @@ public class BinanceOrderBookUpdated {
         return depthCacheEntry.getKey().toPlainString() + " / " + depthCacheEntry.getValue();
     }
 
-    public double getLowestAsk(){
-        return getBestAsk().getKey().doubleValue();
+    public ArbOrderEntry getLowestAsk(){
+        System.out.println("binanceOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
+        return new ArbOrderEntry(getBestAsk().getKey().doubleValue(),
+                getBestAsk().getValue().doubleValue());
     }
 
-    public double getHighestBid(){
-        return getBestBid().getKey().doubleValue();
+    public ArbOrderEntry getHighestBid(){
+        System.out.println("binanceOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
+        return new ArbOrderEntry(getBestBid().getKey().doubleValue(),getBestBid().getValue().doubleValue());
     }
 }
