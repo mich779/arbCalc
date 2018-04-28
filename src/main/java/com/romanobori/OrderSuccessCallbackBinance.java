@@ -28,6 +28,7 @@ public class OrderSuccessCallbackBinance extends OrderSuccessCallback {
                         }
                     }
                 });
+
     }
 
     private boolean responseTypeIsOrderTradeUpdate(UserDataUpdateEvent response) {

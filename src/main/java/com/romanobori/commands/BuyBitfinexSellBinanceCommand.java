@@ -1,16 +1,14 @@
 package com.romanobori.commands;
 
-import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.OrderSide;
 import com.binance.api.client.domain.OrderType;
 import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.NewOrder;
-import com.binance.api.client.impl.BinanceApiRestClientImpl;
-import com.bitfinex.client.BitfinexClient;
-import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
-import com.romanobori.*;
+import com.romanobori.ArbContext;
+import com.romanobori.OrderSuccessCallback;
+import com.romanobori.OrderSuccessCallbackBitfinex;
 import com.romanobori.datastructures.ARBTradeAction;
 import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
@@ -22,38 +20,19 @@ import java.util.function.Supplier;
 
 public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
-    private BinanceApiRestClient binanceClient;
-    private BinanceOrderBookUpdated binanceOrderBookUpdated;
-    private BitfinexOrderBookUpdated bitfinexOrderBookUpdated;
-    private BitfinexClientApi bitfinexClient;
-    private String symbol;
-    private String binanceKey;
-    private String binanceSecret;
-    private String bitfinexKey;
-    private String bitfinexSecret;
-
-    public BuyBitfinexSellBinanceCommand(int count, String binanceKey, String binanceSecret, String symbol, String bitfinexKey, String bitfinexSecret, BinanceOrderBookUpdated binanceOrderBookUpdated, BitfinexOrderBookUpdated bitfinexOrderBookUpdated) {
+    ArbContext context;
+    //private double rate = 1.002504;
+    private double rate = 1.001504;
+    public BuyBitfinexSellBinanceCommand(int count, ArbContext context) {
         super(count);
-        this.binanceKey = binanceKey;
-        this.binanceSecret = binanceSecret;
-        this.bitfinexKey = bitfinexKey;
-        this.bitfinexSecret = bitfinexSecret;
-        this.binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
-        this.binanceOrderBookUpdated = binanceOrderBookUpdated;
-        this.bitfinexOrderBookUpdated = bitfinexOrderBookUpdated;
-        this.bitfinexClient = new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret));
-        this.symbol = symbol;
-        this.binanceKey = binanceKey;
-        this.binanceSecret = binanceSecret;
-        this.bitfinexKey = bitfinexKey;
-        this.bitfinexSecret = bitfinexSecret;
+        this.context = context;
     }
 
     @Override
     LimitOrderDetails firstOrder() {
-        ArbOrderEntry bestBid = bitfinexOrderBookUpdated.getHighestBid();
-        String orderId = bitfinexClient.addArbOrder(new NewArbOrderLimit(
-                symbol, ARBTradeAction.BUY, 0.2, bestBid.getPrice()
+        ArbOrderEntry bestBid = context.getBitfinexOrderBookUpdated().getHighestBid();
+        String orderId = context.getBitfinexClientApi().addArbOrder(new NewArbOrderLimit(
+                context.getSymbol(), ARBTradeAction.BUY, 0.2, bestBid.getPrice()
         ));
         return new LimitOrderDetails(orderId,bestBid.getPrice());
     }
@@ -61,10 +40,11 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     @Override
     Supplier<ConditionStatus> placeOrderCondition() {
         return () -> {
-            double bitfinexHighestBid = bitfinexOrderBookUpdated.getHighestBid().getPrice();
-            double binanceHighestBid = binanceOrderBookUpdated.getHighestBid().getPrice();
+            double bitfinexHighestBid = context.getBitfinexOrderBookUpdated().getHighestBid().getPrice();
+            double binanceHighestBid = context.getBinanceOrderBookUpdated().getHighestBid().getPrice();
+
             return new ConditionStatus(
-                    bitfinexHighestBid * 1.002504 <= binanceHighestBid,
+                    bitfinexHighestBid * rate <= binanceHighestBid,
                     binanceHighestBid, bitfinexHighestBid
             );
         };
@@ -73,10 +53,10 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     Function<Double,ConditionStatus> keepOrderCondition() {
         return (myBidPrice) -> {
             double bitfinexHighestBid = myBidPrice;
-            double binanceHighestBid = binanceOrderBookUpdated.getHighestBid().getPrice();
+            double binanceHighestBid = context.getBinanceOrderBookUpdated().getHighestBid().getPrice();
             return new ConditionStatus(
-                    bitfinexHighestBid * 1.002504 <= binanceHighestBid
-                    && myBidPrice == bitfinexOrderBookUpdated.getHighestBid().getPrice(),
+                    bitfinexHighestBid * rate <= binanceHighestBid
+                    && myBidPrice == context.getBitfinexOrderBookUpdated().getHighestBid().getPrice(),
                     binanceHighestBid, bitfinexHighestBid
             );
         };
@@ -85,10 +65,8 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     @Override
     Consumer<String> cancelOrder() {
         return (orderId -> {
-            BitfinexApiBroker client = new BitfinexApiBroker(bitfinexKey, bitfinexSecret);
             try {
-                client.connect();
-                OrderManager orderManager = client.getOrderManager();
+                OrderManager orderManager = context.getBitfinexApiBroker().getOrderManager();
                 orderManager.cancelOrder(Long.parseLong(orderId));
             } catch (APIException e) {
                 throw new RuntimeException("could not connect to bitfinex client");
@@ -98,20 +76,20 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
     @Override
     Runnable secondOrder() {
-        return () -> binanceClient
+        return () -> context.getBinanceClient()
                 .newOrder(
-                        new NewOrder(symbol, OrderSide.SELL, OrderType.MARKET, TimeInForce.GTC, "0.2"));
+                        new NewOrder(context.getSymbol(), OrderSide.SELL, OrderType.MARKET, TimeInForce.GTC, "0.2"));
 
     }
 
     @Override
     OrderSuccessCallback getOrderSuccessCallback() {
-        return new OrderSuccessCallbackBitfinex(new BitfinexApiBroker(this.bitfinexKey, this.bitfinexSecret));
+        return new OrderSuccessCallbackBitfinex(context.getBitfinexApiBroker());
     }
 
     @Override
     ArbCommand buildAnotherCommand(int count) {
-        return new BuyBitfinexSellBinanceCommand(count, binanceKey, binanceSecret, symbol, bitfinexKey, bitfinexSecret, binanceOrderBookUpdated, bitfinexOrderBookUpdated);
+        return new BuyBitfinexSellBinanceCommand(count, context);
     }
 
     @Override

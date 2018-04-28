@@ -18,7 +18,6 @@ public class OrderSuccessCallbackBitfinex extends OrderSuccessCallback {
 
     @Override
     public void register(String orderId, Runnable action, AtomicBoolean orderComplete) {
-        connectToBroker();
         OrderManager orderManager = bitfinexClient.getOrderManager();
         orderManager.registerCallback(exchangeOrder -> {
             System.out.println(exchangeOrder);
@@ -29,14 +28,6 @@ public class OrderSuccessCallbackBitfinex extends OrderSuccessCallback {
             }
         });
 
-    }
-
-    private void connectToBroker() {
-        try {
-            bitfinexClient.connect();
-        } catch (APIException e) {
-         throw new RuntimeException(e);
-        }
     }
 
     private boolean executedSuccessfully(ExchangeOrder exchangeOrder) {

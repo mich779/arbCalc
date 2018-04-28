@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutionException;
 
 public class Main {
 
-
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException , APIException{
         Properties properties = PropertyHandler.loadProps("src/test/resources/props");
 
@@ -35,49 +34,21 @@ public class Main {
         String binanceListeningKey = binanceClient.startUserDataStream();
         BinanceOrderBookUpdated binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
         CommandsRunner commandsRunner = new CommandsRunner();
+        ArbContext context = new ArbContext(
+                symbol,
+                binanceKey,
+                binanceSecret,
+                bitfinexKey,
+                bitfinexSecret,
+                binanceListeningKey,
+                binanceOrderBookUpdated,
+                bitfinexOrderBookUpdated);
         commandsRunner.start(
                 Arrays.asList(
-                        new BuyBinanceSellBitfinexCommand(
-                                symbol,
-                                binanceKey,
-                                binanceSecret,
-                                bitfinexKey,
-                                bitfinexSecret,
-                                10,
-                                binanceOrderBookUpdated,
-                                bitfinexOrderBookUpdated,
-                                binanceListeningKey
-                        ),
-                        new BuyBitfinexSellBinanceCommand(
-                            10,
-                                binanceKey,
-                                binanceSecret,
-                                symbol,
-                                bitfinexKey,
-                                bitfinexSecret,
-                                binanceOrderBookUpdated,
-                                bitfinexOrderBookUpdated),
-                        new SellBitfinexBuyBinanceCommand(
-                                10,
-                                symbol,
-                                binanceKey,
-                                binanceSecret,
-                                bitfinexKey,
-                                bitfinexSecret,
-                                binanceOrderBookUpdated,
-                                bitfinexOrderBookUpdated
-                        ),
-                        new SellBinanceBuyBitfinexCommand(
-                                10,
-                                binanceKey,
-                                binanceSecret,
-                                symbol,
-                                bitfinexKey,
-                                bitfinexSecret
-                                ,binanceOrderBookUpdated,
-                                bitfinexOrderBookUpdated,
-                                binanceListeningKey
-                        )
+                        new BuyBinanceSellBitfinexCommand(10, context),
+                        new BuyBitfinexSellBinanceCommand(10, context),
+                        new SellBitfinexBuyBinanceCommand(10, context),
+                        new SellBinanceBuyBitfinexCommand(10,context)
                 )
         );
     }

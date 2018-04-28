@@ -6,7 +6,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static java.lang.String.format;
 
@@ -33,6 +32,7 @@ public class ConditionKeeperThread implements Callable<Boolean> {
                 actionIfNotMet.accept(orderId);
                 return Boolean.FALSE;
             }
+            Thread.sleep(500);
         }
         return Boolean.TRUE;
     }
