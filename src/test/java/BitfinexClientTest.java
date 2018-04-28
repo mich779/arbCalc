@@ -81,12 +81,10 @@ public class BitfinexClientTest {
     @Test
     public void printEvertXSeconds() throws InterruptedException, APIException {
         BitfinexApiBroker bitfinexClient = new BitfinexApiBroker(apiKey, secret);
-        bitfinexClient.connect();
-        bitfinexClient.connect();
         BitfinexOrderBookUpdated bitfinexOrderBookUpdated= new BitfinexOrderBookUpdated(
-                new BitfinexClientApi(new BitfinexClient(apiKey, secret)),
+                "NEOBTC", new BitfinexClientApi(new BitfinexClient(apiKey, secret)),
                 bitfinexClient,
-                "NEOBTC", BitfinexCurrencyPair.NEO_BTC);
+                BitfinexCurrencyPair.NEO_BTC);
 
         while(true){
             System.out.println(bitfinexOrderBookUpdated.getHighestBid());

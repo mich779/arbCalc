@@ -31,82 +31,11 @@ public class UpdatedOrderBookBitfinexTest {
         secret  = p.getProperty("BITFINEX_API_SECRET");
     }
 
-    @Test
-    public void shouldRemoveFromBids(){
-        BitfinexApiBroker bitfinexApiBroker = mock(BitfinexApiBroker.class);
-
-        BitfinexOrderBookManagerStub bitfinexOrderBookManagerStub = createBitfinexOrderbookManagerStub(bitfinexApiBroker, new OrderbookEntry(0.2, 0, 1.0));
-
-        when(bitfinexApiBroker.getOrderbookManager()).thenReturn(bitfinexOrderBookManagerStub);
-
-        BitfinexClientApi bitfinexClientApi = mock(BitfinexClientApi.class);
-
-        mockOrderBok(bitfinexClientApi, Arrays.asList(new ArbOrderEntry(0.2, 30.0)), Arrays.asList());
-
-        BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker, "", BitfinexCurrencyPair.NEO_BTC);
-
-        ArbOrders orderBook = updated.orderBook;
-
-        assertThat(orderBook.getBids().size(), is(0));
-    }
-
     private BitfinexOrderBookManagerStub createBitfinexOrderbookManagerStub(BitfinexApiBroker bitfinexApiBroker, OrderbookEntry entry) {
         return new BitfinexOrderBookManagerStub(
                 bitfinexApiBroker,
                 entry
         );
-    }
-
-    @Test
-    public void shouldUpdateBids() {
-        BitfinexApiBroker bitfinexApiBroker = mock(BitfinexApiBroker.class);
-
-        BitfinexOrderBookManagerStub bitfinexOrderBookManagerStub = createBitfinexOrderbookManagerStub(bitfinexApiBroker, new OrderbookEntry(0.2, 1.0, 2.2));
-
-        when(bitfinexApiBroker.getOrderbookManager()).thenReturn(bitfinexOrderBookManagerStub);
-
-        BitfinexClientApi bitfinexClientApi = mock(BitfinexClientApi.class);
-
-        mockOrderBok(bitfinexClientApi, Arrays.asList(new ArbOrderEntry(0.2, 30.0)),
-                Collections.EMPTY_LIST);
-
-        BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker, "NEOETH", BitfinexCurrencyPair.NEO_ETH);
-
-        updated.subscribe();
-
-        ArbOrders newArbOrders = updated.orderBook;
-
-        assertThat(newArbOrders.getBids().size(), is(1));
-
-        assertThat(newArbOrders.getBids().get(0).getAmount(), is( 2.2));
-
-    }
-
-    @Test
-    public void shouldAddNewEntity() {
-        BitfinexApiBroker bitfinexApiBroker = mock(BitfinexApiBroker.class);
-
-        BitfinexOrderBookManagerStub bitfinexOrderBookManagerStub = createBitfinexOrderbookManagerStub(bitfinexApiBroker, new OrderbookEntry(0.3, 1.0, 2.2));
-
-        when(bitfinexApiBroker.getOrderbookManager()).thenReturn(bitfinexOrderBookManagerStub);
-
-        BitfinexClientApi bitfinexClientApi = mock(BitfinexClientApi.class);
-
-        mockOrderBok(bitfinexClientApi, new ArrayList<>(Arrays.asList(new ArbOrderEntry(0.2, 30.0))),
-                new ArrayList<>(Collections.EMPTY_LIST));
-
-        BitfinexOrderBookUpdated updated = new BitfinexOrderBookUpdated(bitfinexClientApi
-                , bitfinexApiBroker, "NEOETH", BitfinexCurrencyPair.NEO_ETH);
-        updated.subscribe();
-
-        ArbOrders newArbOrders = updated.orderBook;
-
-        assertThat(newArbOrders.getBids().size(), is(2));
-
-        assertTrue(newArbOrders.getBids().contains(new ArbOrderEntry(0.3, 2.2)));
-        assertTrue(newArbOrders.getBids().contains(new ArbOrderEntry(0.2, 30.0)));
     }
 
     private void mockOrderBok(BitfinexClientApi bitfinexClientApi, List<ArbOrderEntry> bids, List<ArbOrderEntry> asks) {

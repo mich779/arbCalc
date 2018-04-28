@@ -4,6 +4,7 @@ import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
+import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
 import com.romanobori.commands.*;
 
@@ -15,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 public class Main {
 
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException , APIException{
         Properties properties = PropertyHandler.loadProps("src/test/resources/props");
 
         String binanceKey = properties.getProperty("BINANCE_API_KEY");
@@ -25,9 +26,9 @@ public class Main {
         String symbol = "NEOBTC";
         BitfinexCurrencyPair symbolBitfinex = BitfinexCurrencyPair.NEO_BTC;
         BitfinexOrderBookUpdated bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
+                symbol,
                 new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret)),
                 new BitfinexApiBroker(bitfinexKey, bitfinexSecret),
-                symbol,
                 symbolBitfinex
         );
         BinanceApiRestClient binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);

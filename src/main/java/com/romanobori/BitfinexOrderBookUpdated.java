@@ -6,40 +6,77 @@ import com.github.jnidzwetzki.bitfinex.v2.manager.OrderbookManager;
 import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ArbOrders;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 public class BitfinexOrderBookUpdated {
-    BitfinexApiBroker bitfinexClient;
-    ArbOrders orderBook;
-    String symbol;
-    BitfinexCurrencyPair bitfinexCurrencyPair;
-    public BitfinexOrderBookUpdated(BitfinexClientApi bitfinexClientApi, BitfinexApiBroker bitfinexClient, String symbol, BitfinexCurrencyPair bitfinexCurrencyPair) {
-        try {
-            bitfinexClient.connect();
-        } catch (APIException e) {
-            throw new RuntimeException(e);
-        }
-        orderBook = bitfinexClientApi.getOrderBook(symbol);
+    private static final String BIDS  = "BIDS";
+    private static final String ASKS  = "ASKS";
+
+    private long lastUpdateId;
+
+    private Map<String, NavigableMap<BigDecimal, BigDecimal>> depthCache;
+
+    private BitfinexClientApi bitfinexClientApi;
+    private BitfinexApiBroker bitfinexClient;
+    private BitfinexCurrencyPair bitfinexCurrencyPair;
+    public BitfinexOrderBookUpdated(String symbol,
+                                    BitfinexClientApi bitfinexClientApi,
+                                    BitfinexApiBroker bitfinexClient,
+                                    BitfinexCurrencyPair bitfinexCurrencyPair) throws APIException {
+        bitfinexClient.connect();
+        this.bitfinexClientApi = bitfinexClientApi;
         this.bitfinexClient = bitfinexClient;
-        this.symbol = symbol;
         this.bitfinexCurrencyPair = bitfinexCurrencyPair;
-        subscribe();
+        initializeDepthCache(symbol);
+        startDepthEventStreaming();
     }
 
-    public void subscribe() {
+    /**
+     * Initializes the depth cache by using the REST API.
+     */
+    private void initializeDepthCache(String symbol) {
+        ArbOrders orderBook = bitfinexClientApi.getOrderBook(symbol);
+
+        this.depthCache = new HashMap<>();
+        this.lastUpdateId = orderBook.getLastUpdateId();
+
+        NavigableMap<BigDecimal, BigDecimal> asks = new TreeMap<>(Comparator.reverseOrder());
+        for (ArbOrderEntry ask : orderBook.getAsks()) {
+            asks.put(new BigDecimal(ask.getPrice()), new BigDecimal(ask.getAmount()));
+        }
+        depthCache.put(ASKS, asks);
+
+        NavigableMap<BigDecimal, BigDecimal> bids = new TreeMap<>(Comparator.reverseOrder());
+        for (ArbOrderEntry bid : orderBook.getBids()) {
+            bids.put(new BigDecimal(bid.getPrice()), new BigDecimal(bid.getAmount()));
+        }
+        depthCache.put(BIDS, bids);
+    }
+
+    /**
+     * Begins streaming of depth events.
+     */
+    private void startDepthEventStreaming() {
         final OrderbookConfiguration orderbookConfiguration = new OrderbookConfiguration(
-                bitfinexCurrencyPair, OrderBookPrecision.P0, OrderBookFrequency.F0, 25);
+                this.bitfinexCurrencyPair, OrderBookPrecision.P0, OrderBookFrequency.F0, 25);
+
         final OrderbookManager orderbookManager = bitfinexClient.getOrderbookManager();
+
         final BiConsumer<OrderbookConfiguration, OrderbookEntry> callback = (orderbookConfig, entry) -> {
             if (entry.getCount() > 0.0) {
-                setAmountOrAddByAmountSign(entry);
+                if(entry.getAmount() > 0) {
+                    updateOrderBook(getBids(), entry);
+                }else{
+                    updateOrderBook(getAsks(), entry);
+                }
             } else if (entry.getCount() == 0.0) {
-                filterAllEntriesWithPricebyAmount(entry.getPrice(), entry.getAmount());
+                if(entry.getAmount() == 1.0){
+                    remove(entry.getPrice(), depthCache.get(BIDS));
+                }else if ( entry.getAmount() == -1.0){
+                    remove(entry.getPrice(), depthCache.get(ASKS));
+                }
             }
         };
 
@@ -51,89 +88,64 @@ public class BitfinexOrderBookUpdated {
         orderbookManager.subscribeOrderbook(orderbookConfiguration);
     }
 
-    private void setAmountOrAddByAmountSign(OrderbookEntry entry) {
-        if (entry.getAmount() > 0) {
-            orderBook.setBids(setAmountOrAdd(entry, orderBook.getBids()));
-        } else {
-            orderBook.setAsks(setAmountOrAdd(new OrderbookEntry(entry.getPrice()
-                            , entry.getCount(), Math.abs(entry.getAmount()))
-                    , orderBook.getAsks()));
-        }
+    private void remove(double price, NavigableMap<BigDecimal, BigDecimal> bids) {
+        bids.remove(new BigDecimal(price));
     }
 
-    private void filterAllEntriesWithPricebyAmount(double price, double amount) {
-        if (amount == 1.0) {
-            orderBook.setBids(removePriceFromList(price, orderBook.getBids()));
-        } else if (amount == -1){
-            orderBook.setAsks(removePriceFromList(price, orderBook.getAsks()));
-        }
+    /**
+     * Updates an order book (bids or asks) with a delta received from the server.
+     *
+     * Whenever the qty specified is ZERO, it means the price should was removed from the order book.
+     */
+    private void updateOrderBook(NavigableMap<BigDecimal, BigDecimal> lastOrderBookEntries, OrderbookEntry orderBookDeltas) {
+            lastOrderBookEntries.put(new BigDecimal(orderBookDeltas.getPrice()),
+                    new BigDecimal(Math.abs(orderBookDeltas.getAmount())));
     }
 
-    private List<ArbOrderEntry> removePriceFromList(double price, List<ArbOrderEntry> bids) {
-        return bids
-                .stream()
-                .filter(e -> e.getPrice()!= price)
-                .collect(Collectors.toList());
+    public NavigableMap<BigDecimal, BigDecimal> getAsks() {
+        return depthCache.get(ASKS);
     }
 
-    private List<ArbOrderEntry> setAmountOrAdd(OrderbookEntry entry, List<ArbOrderEntry> lst) {
-        double price = entry.getPrice();
-        if (listHasPrice(lst, price)) {
-            updateLst(lst, entry.getAmount(), price);
-        } else {
-            addToList(entry, lst);
-        }
-        return lst;
+    public NavigableMap<BigDecimal, BigDecimal> getBids() {
+        return depthCache.get(BIDS);
     }
 
-    private boolean listHasPrice(List<ArbOrderEntry> lst, double price) {
-        return lst.stream().anyMatch(arbOrderEntry -> arbOrderEntry.getPrice()== price);
+    /**
+     * @return the best ask in the order book
+     */
+    private Map.Entry<BigDecimal, BigDecimal> getBestAsk() {
+        return getAsks().lastEntry();
     }
 
-    private void addToList(OrderbookEntry entry, List<ArbOrderEntry> lst) {
-        lst.add(new ArbOrderEntry(entry.getPrice(), entry.getAmount()));
+    /**
+     * @return the best bid in the order book
+     */
+    private Map.Entry<BigDecimal, BigDecimal> getBestBid() {
+        return getBids().firstEntry();
     }
 
-    private void updateLst(List<ArbOrderEntry> lst, double amount, double price) {
-        ArbOrderEntry arbOrderEntry = lst.stream().filter(entry -> entry.getPrice() == price).findFirst().get();
-
-        arbOrderEntry.setAmount(amount);
+    /**
+     * @return a depth cache, containing two keys (ASKs and BIDs), and for each, an ordered list of book entries.
+     */
+    public Map<String, NavigableMap<BigDecimal, BigDecimal>> getDepthCache() {
+        return depthCache;
     }
 
-    public ArbOrderEntry getLowestAsk() {
-        System.out.println("bitfinexOrderBook size = "+(orderBook.getAsks().size()+orderBook.getBids().size()));
-        return getMin(orderBook.getAsks());
+    /**
+     * Pretty prints an order book entry in the format "price / quantity".
+     */
+    private static String toDepthCacheEntryString(Map.Entry<BigDecimal, BigDecimal> depthCacheEntry) {
+        return depthCacheEntry.getKey().toPlainString() + " / " + depthCacheEntry.getValue();
+    }
+
+    public ArbOrderEntry getLowestAsk(){
+        System.out.println("binanceOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
+        return new ArbOrderEntry(getBestAsk().getKey().doubleValue(),
+                getBestAsk().getValue().doubleValue());
     }
 
     public ArbOrderEntry getHighestBid(){
-        System.out.println("bitfinexOrderBook size = "+(orderBook.getAsks().size()+orderBook.getBids().size()));
-        return getMax(orderBook.getBids());
-    }
-
-
-    private ArbOrderEntry getMax(List<ArbOrderEntry> entries) {
-        Optional<ArbOrderEntry> max = entries.stream()
-                .filter(Objects::nonNull)
-                .max(Comparator.comparingDouble(ArbOrderEntry::getPrice));
-        return getOrException(max);
-    }
-
-    private ArbOrderEntry getMin(List<ArbOrderEntry> entries) {
-        Optional<ArbOrderEntry> min = entries.stream()
-                .filter(Objects::nonNull)
-                .min(Comparator.comparingDouble(ArbOrderEntry::getPrice));
-        return getOrException(min);
-    }
-
-    private ArbOrderEntry getOrException(Optional<ArbOrderEntry> min) {
-        if (!min.isPresent()) {
-            throw new RuntimeException("asd");
-        } else {
-            return min.get();
-        }
-    }
-
-    public void setOrderBook(ArbOrders orderBook) {
-        this.orderBook = orderBook;
+        System.out.println("binanceOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
+        return new ArbOrderEntry(getBestBid().getKey().doubleValue(),getBestBid().getValue().doubleValue());
     }
 }
