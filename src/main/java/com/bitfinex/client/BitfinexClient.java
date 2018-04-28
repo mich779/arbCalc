@@ -73,6 +73,7 @@ public class BitfinexClient {
         Map<String, String> additionals = new HashMap<>();
         additionals.put("symbol" , symbol );
         additionals.put("amount", Double.toString(amount));
+        additionals.put("price", "1");
         additionals.put("exchange", "bitfinex");
         additionals.put("side", action.name());
         additionals.put("type", "exchange market");

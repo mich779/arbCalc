@@ -12,10 +12,12 @@ import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.*;
 import com.romanobori.datastructures.ARBTradeAction;
+import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderLimit;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class BuyBitfinexSellBinanceCommand extends ArbCommand {
@@ -48,19 +50,33 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     }
 
     @Override
-    String firstOrder() {
-        return bitfinexClient.addArbOrder(new NewArbOrderLimit(
-                symbol, ARBTradeAction.BUY, 0.2, bitfinexOrderBookUpdated.getHighestBid()
+    LimitOrderDetails firstOrder() {
+        ArbOrderEntry bestBid = bitfinexOrderBookUpdated.getHighestBid();
+        String orderId = bitfinexClient.addArbOrder(new NewArbOrderLimit(
+                symbol, ARBTradeAction.BUY, 0.2, bestBid.getPrice()
         ));
+        return new LimitOrderDetails(orderId,bestBid.getPrice());
     }
 
     @Override
-    Supplier<ConditionStatus> condition() {
+    Supplier<ConditionStatus> placeOrderCondition() {
         return () -> {
-            double bitfinexHighestBid = bitfinexOrderBookUpdated.getHighestBid();
-            double binanceHighestBid = binanceOrderBookUpdated.getHighestBid();
+            double bitfinexHighestBid = bitfinexOrderBookUpdated.getHighestBid().getPrice();
+            double binanceHighestBid = binanceOrderBookUpdated.getHighestBid().getPrice();
             return new ConditionStatus(
-                    bitfinexHighestBid * 1.001502 <= binanceHighestBid,
+                    bitfinexHighestBid * 1.002504 <= binanceHighestBid,
+                    binanceHighestBid, bitfinexHighestBid
+            );
+        };
+    }
+    @Override
+    Function<Double,ConditionStatus> keepOrderCondition() {
+        return (myBidPrice) -> {
+            double bitfinexHighestBid = myBidPrice;
+            double binanceHighestBid = binanceOrderBookUpdated.getHighestBid().getPrice();
+            return new ConditionStatus(
+                    bitfinexHighestBid * 1.002504 <= binanceHighestBid
+                    && myBidPrice == bitfinexOrderBookUpdated.getHighestBid().getPrice(),
                     binanceHighestBid, bitfinexHighestBid
             );
         };

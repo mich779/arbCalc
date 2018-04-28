@@ -61,7 +61,7 @@ public class BitfinexClientTest {
     @Test
     public void addOrder() throws Exception{
         System.out.println(
-                bitfinexClient.addOrder("NEOBTC", 0.2, 0.0078, Action.sell)
+                bitfinexClient.addOrder("NEOBTC", 0.2, Action.sell)
         );
     }
 //
