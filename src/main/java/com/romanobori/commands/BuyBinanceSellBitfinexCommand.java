@@ -45,8 +45,6 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
         return () -> {
             double binanceHighestBidPrice = context.getBinanceOrderBookUpdated().getHighestBid().getPrice();
             double bitfinexHighestBidPrice = context.getBitfinexOrderBookUpdated().getHighestBid().getPrice();
-
-
             return new ConditionStatus(binanceHighestBidPrice * rate <= bitfinexHighestBidPrice,
             binanceHighestBidPrice, bitfinexHighestBidPrice);
         };

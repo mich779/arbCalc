@@ -4,7 +4,10 @@ import com.binance.api.client.domain.OrderType;
 import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
+import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
+import com.romanobori.BinanceApiClient;
 import com.romanobori.BinanceOrderBookUpdated;
+import com.romanobori.BinanceUpdatedWallet;
 import com.romanobori.PropertyHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,6 +75,21 @@ public class BinanceClientTest {
         client
                 .newOrder(
                         new NewOrder("NEOBTC", OrderSide.SELL, OrderType.MARKET, TimeInForce.GTC, "0.2"));
+    }
+
+    @Test
+    public void walletTest() throws InterruptedException {
+        BinanceUpdatedWallet binanceUpdatedWallet = new BinanceUpdatedWallet(
+                new BinanceApiWebSocketClientImpl(),
+                new BinanceApiClient(client, 10),
+                "auTQmoq60x2ZBNBKlUmkL5SMpWP2PFG1H5rPzfXomrNWdPIzVWPX73BNc9sK");
+
+        while(true){
+            System.out.println(
+                    binanceUpdatedWallet.getCurrency2FreeAmount()
+            );
+            Thread.sleep(5000);
+        }
     }
 //
 //    @Test

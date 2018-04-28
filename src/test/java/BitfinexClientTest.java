@@ -3,6 +3,7 @@ import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
+import com.github.jnidzwetzki.bitfinex.v2.entity.Wallet;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.BitfinexClientApi;
 import com.romanobori.BitfinexOrderBookUpdated;
@@ -12,6 +13,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Properties;
+
+import static com.github.jnidzwetzki.bitfinex.v2.entity.Wallet.WALLET_TYPE_EXCHANGE;
 
 public class BitfinexClientTest {
 
@@ -105,6 +108,26 @@ public class BitfinexClientTest {
         while (true){
             Thread.sleep(200);
         }
+    }
+
+    @Test
+    public void updatedWalltTest() throws APIException, InterruptedException {
+        BitfinexApiBroker bitfinexApiBroker = new BitfinexApiBroker(apiKey, secret);
+
+        bitfinexApiBroker.connect();
+
+        while(true){
+            for(Wallet wallet : bitfinexApiBroker.getWallets()){
+
+                if(wallet.getWalletType().equals(WALLET_TYPE_EXCHANGE)){
+                    System.out.println("currency is " + wallet.getCurreny() + " " +
+                            "balace : " + wallet.getBalance());
+                }
+            }
+
+            Thread.sleep(3000);
+        }
+
     }
 //
 //    @Test

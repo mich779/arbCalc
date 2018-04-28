@@ -8,8 +8,8 @@ import com.binance.api.client.domain.event.UserDataUpdateEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OrderSuccessCallbackBinance extends OrderSuccessCallback {
-    BinanceApiWebSocketClient socketClient;
-    String binanceListenKey;
+    private BinanceApiWebSocketClient socketClient;
+    private String binanceListenKey;
     public OrderSuccessCallbackBinance(BinanceApiWebSocketClient socketClient, String binanceListeningKey) {
         this.socketClient = socketClient;
         this.binanceListenKey = binanceListeningKey;
@@ -17,7 +17,7 @@ public class OrderSuccessCallbackBinance extends OrderSuccessCallback {
 
     @Override
     public void register(String orderId, Runnable action, AtomicBoolean orderCompleted) {
-        this.socketClient.onUserDataUpdateEvent(binanceListenKey,
+        socketClient.onUserDataUpdateEvent(binanceListenKey,
                 response -> {
                     System.out.println(response);
                     if(responseTypeIsOrderTradeUpdate(response)){
@@ -28,7 +28,6 @@ public class OrderSuccessCallbackBinance extends OrderSuccessCallback {
                         }
                     }
                 });
-
     }
 
     private boolean responseTypeIsOrderTradeUpdate(UserDataUpdateEvent response) {

@@ -15,6 +15,7 @@ public class ArbContext {
     private BitfinexClientApi bitfinexClientApi;
     private BinanceApiWebSocketClientImpl binanceSocketClient = new BinanceApiWebSocketClientImpl();
     private BitfinexApiBroker bitfinexApiBroker;
+    private BinanceUpdatedWallet binanceUpdatedWallet;
     public ArbContext(String symbol,
                       String binanceKey,
                       String binanceSecret,
@@ -33,6 +34,9 @@ public class ArbContext {
         );
         bitfinexApiBroker = new BitfinexApiBroker(bitfinexKey, bitfinexSecret);
         bitfinexApiBroker.connect();
+        binanceUpdatedWallet = new BinanceUpdatedWallet(binanceSocketClient,
+                new BinanceApiClient(binanceClient, 10),
+                binanceListeningKey);
     }
 
 
@@ -66,5 +70,9 @@ public class ArbContext {
 
     public BitfinexApiBroker getBitfinexApiBroker() {
         return bitfinexApiBroker;
+    }
+
+    public BinanceUpdatedWallet getBinanceUpdatedWallet() {
+        return binanceUpdatedWallet;
     }
 }

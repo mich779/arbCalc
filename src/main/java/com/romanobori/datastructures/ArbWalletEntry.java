@@ -4,9 +4,9 @@ import java.util.Objects;
 
 public class ArbWalletEntry {
 
-    String currency;
-    double amount;
-    double available;
+    private String currency;
+    private double amount;
+    private double available;
 
     public ArbWalletEntry(String currency, double amount, double available) {
         this.currency = currency;
