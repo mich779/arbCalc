@@ -27,8 +27,9 @@ public class ConditionKeeperThread implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
+        long timeStarted = System.currentTimeMillis();
         while (orderNotCompleted()) {
-            if (actionBreaked(condition)) {
+            if (actionBreaked(condition) || System.currentTimeMillis() - timeStarted > 30 * 1000) {
                 actionIfNotMet.accept(orderId);
                 return Boolean.FALSE;
             }

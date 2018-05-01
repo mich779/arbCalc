@@ -22,8 +22,8 @@ import java.util.function.Supplier;
 public class SellBitfinexBuyBinanceCommand extends ArbCommand {
 
     ArbContext context;
-    //private double rate = 1.002504;
-    private double rate = 1.001504;
+    private double rate = 1.002504;
+    //private double rate = 1.001504;
 
 
     public SellBitfinexBuyBinanceCommand(int count, ArbContext context) {
@@ -60,7 +60,7 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
             double bitfinexLowestAsk = myAskPrice;
             return new ConditionStatus(
                     binanceLowestAsk * rate <= bitfinexLowestAsk
-                    && myAskPrice == context.getBitfinexOrderBookUpdated().getLowestAsk().getPrice(),
+                    && myAskPrice <= 1.01*context.getBitfinexOrderBookUpdated().getLowestAsk().getPrice(),
                     binanceLowestAsk, bitfinexLowestAsk);
         };
     }

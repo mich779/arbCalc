@@ -1,6 +1,7 @@
 package com.romanobori.commands;
 
 
+import com.binance.api.client.exception.BinanceApiException;
 import com.romanobori.OrderSuccessCallback;
 import com.romanobori.datastructures.ConditionStatus;
 
@@ -21,7 +22,7 @@ public abstract class ArbCommand {
 
     public void execute(BlockingQueue<ArbCommand> commandsQueue) throws ExecutionException, InterruptedException {
         ConditionStatus conditionStatus = placeOrderCondition().get();
-        if(conditionStatus.isPassed()) {
+        if (conditionStatus.isPassed()) {
 
             LimitOrderDetails limitOrderDetails = firstOrder();
 
@@ -29,7 +30,7 @@ public abstract class ArbCommand {
                     "the condition has passed , " +
                             "binance value is %f, bitfinex value is %f order id is %s for command %s and the "
                     , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice()
-                    ,limitOrderDetails.getOrderId(), type()));
+                    , limitOrderDetails.getOrderId(), type()));
             AtomicBoolean firstOrderComplete = new AtomicBoolean(false);
 
             Future<Boolean> future = orderComplete(limitOrderDetails.getOrderId(),
@@ -39,16 +40,16 @@ public abstract class ArbCommand {
                     limitOrderDetails.getOrderId(), secondOrder(), firstOrderComplete);
 
             Boolean success = future.get();
-            if(success) {
+            if (success) {
                 System.out.println("command passed : " + type());
                 if (count > 10) {
                     commandsQueue.add(buildAnotherCommand(count - 1));
                 }
-            }else{
+            } else {
                 System.out.println(format("building command after cancellation %s", type()));
                 commandsQueue.add(buildAnotherCommand(count));
             }
-        }else {
+        } else {
             Thread.sleep(1000);
             System.out.println(format("building another command with type %s", type()));
             commandsQueue.add(buildAnotherCommand(count));
@@ -71,7 +72,7 @@ public abstract class ArbCommand {
 
     abstract Supplier<ConditionStatus> placeOrderCondition();
 
-    abstract Function<Double,ConditionStatus> keepOrderCondition();
+    abstract Function<Double, ConditionStatus> keepOrderCondition();
 
     abstract Consumer<String> cancelOrder();
 
@@ -82,4 +83,15 @@ public abstract class ArbCommand {
     abstract ArbCommand buildAnotherCommand(int count);
 
     abstract String type();
+
+    public void tryUntilSuccess(Runnable task, int numOfTries) {
+        if (numOfTries == 0) {
+            return;
+        }
+        try {
+            task.run();
+        } catch (BinanceApiException e) {
+            tryUntilSuccess(task, numOfTries - 1);
+        }
+    }
 }

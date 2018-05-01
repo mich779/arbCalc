@@ -20,8 +20,8 @@ import java.util.function.Supplier;
 public class BuyBinanceSellBitfinexCommand extends ArbCommand {
     private ArbContext context;
 
-    //private double rate = 1.003508;
-    private double rate = 1.001508;
+    private double rate = 1.003508;
+   // private double rate = 1.001508;
 
     public BuyBinanceSellBitfinexCommand(int count, ArbContext context){
         super(count);
@@ -31,7 +31,7 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
 
     @Override
     LimitOrderDetails firstOrder() {
-      ArbOrderEntry bestBid =   context.getBinanceOrderBookUpdated().getHighestBid();
+      ArbOrderEntry bestBid = context.getBinanceOrderBookUpdated().getHighestBid();
       String orderId = Long.toString(
               context.getBinanceClient().newOrder(
                       new NewOrder(context.getSymbol(), OrderSide.BUY, OrderType.LIMIT, TimeInForce.GTC, "0.2", Double.toString(bestBid.getPrice()))
@@ -57,14 +57,15 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
             double bitfinexHighestBid = context.getBitfinexOrderBookUpdated().getHighestBid().getPrice();
 
             return new ConditionStatus(myBidPrice * rate <= bitfinexHighestBid
-                    && myBidPrice == context.getBinanceOrderBookUpdated().getHighestBid().getPrice() /// TODO: change restriction
-,                    myBidPrice, bitfinexHighestBid);
+                    && myBidPrice >= 0.99*context.getBinanceOrderBookUpdated().getHighestBid().getPrice(),
+                    myBidPrice, bitfinexHighestBid);
         };
     }
 
     @Override
     Consumer<String> cancelOrder() {
-        return (orderId) -> context.getBinanceClient().cancelOrder(new CancelOrderRequest(context.getSymbol(), orderId));
+        return (orderId) ->
+                tryUntilSuccess(() -> context.getBinanceClient().cancelOrder(new CancelOrderRequest(context.getSymbol(), orderId)), 10);
     }
 
     @Override

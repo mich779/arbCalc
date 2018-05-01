@@ -140,12 +140,18 @@ public class BitfinexOrderBookUpdated {
 
     public ArbOrderEntry getLowestAsk(){
         System.out.println("bitfinexOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
-        return new ArbOrderEntry(getBestAsk().getKey().doubleValue(),
+        ArbOrderEntry arbOrderEntry = new ArbOrderEntry(getBestAsk().getKey().doubleValue(),
                 getBestAsk().getValue().doubleValue());
+
+        System.out.println("the lowest ask bitfinex : " + arbOrderEntry.getPrice());
+        return arbOrderEntry;
     }
 
     public ArbOrderEntry getHighestBid(){
         System.out.println("bitfinexOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
-        return new ArbOrderEntry(getBestBid().getKey().doubleValue(),getBestBid().getValue().doubleValue());
+        ArbOrderEntry arbOrderEntry = new ArbOrderEntry(getBestBid().getKey().doubleValue(), getBestBid().getValue().doubleValue());
+
+        System.out.println("the highest bid bitfinex is : " + arbOrderEntry.getPrice());
+        return arbOrderEntry;
     }
 }
