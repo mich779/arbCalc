@@ -28,8 +28,9 @@ public class Main {
                 symbol,
                 new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret)),
                 new BitfinexApiBroker(bitfinexKey, bitfinexSecret),
-                symbolBitfinex
+                symbolBitfinex,false
         );
+
         BinanceApiRestClient binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         String binanceListeningKey = binanceClient.startUserDataStream();
         BinanceOrderBookUpdated binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);

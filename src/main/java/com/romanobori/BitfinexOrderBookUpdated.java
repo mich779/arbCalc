@@ -21,17 +21,43 @@ public class BitfinexOrderBookUpdated {
     private BitfinexClientApi bitfinexClientApi;
     private BitfinexApiBroker bitfinexClient;
     private BitfinexCurrencyPair bitfinexCurrencyPair;
+    private boolean isSnapshot;
     public BitfinexOrderBookUpdated(String symbol,
                                     BitfinexClientApi bitfinexClientApi,
                                     BitfinexApiBroker bitfinexClient,
-                                    BitfinexCurrencyPair bitfinexCurrencyPair) throws APIException {
+                                    BitfinexCurrencyPair bitfinexCurrencyPair, boolean isSnapshot) throws APIException {
         bitfinexClient.connect();
         this.bitfinexClientApi = bitfinexClientApi;
         this.bitfinexClient = bitfinexClient;
         this.bitfinexCurrencyPair = bitfinexCurrencyPair;
+        this.isSnapshot = isSnapshot;
         initializeDepthCache(symbol);
         startDepthEventStreaming();
+        correctOrderBookIfNeeded(symbol);
     }
+
+    private void correctOrderBookIfNeeded(String symbol) throws APIException {
+                        long createdTime = System.currentTimeMillis();
+                        while(!this.isSnapshot){
+                            if(isTimeToCheckOrderBook(createdTime)){
+                                BitfinexOrderBookUpdated newOrderBook =  new BitfinexOrderBookUpdated(symbol,this.bitfinexClientApi,
+                                        this.bitfinexClient,this.bitfinexCurrencyPair, true);
+                                if(!doesBestBidsAndBestAskMatch(newOrderBook)){
+                                    this.depthCache = newOrderBook.getDepthCache();
+                }
+            }
+        }
+    }
+
+    private boolean isTimeToCheckOrderBook(long createdTime) {
+        return (System.currentTimeMillis() - createdTime)%(1000*60) == 0;
+    }
+
+    private boolean doesBestBidsAndBestAskMatch(BitfinexOrderBookUpdated newOrderBook) {
+        return newOrderBook.getBestAsk().equals(this.getBestAsk()) &&
+                newOrderBook.getBestBid().equals(this.getBestBid());
+    }
+
 
     /**
      * Initializes the depth cache by using the REST API.
