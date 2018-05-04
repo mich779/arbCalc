@@ -28,6 +28,7 @@ public class BinanceUpdatedWallet {
     }
 
     private void init(){
+
         ArbWallet wallet = binanceApiClient.getWallet();
         for( ArbWalletEntry entry : wallet.getEntries()){
             currency2FreeAmount.put(entry.getCurrency(), entry.getAvailable());

@@ -1,7 +1,9 @@
 package com.romanobori;
 
 import com.binance.api.client.BinanceApiRestClient;
+import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.impl.BinanceApiRestClientImpl;
+import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.BitfinexCurrencyPair;
@@ -27,30 +29,39 @@ public class Main {
         String bitfinexSecret = properties.getProperty("BITFINEX_API_SECRET");
         String symbol = "NEOBTC";
         BitfinexCurrencyPair symbolBitfinex = BitfinexCurrencyPair.NEO_BTC;
+        BitfinexApiBroker bitfinexApiBroker = new BitfinexApiBroker(bitfinexKey, bitfinexSecret);
+        bitfinexApiBroker.connect();
+        BitfinexClientApi bitfinexClientApi = new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret));
         BitfinexOrderBookUpdated bitfinexOrderBookUpdated = new BitfinexOrderBookUpdated(
                 symbol,
-                new BitfinexClientApi(new BitfinexClient(bitfinexKey, bitfinexSecret)),
-                new BitfinexApiBroker(bitfinexKey, bitfinexSecret),
+                bitfinexClientApi,
+                bitfinexApiBroker,
                 symbolBitfinex
         );
+
         BinanceApiRestClient binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
         String binanceListeningKey = binanceClient.startUserDataStream();
         BinanceOrderBookUpdated binanceOrderBookUpdated = new BinanceOrderBookUpdated(symbol);
-        CommandsRunner commandsRunner = new CommandsRunner();
+        BinanceApiWebSocketClient binanceSocketClient = new BinanceApiWebSocketClientImpl();
+        BinanceUpdatedWallet binanceUpdatedWallet = new BinanceUpdatedWallet(binanceSocketClient,
+                new BinanceApiClient(binanceClient, 10),
+                binanceListeningKey);
+        BitfinexUpdatedWallet bitfinexUpdatedWallet = new BitfinexUpdatedWallet(bitfinexApiBroker);
+
         ArbContext context = new ArbContext(
                 symbol,
-                binanceKey,
-                binanceSecret,
-                bitfinexKey,
-                bitfinexSecret,
                 binanceListeningKey,
                 binanceOrderBookUpdated,
-                bitfinexOrderBookUpdated);
+                bitfinexOrderBookUpdated,
+                binanceClient,
+                bitfinexClientApi,
+                bitfinexApiBroker,
+                binanceUpdatedWallet,
+                bitfinexUpdatedWallet);
 
-        OrderbookMXBean orderbookMXBean = new OrderbookMbeanImpl(binanceOrderBookUpdated, bitfinexOrderBookUpdated);
-        CreateAndRegisterMBeanInMBeanServer.register(
-                Arrays.asList(new MbeanEntity("com.javacodegeeks.snippets.enterprise:type=OrderbookMbean", orderbookMXBean))
-        );
+        createMbeans(bitfinexOrderBookUpdated, binanceOrderBookUpdated);
+
+        CommandsRunner commandsRunner = new CommandsRunner();
 
         commandsRunner.start(
                 Arrays.asList(
@@ -59,6 +70,13 @@ public class Main {
                         new SellBitfinexBuyBinanceCommand(10, context),
                         new SellBinanceBuyBitfinexCommand(10,context)
                 )
+        );
+    }
+
+    private static void createMbeans(BitfinexOrderBookUpdated bitfinexOrderBookUpdated, BinanceOrderBookUpdated binanceOrderBookUpdated) throws Exception {
+        OrderbookMXBean orderbookMXBean = new OrderbookMbeanImpl(binanceOrderBookUpdated, bitfinexOrderBookUpdated);
+        CreateAndRegisterMBeanInMBeanServer.register(
+                Arrays.asList(new MbeanEntity("com.javacodegeeks.snippets.enterprise:type=OrderbookMbean", orderbookMXBean))
         );
     }
 }

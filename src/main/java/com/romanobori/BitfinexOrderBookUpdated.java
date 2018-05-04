@@ -26,7 +26,6 @@ public class BitfinexOrderBookUpdated {
                                     BitfinexClientApi bitfinexClientApi,
                                     BitfinexApiBroker bitfinexClient,
                                     BitfinexCurrencyPair bitfinexCurrencyPair) throws APIException {
-        bitfinexClient.connect();
         this.symbol = symbol;
         this.bitfinexClientApi = bitfinexClientApi;
         this.bitfinexClient = bitfinexClient;

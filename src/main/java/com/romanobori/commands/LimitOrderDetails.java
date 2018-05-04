@@ -1,12 +1,14 @@
 package com.romanobori.commands;
 
 public class LimitOrderDetails {
-    String orderId;
-    Double price;
+    private String orderId;
+    private Double price;
+    private Double amount;
 
-    public LimitOrderDetails(String orderId, Double price) {
+    public LimitOrderDetails(String orderId, Double price, Double amount) {
         this.orderId = orderId;
         this.price = price;
+        this.amount = amount;
     }
 
     public String getOrderId() {
@@ -14,5 +16,9 @@ public class LimitOrderDetails {
     }
     public Double getPrice() {
         return price;
+    }
+
+    public Double getAmount() {
+        return amount;
     }
 }

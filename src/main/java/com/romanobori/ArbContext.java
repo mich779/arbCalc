@@ -1,8 +1,7 @@
 package com.romanobori;
 
-import com.binance.api.client.impl.BinanceApiRestClientImpl;
+import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
-import com.bitfinex.client.BitfinexClient;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 
@@ -11,32 +10,30 @@ public class ArbContext {
     private String binanceListeningKey;
     private BinanceOrderBookUpdated binanceOrderBookUpdated;
     private BitfinexOrderBookUpdated bitfinexOrderBookUpdated;
-    private BinanceApiRestClientImpl binanceClient;
+    private BinanceApiRestClient binanceClient;
     private BitfinexClientApi bitfinexClientApi;
     private BinanceApiWebSocketClientImpl binanceSocketClient = new BinanceApiWebSocketClientImpl();
     private BitfinexApiBroker bitfinexApiBroker;
     private BinanceUpdatedWallet binanceUpdatedWallet;
+    private BitfinexUpdatedWallet bitfinexUpdatedWallet;
     public ArbContext(String symbol,
-                      String binanceKey,
-                      String binanceSecret,
-                      String bitfinexKey,
-                      String bitfinexSecret,
                       String binanceListeningKey,
                       BinanceOrderBookUpdated binanceOrderBookUpdated,
-                      BitfinexOrderBookUpdated bitfinexOrderBookUpdated) throws APIException {
+                      BitfinexOrderBookUpdated bitfinexOrderBookUpdated,
+                      BinanceApiRestClient binanceClient,
+                      BitfinexClientApi bitfinexClientApi,
+                      BitfinexApiBroker bitfinexApiBroker,
+                      BinanceUpdatedWallet binanceUpdatedWallet,
+                      BitfinexUpdatedWallet bitfinexUpdatedWallet) throws APIException {
         this.symbol = symbol;
         this.binanceListeningKey = binanceListeningKey;
         this.binanceOrderBookUpdated = binanceOrderBookUpdated;
         this.bitfinexOrderBookUpdated = bitfinexOrderBookUpdated;
-        binanceClient = new BinanceApiRestClientImpl(binanceKey, binanceSecret);
-        bitfinexClientApi = new BitfinexClientApi(
-                new BitfinexClient(bitfinexKey, bitfinexSecret)
-        );
-        bitfinexApiBroker = new BitfinexApiBroker(bitfinexKey, bitfinexSecret);
-        bitfinexApiBroker.connect();
-        binanceUpdatedWallet = new BinanceUpdatedWallet(binanceSocketClient,
-                new BinanceApiClient(binanceClient, 10),
-                binanceListeningKey);
+        this.binanceClient = binanceClient;
+        this.bitfinexClientApi = bitfinexClientApi;
+        this.bitfinexApiBroker = bitfinexApiBroker;
+        this.binanceUpdatedWallet = binanceUpdatedWallet;
+        this.bitfinexUpdatedWallet = bitfinexUpdatedWallet;
     }
 
 
@@ -60,7 +57,7 @@ public class ArbContext {
         return binanceSocketClient;
     }
 
-    public BinanceApiRestClientImpl getBinanceClient() {
+    public BinanceApiRestClient getBinanceClient() {
         return binanceClient;
     }
 
@@ -74,5 +71,9 @@ public class ArbContext {
 
     public BinanceUpdatedWallet getBinanceUpdatedWallet() {
         return binanceUpdatedWallet;
+    }
+
+    public BitfinexUpdatedWallet getBitfinexUpdatedWallet() {
+        return bitfinexUpdatedWallet;
     }
 }

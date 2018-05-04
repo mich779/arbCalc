@@ -1,15 +1,16 @@
 package com.romanobori.datastructures;
 
 public class ConditionStatus {
-    Boolean isPassed;
-    double binancePrice;
-    double bitfinexPrice;
+    private Boolean isPassed;
+    private double binancePrice;
+    private double bitfinexPrice;
+    private double amount;
 
-
-    public ConditionStatus(Boolean isPassed, double binancePrice, double bitfinexPrice) {
+    public ConditionStatus(Boolean isPassed, double binancePrice, double bitfinexPrice, double amount) {
         this.isPassed = isPassed;
         this.binancePrice = binancePrice;
         this.bitfinexPrice = bitfinexPrice;
+        this.amount = amount;
     }
 
     public Boolean isPassed() {
@@ -22,5 +23,9 @@ public class ConditionStatus {
 
     public double getBitfinexPrice() {
         return bitfinexPrice;
+    }
+
+    public double getAmount() {
+        return amount;
     }
 }

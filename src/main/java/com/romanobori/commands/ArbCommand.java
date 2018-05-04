@@ -1,29 +1,32 @@
 package com.romanobori.commands;
 
 
+import com.binance.api.client.exception.BinanceApiException;
+import com.romanobori.ArbContext;
 import com.romanobori.OrderSuccessCallback;
 import com.romanobori.datastructures.ConditionStatus;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
 
 public abstract class ArbCommand {
-    int count;
+    protected int count;
+    protected ArbContext context;
 
-    public ArbCommand(int count) {
+    public ArbCommand(int count, ArbContext context) {
         this.count = count;
+        this.context = context;
     }
 
     public void execute(BlockingQueue<ArbCommand> commandsQueue) throws ExecutionException, InterruptedException {
         ConditionStatus conditionStatus = placeOrderCondition().get();
         if(conditionStatus.isPassed()) {
 
-            LimitOrderDetails limitOrderDetails = firstOrder();
+            LimitOrderDetails limitOrderDetails = firstOrder(conditionStatus);
 
             System.out.println(format(
                     "the condition has passed , " +
@@ -36,7 +39,7 @@ public abstract class ArbCommand {
                     limitOrderDetails.getPrice(), firstOrderComplete);
 
             getOrderSuccessCallback().register(
-                    limitOrderDetails.getOrderId(), secondOrder(), firstOrderComplete);
+                    limitOrderDetails.getOrderId(), secondOrder(limitOrderDetails.getAmount()), firstOrderComplete);
 
             Boolean success = future.get();
             if(success) {
@@ -66,16 +69,30 @@ public abstract class ArbCommand {
 
     }
 
+    boolean cancel(Runnable task) {
+        try {
+            task.run();
+        } catch (BinanceApiException e) {
+            return false;
+        }
 
-    abstract LimitOrderDetails firstOrder();
+        return true;
+    }
+
+    private boolean isUnknownOrderException(BinanceApiException e) {
+        return e.getError().getCode() == 2011;
+    }
+
+
+    abstract LimitOrderDetails firstOrder(ConditionStatus conditionStatus);
 
     abstract Supplier<ConditionStatus> placeOrderCondition();
 
     abstract Function<Double,ConditionStatus> keepOrderCondition();
 
-    abstract Consumer<String> cancelOrder();
+    abstract Function<String, Boolean> cancelOrder();
 
-    abstract Runnable secondOrder();
+    abstract Runnable secondOrder(double amount);
 
     abstract OrderSuccessCallback getOrderSuccessCallback();
 

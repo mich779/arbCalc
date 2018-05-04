@@ -4,22 +4,21 @@ import com.romanobori.datastructures.ConditionStatus;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.lang.String.format;
 
 public class ConditionKeeperThread implements Callable<Boolean> {
     Function<Double,ConditionStatus> condition;
-    AtomicBoolean orderComplete;
-    Consumer<String> actionIfNotMet;
-    String orderId;
-    Double price;
+    private AtomicBoolean orderComplete;
+    private Function<String, Boolean> cancellation;
+    private String orderId;
+    private Double price;
     public ConditionKeeperThread(Function<Double,ConditionStatus> condition,
-                                 Consumer<String> actionIfNotMet, String orderId,
+                                 Function<String, Boolean> actionIfNotMet, String orderId,
                                  AtomicBoolean orderComplete, Double price) {
         this.condition = condition;
-        this.actionIfNotMet = actionIfNotMet;
+        this.cancellation = actionIfNotMet;
         this.orderId = orderId;
         this.orderComplete = orderComplete;
         this.price = price;
@@ -29,8 +28,8 @@ public class ConditionKeeperThread implements Callable<Boolean> {
     public Boolean call() throws Exception {
         while (orderNotCompleted()) {
             if (actionBreaked(condition)) {
-                actionIfNotMet.accept(orderId);
-                return Boolean.FALSE;
+                Boolean success = cancellation.apply(orderId);
+                return !success;
             }
             Thread.sleep(500);
         }

@@ -5,15 +5,12 @@ import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.entity.Wallet;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.jnidzwetzki.bitfinex.v2.entity.Wallet.WALLET_TYPE_EXCHANGE;
 
 public class BitfinexUpdatedWallet {
 
     private BitfinexApiBroker bitfinexApiBroker;
-    private Map<String, Double> currency2FreeAmount = new ConcurrentHashMap<>();
 
     public BitfinexUpdatedWallet(BitfinexApiBroker bitfinexApiBroker) {
         this.bitfinexApiBroker = bitfinexApiBroker;
@@ -21,6 +18,20 @@ public class BitfinexUpdatedWallet {
 
 
     public double getFreeAmount(String symbol){
-        return currency2FreeAmount.get(symbol);
+        try {
+            Collection<Wallet> wallets = bitfinexApiBroker.getWallets();
+            for(Wallet wallet : wallets){
+                if(wallet.getWalletType().equals(WALLET_TYPE_EXCHANGE)){
+                   if(wallet.getCurreny().equals(symbol)){
+                       return wallet.getBalance();
+                   }
+                }
+            }
+
+        } catch (APIException e) {
+            throw new RuntimeException(e);
+        }
+
+        return 0.0;
     }
 }
