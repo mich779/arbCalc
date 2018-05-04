@@ -13,34 +13,39 @@ import java.util.function.BiConsumer;
 public class BitfinexOrderBookUpdated {
     private static final String BIDS  = "BIDS";
     private static final String ASKS  = "ASKS";
-
-    private long lastUpdateId;
-
+    private long lastUpdate;
     private Map<String, NavigableMap<BigDecimal, BigDecimal>> depthCache;
 
     private BitfinexClientApi bitfinexClientApi;
     private BitfinexApiBroker bitfinexClient;
     private BitfinexCurrencyPair bitfinexCurrencyPair;
+    private static final int updateInterval = 5 * 60 * 1000;
+    private final String symbol;
+
     public BitfinexOrderBookUpdated(String symbol,
                                     BitfinexClientApi bitfinexClientApi,
                                     BitfinexApiBroker bitfinexClient,
                                     BitfinexCurrencyPair bitfinexCurrencyPair) throws APIException {
         bitfinexClient.connect();
+        this.symbol = symbol;
         this.bitfinexClientApi = bitfinexClientApi;
         this.bitfinexClient = bitfinexClient;
         this.bitfinexCurrencyPair = bitfinexCurrencyPair;
-        initializeDepthCache(symbol);
+        initializeNewOrderbookFromBitfinex(symbol);
         startDepthEventStreaming();
+
     }
 
     /**
      * Initializes the depth cache by using the REST API.
      */
-    private void initializeDepthCache(String symbol) {
+    private void initializeNewOrderbookFromBitfinex(String symbol) {
+
+        lastUpdate = System.currentTimeMillis();
+
         ArbOrders orderBook = bitfinexClientApi.getOrderBook(symbol);
 
         this.depthCache = new HashMap<>();
-        this.lastUpdateId = orderBook.getLastUpdateId();
 
         NavigableMap<BigDecimal, BigDecimal> asks = new TreeMap<>(Comparator.reverseOrder());
         for (ArbOrderEntry ask : orderBook.getAsks()) {
@@ -65,18 +70,10 @@ public class BitfinexOrderBookUpdated {
         final OrderbookManager orderbookManager = bitfinexClient.getOrderbookManager();
 
         final BiConsumer<OrderbookConfiguration, OrderbookEntry> callback = (orderbookConfig, entry) -> {
-            if (entry.getCount() > 0.0) {
-                if(entry.getAmount() > 0) {
-                    updateOrderBook(getBids(), entry);
-                }else{
-                    updateOrderBook(getAsks(), entry);
-                }
-            } else if (entry.getCount() == 0.0) {
-                if(entry.getAmount() == 1.0){
-                    remove(entry.getPrice(), depthCache.get(BIDS));
-                }else if ( entry.getAmount() == -1.0){
-                    remove(entry.getPrice(), depthCache.get(ASKS));
-                }
+            if(isTimeToUpdate()){
+                initializeNewOrderbookFromBitfinex(symbol);
+            }else {
+                updateOrderBookWithEntry(entry);
             }
         };
 
@@ -86,6 +83,37 @@ public class BitfinexOrderBookUpdated {
             throw new RuntimeException(e);
         }
         orderbookManager.subscribeOrderbook(orderbookConfiguration);
+    }
+
+    private void updateOrderBookWithEntry(OrderbookEntry entry) {
+        if (entry.getCount() > 0.0) {
+            if(entry.getAmount() > 0) {
+                updateOrderBook(getBids(), entry);
+            }else{
+                updateOrderBook(getAsks(), entry);
+            }
+        } else if (entry.getCount() == 0.0) {
+            if(entry.getAmount() == 1.0){
+                remove(entry.getPrice(), depthCache.get(BIDS));
+            }else if ( entry.getAmount() == -1.0){
+                remove(entry.getPrice(), depthCache.get(ASKS));
+            }
+        }
+    }
+
+
+    private boolean isTimeToUpdate(){
+        return System.currentTimeMillis() - lastUpdate > updateInterval;
+    }
+
+
+    private boolean isTimeToCheckOrderBook(long createdTime) {
+        return (System.currentTimeMillis() - createdTime)%(1000*60) == 0;
+    }
+
+    private boolean doesBestBidsAndBestAskMatch(BitfinexOrderBookUpdated newOrderBook) {
+        return newOrderBook.getBestAsk().equals(this.getBestAsk()) &&
+                newOrderBook.getBestBid().equals(this.getBestBid());
     }
 
     private void remove(double price, NavigableMap<BigDecimal, BigDecimal> bids) {

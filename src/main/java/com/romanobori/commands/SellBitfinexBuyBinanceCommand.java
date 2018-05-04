@@ -4,7 +4,6 @@ import com.binance.api.client.domain.OrderSide;
 import com.binance.api.client.domain.OrderType;
 import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.NewOrder;
-import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.ArbContext;
@@ -22,8 +21,8 @@ import java.util.function.Supplier;
 public class SellBitfinexBuyBinanceCommand extends ArbCommand {
 
     ArbContext context;
-    //private double rate = 1.002504;
-    private double rate = 1.001504;
+    private double rate = 1.002504;
+    //private double rate = 1.001504;
 
 
     public SellBitfinexBuyBinanceCommand(int count, ArbContext context) {

@@ -19,8 +19,8 @@ import java.util.function.Supplier;
 
 public class SellBinanceBuyBitfinexCommand extends ArbCommand {
     ArbContext context;
-    //private double rate = 1.003508;
-    private double rate = 1.001508;
+    private double rate = 1.003508;
+    //private double rate = 1.001508;
 
     public SellBinanceBuyBitfinexCommand(int count, ArbContext context) {
         super(count);
