@@ -19,6 +19,7 @@ public class BitfinexUpdatedWallet {
 
     public double getFreeAmount(String symbol){
         try {
+            connectIfNotAuthenticated();
             Collection<Wallet> wallets = bitfinexApiBroker.getWallets();
             for(Wallet wallet : wallets){
                 if(wallet.getWalletType().equals(WALLET_TYPE_EXCHANGE)){
@@ -33,5 +34,15 @@ public class BitfinexUpdatedWallet {
         }
 
         return 0.0;
+    }
+
+    private void connectIfNotAuthenticated() throws APIException {
+        if(notAuthenticated()){
+            bitfinexApiBroker.connect();
+        }
+    }
+
+    private boolean notAuthenticated() {
+        return !bitfinexApiBroker.isAuthenticated();
     }
 }
