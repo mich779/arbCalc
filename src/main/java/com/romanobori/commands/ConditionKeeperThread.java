@@ -9,19 +9,19 @@ import java.util.function.Function;
 import static java.lang.String.format;
 
 public class ConditionKeeperThread implements Callable<Boolean> {
-    Function<Double,ConditionStatus> condition;
+    Function<LimitOrderDetails,ConditionStatus> condition;
     private AtomicBoolean orderComplete;
     private Function<String, Boolean> cancellation;
     private String orderId;
-    private Double price;
-    public ConditionKeeperThread(Function<Double,ConditionStatus> condition,
-                                 Function<String, Boolean> actionIfNotMet, String orderId,
-                                 AtomicBoolean orderComplete, Double price) {
+    private LimitOrderDetails orderDetails;
+    ConditionKeeperThread(Function<LimitOrderDetails, ConditionStatus> condition,
+                          Function<String, Boolean> actionIfNotMet, String orderId,
+                          AtomicBoolean orderComplete, LimitOrderDetails orderDetails) {
         this.condition = condition;
         this.cancellation = actionIfNotMet;
         this.orderId = orderId;
         this.orderComplete = orderComplete;
-        this.price = price;
+        this.orderDetails = orderDetails;
     }
 
     @Override
@@ -36,9 +36,9 @@ public class ConditionKeeperThread implements Callable<Boolean> {
         return Boolean.TRUE;
     }
 
-    private boolean actionBreaked(Function<Double,ConditionStatus> condition) {
+    private boolean actionBreaked(Function<LimitOrderDetails,ConditionStatus> condition) {
 
-        ConditionStatus conditionStatus = condition.apply(price);
+        ConditionStatus conditionStatus = condition.apply(orderDetails);
         if(conditionStatus.isPassed()){
             System.out.println(format("condition is passed, binanacePrice is %f " +
                     "bitfinex price is %f", conditionStatus.getBinancePrice()

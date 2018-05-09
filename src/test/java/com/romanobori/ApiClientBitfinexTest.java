@@ -10,6 +10,7 @@ import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,7 +80,7 @@ public class ApiClientBitfinexTest {
 
     @Test
     public void addOrderTest(){
-        when(bitfinexClient.addOrder("NEOBTC", 0.5, Action.sell))
+        when(bitfinexClient.addOrder(eq("NEOBTC"), eq(0.5),eq(0.5), eq(Action.sell)))
                 .thenReturn("{\"id\":8127500914,\"cid\":75468100725,\"cid_date\":\"2018-02-09\",\"gid\":null,\"symbol\":\"neobtc\"," +
                         "\"exchange\":\"bitfinex\",\"price\":\"0.5\"," +
                         "\"avg_execution_price\":\"0.0\",\"side\":\"sell\",\"type\":\"exchange limit\"," +

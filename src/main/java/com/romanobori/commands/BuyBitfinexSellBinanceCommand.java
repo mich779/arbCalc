@@ -46,26 +46,43 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
                     Math.min(
                             Math.min(
                                     CommonFunctions.round(bitfinexUpdatedWallet.getFreeAmount("btc") / bitfinexHighestBid, 2),
-                                    CommonFunctions.round(highestBidBinance.getAmount(), 2)), 0.2);
+                                    CommonFunctions.round(highestBidBinance.getAmount() * 0.75, 2)), 0.2);
 
             return (amount < 0.2) ? new ConditionStatus(false, 0.0, 0.0, 0.0) :
                     new ConditionStatus(
-                            bitfinexHighestBid * rate <= binanceHighestBid,
+                            isPriceGapProfitable(bitfinexHighestBid, binanceHighestBid),
                             binanceHighestBid, bitfinexHighestBid, amount
                     );
         };
     }
 
     @Override
-    Function<Double, ConditionStatus> keepOrderCondition() {
-        return (myBidPrice) -> {
-            double bitfinexHighestBid = myBidPrice;
+    Function<LimitOrderDetails, ConditionStatus> keepOrderCondition() {
+        return (limitOrderDetails) -> {
+            double limitOrderPrice = limitOrderDetails.getPrice();
+            double limitOrderAmount = limitOrderDetails.getAmount();
+            ArbOrderEntry highestBidBinance = context.getBinanceOrderBookUpdated().getHighestBid();
             double binanceHighestBid = context.getBinanceOrderBookUpdated().getHighestBid().getPrice();
+
             return new ConditionStatus(
-                    bitfinexHighestBid * rate <= binanceHighestBid
-                            && myBidPrice == context.getBitfinexOrderBookUpdated().getHighestBid().getPrice(),
-                    binanceHighestBid, bitfinexHighestBid, 0.0);
+                    isPriceGapProfitable(limitOrderPrice, binanceHighestBid)
+                            && isOrderPriceAtractive(limitOrderDetails)
+                            && isLessThenTargetMarketAmount(limitOrderAmount, highestBidBinance.getAmount())
+                    ,
+                    binanceHighestBid, limitOrderPrice, 0.0);
         };
+    }
+
+    private boolean isLessThenTargetMarketAmount(double limitOrderAmount, double amount) {
+        return limitOrderAmount <= amount;
+    }
+
+    private boolean isOrderPriceAtractive(LimitOrderDetails limitOrderDetails) {
+        return limitOrderDetails.getPrice() == context.getBitfinexOrderBookUpdated().getHighestBid().getPrice();
+    }
+
+    private boolean isPriceGapProfitable(double limitOrderPrice, double binanceHighestBid) {
+        return limitOrderPrice * rate <= binanceHighestBid;
     }
 
     @Override

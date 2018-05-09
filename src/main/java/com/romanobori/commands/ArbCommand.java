@@ -36,7 +36,7 @@ public abstract class ArbCommand {
             AtomicBoolean firstOrderComplete = new AtomicBoolean(false);
 
             Future<Boolean> future = orderComplete(limitOrderDetails.getOrderId(),
-                    limitOrderDetails.getPrice(), firstOrderComplete);
+                    limitOrderDetails, firstOrderComplete);
 
             getOrderSuccessCallback().register(
                     limitOrderDetails.getOrderId(), secondOrder(limitOrderDetails.getAmount()), firstOrderComplete);
@@ -58,9 +58,9 @@ public abstract class ArbCommand {
         }
     }
 
-    private Future<Boolean> orderComplete(String orderId, Double price, AtomicBoolean firstOrderComplete) {
+    private Future<Boolean> orderComplete(String orderId, LimitOrderDetails limitOrderDetails, AtomicBoolean firstOrderComplete) {
         ConditionKeeperThread thread = new ConditionKeeperThread(
-                keepOrderCondition(), cancelOrder(), orderId, firstOrderComplete, price);
+                keepOrderCondition(), cancelOrder(), orderId, firstOrderComplete, limitOrderDetails);
 
         final ExecutorService pool = Executors.newFixedThreadPool(1);
 
@@ -88,7 +88,7 @@ public abstract class ArbCommand {
 
     abstract Supplier<ConditionStatus> placeOrderCondition();
 
-    abstract Function<Double,ConditionStatus> keepOrderCondition();
+    abstract Function<LimitOrderDetails, ConditionStatus> keepOrderCondition();
 
     abstract Function<String, Boolean> cancelOrder();
 

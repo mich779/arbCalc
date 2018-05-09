@@ -49,7 +49,7 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
 
             double amount = Math.min(Math.min(
                     CommonFunctions.round(binanceUpdatedWallet.getFreeAmount("NEO"), 2),
-                    CommonFunctions.round(lowestAskBitfinex.getAmount(), 2)), 0.2);
+                    CommonFunctions.round(lowestAskBitfinex.getAmount() * 0.75, 2)), 0.2);
 
             return (amount < 0.2) ? new ConditionStatus(false, 0.0, 0.0, 0.0) :
                     new ConditionStatus(
@@ -62,13 +62,13 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
     }
 
     @Override
-    Function<Double, ConditionStatus> keepOrderCondition() {
-        return (myAskPrice) -> {
+    Function<LimitOrderDetails, ConditionStatus> keepOrderCondition() {
+        return (limitOrderDetails) -> {
             double bitfinexLowestAsk = context.getBitfinexOrderBookUpdated().getLowestAsk().getPrice();
-            double binanceLowestAsk = myAskPrice;
+            double binanceLowestAsk = limitOrderDetails.getPrice();
             return new ConditionStatus(
                     bitfinexLowestAsk * rate <= binanceLowestAsk
-                            && myAskPrice == context.getBinanceOrderBookUpdated().getLowestAsk().getPrice(),
+                            && limitOrderDetails.getPrice() == context.getBinanceOrderBookUpdated().getLowestAsk().getPrice(),
                     binanceLowestAsk,
                     bitfinexLowestAsk,
                     0.0

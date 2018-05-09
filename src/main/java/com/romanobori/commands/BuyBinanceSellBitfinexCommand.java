@@ -53,7 +53,7 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
             double amount =
                     Math.min(
                             Math.min(CommonFunctions.round(binanceUpdatedWallet.getFreeAmount("BTC") / binanceHighestBidPrice, 2),
-                                    CommonFunctions.round(highestBidBitfinex.getAmount(), 2)), 0.2);
+                                    CommonFunctions.round(highestBidBitfinex.getAmount() * 0.75, 2)), 0.2);
 
             return (amount < 0.2) ? new ConditionStatus(false, 0.0, 0.0, 0.0) :
                     new ConditionStatus(
@@ -64,14 +64,14 @@ public class BuyBinanceSellBitfinexCommand extends ArbCommand {
     }
 
     @Override
-    Function<Double, ConditionStatus> keepOrderCondition() {
-        return (myBidPrice) -> {
+    Function<LimitOrderDetails, ConditionStatus> keepOrderCondition() {
+        return (limitOrderDetails) -> {
 
             double bitfinexHighestBid = context.getBitfinexOrderBookUpdated().getHighestBid().getPrice();
 
-            return new ConditionStatus(myBidPrice * rate <= bitfinexHighestBid
-                    && myBidPrice == context.getBinanceOrderBookUpdated().getHighestBid().getPrice() /// TODO: change restriction
-                    , myBidPrice, bitfinexHighestBid, 0.0);
+            return new ConditionStatus(limitOrderDetails.getPrice() * rate <= bitfinexHighestBid
+                    && limitOrderDetails.getPrice() == context.getBinanceOrderBookUpdated().getHighestBid().getPrice() /// TODO: change restriction
+                    , limitOrderDetails.getPrice(), bitfinexHighestBid, 0.0);
         };
     }
 
