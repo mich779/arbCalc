@@ -1,57 +1,71 @@
 package com.romanobori.commands;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.romanobori.datastructures.ConditionStatus;
 
-import java.util.concurrent.Callable;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import static java.lang.String.format;
 
-public class ConditionKeeperThread implements Callable<Boolean> {
-    Function<LimitOrderDetails,ConditionStatus> condition;
-    private AtomicBoolean orderComplete;
+public class ConditionKeeperThread implements Runnable, Observer {
+    Function<LimitOrderDetails, ConditionStatus> condition;
+    private CountDownLatch countDownLatch;
     private Function<String, Boolean> cancellation;
     private String orderId;
-    private LimitOrderDetails orderDetails;
+    private AtomicDouble amount;
+    private AtomicDouble price;
+    private AtomicBoolean orderFilled = new AtomicBoolean(false);
+
     ConditionKeeperThread(Function<LimitOrderDetails, ConditionStatus> condition,
                           Function<String, Boolean> actionIfNotMet, String orderId,
-                          AtomicBoolean orderComplete, LimitOrderDetails orderDetails) {
+                          CountDownLatch countDownLatch, LimitOrderDetails orderDetails) {
         this.condition = condition;
         this.cancellation = actionIfNotMet;
         this.orderId = orderId;
-        this.orderComplete = orderComplete;
-        this.orderDetails = orderDetails;
+        this.countDownLatch = countDownLatch;
+        this.amount = new AtomicDouble(orderDetails.getAmount());
+        this.price = new AtomicDouble(orderDetails.getPrice());
     }
 
     @Override
-    public Boolean call() throws Exception {
-        while (orderNotCompleted()) {
+    public void run() {
+        while (! orderFilled.get()) {
             if (actionBreaked(condition)) {
-                Boolean success = cancellation.apply(orderId);
-                return !success;
+                cancellation.apply(orderId);
+                System.out.println("the command cancelled");
+                countDownLatch.countDown();
+                break;
             }
-            Thread.sleep(500);
         }
-        return Boolean.TRUE;
     }
 
-    private boolean actionBreaked(Function<LimitOrderDetails,ConditionStatus> condition) {
-
-        ConditionStatus conditionStatus = condition.apply(orderDetails);
-        if(conditionStatus.isPassed()){
+    private boolean actionBreaked(Function<LimitOrderDetails, ConditionStatus> condition) {
+        ConditionStatus conditionStatus = condition.apply(
+                new LimitOrderDetails(orderId, price.get(), amount.get())
+        );
+        if (conditionStatus.isPassed()) {
             System.out.println(format("condition is passed, binanacePrice is %f " +
-                    "bitfinex price is %f", conditionStatus.getBinancePrice()
-            , conditionStatus.getBitfinexPrice()));
+                            "bitfinex price is %f", conditionStatus.getBinancePrice()
+                    , conditionStatus.getBitfinexPrice()));
             return false;
-        }else{
+        } else {
             return true;
         }
     }
 
-    private boolean orderNotCompleted() {
-        return !orderComplete.get();
-    }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        UpdateConditionDetails details = (UpdateConditionDetails) arg;
+        if(details.getUpdateType().equals("PARTIAL")){
+            amount.set(details.getAmount());
+        }else if(details.getUpdateType().equals("FULL")){
+            orderFilled.set(true);
+        }
+    }
 }
 

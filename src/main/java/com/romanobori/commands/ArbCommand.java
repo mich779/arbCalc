@@ -2,71 +2,59 @@ package com.romanobori.commands;
 
 
 import com.binance.api.client.exception.BinanceApiException;
+import com.romanobori.AmountFillerDetector;
 import com.romanobori.ArbContext;
-import com.romanobori.OrderSuccessCallback;
 import com.romanobori.datastructures.ConditionStatus;
 
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
 
 public abstract class ArbCommand {
-    protected int count;
-    protected ArbContext context;
+    private int count;
+    ArbContext context;
 
-    public ArbCommand(int count, ArbContext context) {
+    ArbCommand(int count, ArbContext context) {
         this.count = count;
         this.context = context;
     }
 
     public void execute(BlockingQueue<ArbCommand> commandsQueue) throws ExecutionException, InterruptedException {
         ConditionStatus conditionStatus = placeOrderCondition().get();
-        if(conditionStatus.isPassed()) {
-
+        if (conditionStatus.isPassed()) {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
             LimitOrderDetails limitOrderDetails = firstOrder(conditionStatus);
 
-            System.out.println(format(
-                    "the condition has passed , " +
-                            "binance value is %f, bitfinex value is %f order id is %s for command %s and the "
-                    , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice()
-                    ,limitOrderDetails.getOrderId(), type()));
-            AtomicBoolean firstOrderComplete = new AtomicBoolean(false);
+            printIfConditionHasPassed(conditionStatus, limitOrderDetails);
+            ConditionKeeperThread conditionKeeperThread = countDownIfConditionBreak(limitOrderDetails.getOrderId(), limitOrderDetails, countDownLatch);
+            getAmountFillerDetector().register(limitOrderDetails, secondOrder(), conditionKeeperThread);
 
-            Future<Boolean> future = orderComplete(limitOrderDetails.getOrderId(),
-                    limitOrderDetails, firstOrderComplete);
-
-            getOrderSuccessCallback().register(
-                    limitOrderDetails.getOrderId(), secondOrder(limitOrderDetails.getAmount()), firstOrderComplete);
-
-            Boolean success = future.get();
-            if(success) {
-                System.out.println("command passed : " + type());
-                if (count > 10) {
-                    commandsQueue.add(buildAnotherCommand(count - 1));
-                }
-            }else{
-                System.out.println(format("building command after cancellation %s", type()));
-                commandsQueue.add(buildAnotherCommand(count));
-            }
-        }else {
+            countDownLatch.await();
+            commandsQueue.add(buildAnotherCommand(count));
+        } else {
             Thread.sleep(1000);
-            System.out.println(format("building another command with type %s", type()));
             commandsQueue.add(buildAnotherCommand(count));
         }
     }
 
-    private Future<Boolean> orderComplete(String orderId, LimitOrderDetails limitOrderDetails, AtomicBoolean firstOrderComplete) {
-        ConditionKeeperThread thread = new ConditionKeeperThread(
-                keepOrderCondition(), cancelOrder(), orderId, firstOrderComplete, limitOrderDetails);
+    private void printIfConditionHasPassed(ConditionStatus conditionStatus, LimitOrderDetails limitOrderDetails) {
+        System.out.println(format(
+                "the condition has passed , " +
+                        "binance value is %f, bitfinex value is %f order id is %s for command %s and the "
+                , conditionStatus.getBinancePrice(), conditionStatus.getBitfinexPrice()
+                , limitOrderDetails.getOrderId(), type()));
+    }
+
+    private ConditionKeeperThread  countDownIfConditionBreak(String orderId, LimitOrderDetails limitOrderDetails, CountDownLatch countDownLatch) {
+        ConditionKeeperThread thread = new ConditionKeeperThread(keepOrderCondition(), cancelOrder(), orderId, countDownLatch, limitOrderDetails);
 
         final ExecutorService pool = Executors.newFixedThreadPool(1);
 
-        return pool.submit(thread);
-
-
+        pool.submit(thread);
+        return thread;
     }
 
     boolean cancel(Runnable task) {
@@ -92,9 +80,9 @@ public abstract class ArbCommand {
 
     abstract Function<String, Boolean> cancelOrder();
 
-    abstract Runnable secondOrder(double amount);
+    abstract Consumer<Double> secondOrder();
 
-    abstract OrderSuccessCallback getOrderSuccessCallback();
+    abstract AmountFillerDetector getAmountFillerDetector();
 
     abstract ArbCommand buildAnotherCommand(int count);
 

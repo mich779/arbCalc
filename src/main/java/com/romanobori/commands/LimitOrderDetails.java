@@ -17,7 +17,6 @@ public class LimitOrderDetails {
     public Double getPrice() {
         return price;
     }
-
     public Double getAmount() {
         return amount;
     }

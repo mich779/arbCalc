@@ -12,6 +12,7 @@ import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderLimit;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -99,8 +100,8 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     }
 
     @Override
-    Runnable secondOrder(double amount) {
-        return () -> context.getBinanceClient()
+    Consumer<Double> secondOrder() {
+        return (amount) -> context.getBinanceClient()
                 .newOrder(
                         new NewOrder(
                                 context.getSymbol(),
@@ -112,8 +113,8 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
     }
 
     @Override
-    OrderSuccessCallback getOrderSuccessCallback() {
-        return new OrderSuccessCallbackBitfinex(context.getBitfinexApiBroker());
+    AmountFillerDetector getAmountFillerDetector() {
+        return new AmountFillerDetectorBitfinex(context.getBitfinexApiBroker());
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderMarket;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -83,16 +84,16 @@ public class SellBinanceBuyBitfinexCommand extends ArbCommand {
     }
 
     @Override
-    Runnable secondOrder(double amount) {
+    Consumer<Double> secondOrder() {
 
-        return () -> context.getBitfinexClientApi().addArbOrder(new NewArbOrderMarket(
+        return (amount) -> context.getBitfinexClientApi().addArbOrder(new NewArbOrderMarket(
                 context.getSymbol(), ARBTradeAction.BUY, amount
         ));
     }
 
     @Override
-    OrderSuccessCallback getOrderSuccessCallback() {
-        return new OrderSuccessCallbackBinance(context.getBinanceSocketClient(), context.getBinanceListeningKey());
+    AmountFillerDetector getAmountFillerDetector() {
+        return new AmountFillerDetectorBinance(context.getBinanceSocketClient(), context.getBinanceListeningKey());
     }
 
     @Override
