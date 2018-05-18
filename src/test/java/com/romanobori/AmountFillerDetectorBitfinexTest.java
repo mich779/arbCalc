@@ -6,13 +6,13 @@ import com.github.jnidzwetzki.bitfinex.v2.entity.ExchangeOrderState;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.AdditionalMatchers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
 import java.util.Observer;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -99,12 +99,9 @@ public class AmountFillerDetectorBitfinexTest {
         Consumer<Double> consumer = mock(Consumer.class);
         amountFillerDetectorBitfinex.register(limitOrderDetails, consumer, observer);
 
-
-        final ArgumentCaptor<Double> captor = ArgumentCaptor.forClass(Double.class);
-
         verify(observer).update(any(), eq("PARTIAL"));
-        verify(consumer).accept(captor.capture());
-        assertEquals(0.2, captor.getValue(), 0.0005);
+        verify(consumer).accept(AdditionalMatchers.eq(0.2, 0.005));
+
 
     }
 
