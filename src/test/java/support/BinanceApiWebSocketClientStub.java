@@ -12,6 +12,9 @@ public class BinanceApiWebSocketClientStub implements BinanceApiWebSocketClient 
 
     private UserDataUpdateEvent updateEvent;
 
+    public BinanceApiWebSocketClientStub() {
+    }
+
     public BinanceApiWebSocketClientStub(UserDataUpdateEvent updateEvent) {
         this.updateEvent = updateEvent;
     }

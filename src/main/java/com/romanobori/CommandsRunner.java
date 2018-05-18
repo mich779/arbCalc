@@ -1,4 +1,6 @@
-package com.romanobori.commands;
+package com.romanobori;
+
+import com.romanobori.commands.ArbCommand;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;

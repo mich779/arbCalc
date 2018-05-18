@@ -12,18 +12,19 @@ import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.NewArbOrderLimit;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SellBitfinexBuyBinanceCommand extends ArbCommand {
 
+    private double precision = 0.005;
     private double rate = 1.002504;
     //private double rate = 1.001504;
 
 
     public SellBitfinexBuyBinanceCommand(int count, ArbContext context) {
         super(count, context);
-
     }
 
     @Override
@@ -50,21 +51,35 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
 
             return (amount < 0.2) ? new ConditionStatus(false, 0.0, 0.0, 0.0) :
                     new ConditionStatus(
-                            lowestAskBinancePrice * rate <= bitfinexLowestAsk,
+                            isPriceGapProfitable(lowestAskBinancePrice, bitfinexLowestAsk),
                             lowestAskBinancePrice, bitfinexLowestAsk, amount);
         };
     }
 
     @Override
     Function<LimitOrderDetails, ConditionStatus> keepOrderCondition() {
-        return (limitOrderDetails) -> {
-            double binanceLowestAsk = context.getBinanceOrderBookUpdated().getLowestAsk().getPrice();
-            double bitfinexLowestAsk = limitOrderDetails.getPrice();
+        return (limitOrder) -> {
+            ArbOrderEntry binanceLowestAsk = context.getBinanceOrderBookUpdated().getLowestAsk();
+
             return new ConditionStatus(
-                    binanceLowestAsk * rate <= bitfinexLowestAsk
-                            && limitOrderDetails.getPrice() == context.getBitfinexOrderBookUpdated().getLowestAsk().getPrice(),
-                    binanceLowestAsk, bitfinexLowestAsk, 0.0);
+                    isPriceGapProfitable(binanceLowestAsk.getPrice(), limitOrder.getPrice())
+                            && isOrderPriceAtractive(limitOrder)
+                            && isNotHigherThenMarketAmount(limitOrder.getAmount(),binanceLowestAsk.getAmount()),
+                    binanceLowestAsk.getPrice(), limitOrder.getPrice(), 0.0);
         };
+    }
+
+
+    private boolean isPriceGapProfitable(double binanceLowestAsk, double bitfinexLowestAsk) {
+        return binanceLowestAsk * rate <= bitfinexLowestAsk;
+    }
+
+    private boolean isOrderPriceAtractive(LimitOrderDetails limitOrder) {
+        return limitOrder.getPrice() <= (1+precision)*context.getBitfinexOrderBookUpdated().getLowestAsk().getPrice();
+    }
+
+    private boolean isNotHigherThenMarketAmount(double limitOrderAmount, double MarketAmount) {
+        return limitOrderAmount <= MarketAmount;
     }
 
     @Override
@@ -81,8 +96,8 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
     }
 
     @Override
-    Runnable secondOrder(double amount) {
-        return () -> context.getBinanceClient().newOrder(
+    Consumer<Double> secondOrder() {
+        return (amount) -> context.getBinanceClient().newOrder(
                 new NewOrder(
                         context.getSymbol(),
                         OrderSide.BUY,
@@ -93,8 +108,8 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
     }
 
     @Override
-    OrderSuccessCallback getOrderSuccessCallback() {
-        return new OrderSuccessCallbackBitfinex(context.getBitfinexApiBroker());
+    AmountFillerDetectorObservable getAmountFillerDetector() {
+        return new AmountFillerDetectorBitfinex(context.getBitfinexApiBroker());
     }
 
     @Override

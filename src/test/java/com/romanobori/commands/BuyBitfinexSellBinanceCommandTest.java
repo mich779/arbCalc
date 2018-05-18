@@ -3,6 +3,7 @@ package com.romanobori.commands;
 import com.romanobori.ArbContext;
 import com.romanobori.BinanceOrderBookUpdated;
 import com.romanobori.BitfinexOrderBookUpdated;
+import com.romanobori.LimitOrderDetails;
 import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import org.junit.Before;
@@ -18,8 +19,9 @@ public class BuyBitfinexSellBinanceCommandTest {
     private BinanceOrderBookUpdated binanceOrderBookUpdated = mock(BinanceOrderBookUpdated.class);
     private BitfinexOrderBookUpdated bitfinexOrderBookUpdated = mock(BitfinexOrderBookUpdated.class);
     private ArbContext context;
+
     @Before
-    public void setUp()throws Exception{
+    public void setUp() throws Exception{
         context = new ArbContext(
                 "NEOBTC",
                 "",
@@ -34,8 +36,7 @@ public class BuyBitfinexSellBinanceCommandTest {
     }
 
     @Test
-    public void keepOrderCondition() throws Exception{
-
+    public void shouldNotKeepOrderWhen_priceGapIsNotProfitable() throws Exception{
         when(binanceOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(0.5, 0.2));
         ArbCommand arbCommand = new BuyBitfinexSellBinanceCommand(0, context);
 
@@ -43,11 +44,35 @@ public class BuyBitfinexSellBinanceCommandTest {
                 new LimitOrderDetails("order1", 0.5, 0.2));
 
         assertFalse(conditionStatus.isPassed());
+    }
 
+
+    @Test
+    public void shouldNotKeepOrderWhen_orderIsMuchLowerThanHighestBid()throws Exception {
+        when(binanceOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(2.0, 0.2));
+        when(bitfinexOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(0.4, 0.2));
+        ArbCommand arbCommand = new BuyBitfinexSellBinanceCommand(0, context);
+
+        ConditionStatus conditionStatus = arbCommand.keepOrderCondition().apply(
+                new LimitOrderDetails("order1", 0.4*0.994, 0.2));
+
+        assertFalse(conditionStatus.isPassed());
     }
 
     @Test
-    public void shouldPass()throws Exception {
+    public void shouldNotKeepOrderWhen_marketAmountIsSmaller()throws Exception {
+        when(binanceOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(2.0, 0.5));
+        when(bitfinexOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(0.5, 0.7));
+        ArbCommand arbCommand = new BuyBitfinexSellBinanceCommand(0, context);
+
+        ConditionStatus conditionStatus = arbCommand.keepOrderCondition().apply(
+                new LimitOrderDetails("order1", 0.5, 0.6));
+
+        assertFalse(conditionStatus.isPassed());
+    }
+
+    @Test
+    public void shouldKeepOrderWhen_priceIsProfitableAndMarketAmountIsNotSmaller()throws Exception {
         when(binanceOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(2.0, 0.2));
         when(bitfinexOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(0.5, 0.2));
         ArbCommand arbCommand = new BuyBitfinexSellBinanceCommand(0, context);
@@ -56,29 +81,5 @@ public class BuyBitfinexSellBinanceCommandTest {
                 new LimitOrderDetails("order1", 0.5, 0.2));
 
         assertTrue(conditionStatus.isPassed());
-    }
-
-    @Test
-    public void shouldFailWhen_orderIsNotAsHighestBid()throws Exception {
-        when(binanceOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(2.0, 0.2));
-        when(bitfinexOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(0.4, 0.2));
-        ArbCommand arbCommand = new BuyBitfinexSellBinanceCommand(0, context);
-
-        ConditionStatus conditionStatus = arbCommand.keepOrderCondition().apply(
-                new LimitOrderDetails("order1", 0.5, 0.2));
-
-        assertFalse(conditionStatus.isPassed());
-    }
-
-    @Test
-    public void shouldFailWhenTargetMarketAmount_isLessThenOrderAmount()throws Exception {
-        when(binanceOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(2.0, 0.5));
-        when(bitfinexOrderBookUpdated.getHighestBid()).thenReturn(new ArbOrderEntry(0.5, 0.2));
-        ArbCommand arbCommand = new BuyBitfinexSellBinanceCommand(0, context);
-
-        ConditionStatus conditionStatus = arbCommand.keepOrderCondition().apply(
-                new LimitOrderDetails("order1", 0.5, 0.6));
-
-        assertFalse(conditionStatus.isPassed());
     }
 }
