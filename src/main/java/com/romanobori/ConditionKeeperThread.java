@@ -3,15 +3,11 @@ package com.romanobori;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.romanobori.datastructures.ConditionStatus;
 
-import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-import static java.lang.String.format;
-
-public class ConditionKeeperThread implements Runnable, Observer {
+public class ConditionKeeperThread implements Runnable, AmountChangedObserver {
     Function<LimitOrderDetails, ConditionStatus> condition;
     private CountDownLatch countDownLatch;
     private Function<String, Boolean> cancellation;
@@ -33,7 +29,7 @@ public class ConditionKeeperThread implements Runnable, Observer {
 
     @Override
     public void run() {
-        while (! orderFilled.get()) {
+        while (!orderFilled.get()) {
             if (actionBreaked(condition)) {
                 cancellation.apply(orderId);
                 System.out.println("the command cancelled");
@@ -47,20 +43,17 @@ public class ConditionKeeperThread implements Runnable, Observer {
         ConditionStatus conditionStatus = condition.apply(
                 new LimitOrderDetails(orderId, price.get(), amount.get())
         );
-        if (conditionStatus.isPassed()) {
-            System.out.println(format("condition is passed, binanacePrice is %f " +
-                            "bitfinex price is %f", conditionStatus.getBinancePrice()
-                    , conditionStatus.getBitfinexPrice()));
-            return false;
-        } else {
-            return true;
-        }
+        return conditionStatus.isPassed();
     }
 
 
     @Override
-    public void update(Observable o, Object arg) {
-
+    public void updateInfo(String type, double newAmount) {
+        if(type.equals("FILLED")){
+            orderFilled.set(true);
+        }else if(type.equals("PARTIAL")){
+            amount.set(newAmount);
+        }
     }
 }
 

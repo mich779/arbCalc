@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import support.BinanceApiWebSocketClientStub;
 
-import java.util.Observer;
 import java.util.function.Consumer;
 
 import static org.mockito.Matchers.any;
@@ -18,12 +17,12 @@ public class AmountFillerDetectorBinanceTest {
 
     private AmountFillerDetectorBinance amountFillerDetectorBinance;
     private BinanceApiWebSocketClientStub socketClient;
-    private Observer observer;
+    private AmountChangedObserver observer;
     @Before
     public void setUp(){
         socketClient = new BinanceApiWebSocketClientStub();
         amountFillerDetectorBinance = new AmountFillerDetectorBinance(socketClient, "");
-        observer = mock(Observer.class);
+        observer = mock(AmountChangedObserver.class);
 
     }
 
@@ -35,6 +34,8 @@ public class AmountFillerDetectorBinanceTest {
         orderTradeUpdateEvent.setOrderStatus(OrderStatus.FILLED);
         orderTradeUpdateEvent.setOrderId(1234L);
         orderTradeUpdateEvent.setQuantityLastFilledTrade("0.5");
+        orderTradeUpdateEvent.setAccumulatedQuantity("0.5");
+        orderTradeUpdateEvent.setOriginalQuantity("1.0");
         userDataUpdateEvent.setOrderTradeUpdateEvent(orderTradeUpdateEvent);
         socketClient.setUpdateEvent(userDataUpdateEvent);
 
@@ -44,7 +45,7 @@ public class AmountFillerDetectorBinanceTest {
                 observer
         );
 
-        verify(observer).update(any(), eq("FILLED"));
+        verify(observer).updateInfo( eq("FILLED"), eq(0.0));
     }
 
     @Test
@@ -54,7 +55,9 @@ public class AmountFillerDetectorBinanceTest {
         OrderTradeUpdateEvent orderTradeUpdateEvent = new OrderTradeUpdateEvent();
         orderTradeUpdateEvent.setOrderStatus(OrderStatus.PARTIALLY_FILLED);
         orderTradeUpdateEvent.setOrderId(1234L);
+        orderTradeUpdateEvent.setAccumulatedQuantity("0.5");
         orderTradeUpdateEvent.setQuantityLastFilledTrade("0.3");
+        orderTradeUpdateEvent.setOriginalQuantity("1.0");
         userDataUpdateEvent.setOrderTradeUpdateEvent(orderTradeUpdateEvent);
         socketClient.setUpdateEvent(userDataUpdateEvent);
 
@@ -64,7 +67,7 @@ public class AmountFillerDetectorBinanceTest {
                 observer
         );
 
-        verify(observer).update(any(), eq("PARTIAL"));
+        verify(observer).updateInfo(eq("PARTIAL"), eq(0.2));
     }
 
     @Test
@@ -86,8 +89,6 @@ public class AmountFillerDetectorBinanceTest {
         );
 
         verify(consumer, never()).accept(any());
-        verify(observer, never()).update(any(), any());
-
     }
 
     @Test
@@ -100,14 +101,14 @@ public class AmountFillerDetectorBinanceTest {
         orderTradeUpdateEvent.setQuantityLastFilledTrade("0.3");
         userDataUpdateEvent.setOrderTradeUpdateEvent(orderTradeUpdateEvent);
         socketClient.setUpdateEvent(userDataUpdateEvent);
-
+        Consumer<Double> consumer = mock(Consumer.class);
         amountFillerDetectorBinance.register(
                 new LimitOrderDetails("1234", 0.5, 1.0),
-                (num) -> {},
+                consumer,
                 observer
         );
 
-        verify(observer, never()).update(any(), any());
+        verify(consumer, never()).accept(any());
     }
 
     @Test
@@ -115,14 +116,14 @@ public class AmountFillerDetectorBinanceTest {
         UserDataUpdateEvent userDataUpdateEvent = new UserDataUpdateEvent();
         userDataUpdateEvent.setEventType(UserDataUpdateEvent.UserDataUpdateEventType.ACCOUNT_UPDATE);
         socketClient.setUpdateEvent(userDataUpdateEvent);
-
+        Consumer<Double> consumer = mock(Consumer.class);
         amountFillerDetectorBinance.register(
                 new LimitOrderDetails("1234", 0.5, 1.0),
-                (num) -> {},
+                consumer ,
                 observer
         );
 
-        verify(observer, never()).update(any(), any());
+        verify(consumer , never()).accept(any());
     }
 
 

@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 public class AmountFillerDetectorBitfinex extends AmountFillerDetectorObservable {
 
     private BitfinexApiBroker bitfinexClient;
-
+    private AtomicDouble leftAmount;
     public AmountFillerDetectorBitfinex(BitfinexApiBroker bitfinexClient) {
         this.bitfinexClient = bitfinexClient;
     }
@@ -18,7 +18,7 @@ public class AmountFillerDetectorBitfinex extends AmountFillerDetectorObservable
     @Override
     public void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder) {
 
-        final AtomicDouble leftAmount = new AtomicDouble(orderDetails.getAmount());
+        leftAmount = new AtomicDouble(orderDetails.getAmount());
 
         bitfinexClient.getOrderManager().registerCallback(exchangeOrder -> {
             ExchangeOrderState exchangeState = exchangeOrder.getState();
@@ -26,7 +26,7 @@ public class AmountFillerDetectorBitfinex extends AmountFillerDetectorObservable
             Double updatedLeftAmount = Math.abs(exchangeOrder.getAmount());
             secondOrder.accept(leftAmount.get() - updatedLeftAmount);
             leftAmount.set(updatedLeftAmount);
-            notifyObservers(isStateComplete(exchangeState) ? "FILLED" : "PARTIAL");
+            notifyObservers(isStateComplete(exchangeState) ? "FILLED" : "PARTIAL", updatedLeftAmount);
         });
 
     }
@@ -55,5 +55,9 @@ public class AmountFillerDetectorBitfinex extends AmountFillerDetectorObservable
 
     private boolean isCurrentOrder(String orderId, ExchangeOrder exchangeOrder) {
         return exchangeOrder.getOrderId() == Long.parseLong(orderId);
+    }
+
+    public AtomicDouble getLeftAmount() {
+        return leftAmount;
     }
 }

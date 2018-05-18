@@ -11,7 +11,7 @@ import java.util.List;
 public class OrderBook {
 
   /**
-   * Last update id of this order book.
+   * Last updateInfo id of this order book.
    */
   private long lastUpdateId;
 

@@ -10,9 +10,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.List;
 
 /**
- * Account update event which will reflect the current position/balances of the account.
+ * Account updateInfo event which will reflect the current position/balances of the account.
  *
- * This event is embedded as part of a user data update event.
+ * This event is embedded as part of a user data updateInfo event.
  *
  * @see UserDataUpdateEvent
  */

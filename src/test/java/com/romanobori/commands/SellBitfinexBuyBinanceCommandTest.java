@@ -3,6 +3,7 @@ package com.romanobori.commands;
 import com.romanobori.ArbContext;
 import com.romanobori.BinanceOrderBookUpdated;
 import com.romanobori.BitfinexOrderBookUpdated;
+import com.romanobori.LimitOrderDetails;
 import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ConditionStatus;
 import org.junit.Before;

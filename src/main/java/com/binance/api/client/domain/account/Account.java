@@ -48,7 +48,7 @@ public class Account {
   private boolean canDeposit;
 
   /**
-   * Last account update time.
+   * Last account updateInfo time.
    */
   private long updateTime;
 

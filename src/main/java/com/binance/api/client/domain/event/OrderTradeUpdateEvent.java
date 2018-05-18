@@ -12,9 +12,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * Order or trade report update event.
+ * Order or trade report updateInfo event.
  *
- * This event is embedded as part of a user data update event.
+ * This event is embedded as part of a user data updateInfo event.
  *
  * @see UserDataUpdateEvent
  */

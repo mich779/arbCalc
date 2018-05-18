@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * User data update event which can be of two types:
+ * User data updateInfo event which can be of two types:
  *
  * 1) outboundAccountInfo, whenever there is a change in the account (e.g. balance of an asset)
  * 2) executionReport, whenever there is a trade or an order
@@ -88,7 +88,7 @@ public class UserDataUpdateEvent {
       } else if (ORDER_TRADE_UPDATE.eventTypeId.equals(eventTypeId)) {
         return ORDER_TRADE_UPDATE;
       }
-      throw new IllegalArgumentException("Unrecognized user data update event type id: " + eventTypeId);
+      throw new IllegalArgumentException("Unrecognized user data updateInfo event type id: " + eventTypeId);
     }
   }
 }

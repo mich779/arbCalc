@@ -7,6 +7,8 @@ import com.binance.api.client.domain.event.UserDataUpdateEvent;
 
 import java.util.function.Consumer;
 
+import static java.lang.Double.parseDouble;
+
 public class AmountFillerDetectorBinance extends AmountFillerDetectorObservable {
     private BinanceApiWebSocketClient socketClient;
     private String binanceListenKey;
@@ -23,9 +25,13 @@ public class AmountFillerDetectorBinance extends AmountFillerDetectorObservable 
                     if (! checkPreconditions(orderDetails, response)) return;
 
                     OrderTradeUpdateEvent orderTradeUpdateEvent = response.getOrderTradeUpdateEvent();
+                    double originalQuantity = parseDouble(orderTradeUpdateEvent.getOriginalQuantity());
+                    double accumulatedQuantity = parseDouble(orderTradeUpdateEvent.getAccumulatedQuantity());
+                    double quantityLastFilled = parseDouble(orderTradeUpdateEvent.getQuantityLastFilledTrade());
 
-                    secondOrder.accept(Double.parseDouble(orderTradeUpdateEvent.getQuantityLastFilledTrade()));
-                    notifyObservers(orderTradeUpdateEvent.getOrderStatus() == OrderStatus.FILLED ? "FILLED" : "PARTIAL");
+                    secondOrder.accept(quantityLastFilled);
+                    notifyObservers(orderTradeUpdateEvent.getOrderStatus() == OrderStatus.FILLED ? "FILLED" : "PARTIAL",
+                            originalQuantity - accumulatedQuantity - quantityLastFilled);
                 });
     }
 
@@ -44,11 +50,11 @@ public class AmountFillerDetectorBinance extends AmountFillerDetectorObservable 
     }
 
     private double getAccumulatedQuantity(OrderTradeUpdateEvent orderTradeUpdateEvent) {
-        return Double.parseDouble(orderTradeUpdateEvent.getAccumulatedQuantity());
+        return parseDouble(orderTradeUpdateEvent.getAccumulatedQuantity());
     }
 
     private double getOriginalQuantity(OrderTradeUpdateEvent orderTradeUpdateEvent) {
-        return Double.parseDouble(orderTradeUpdateEvent.getOriginalQuantity());
+        return parseDouble(orderTradeUpdateEvent.getOriginalQuantity());
     }
 
     private boolean responseTypeIsOrderTradeUpdate(UserDataUpdateEvent response) {

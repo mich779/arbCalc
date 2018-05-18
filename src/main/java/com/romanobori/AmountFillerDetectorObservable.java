@@ -2,22 +2,20 @@ package com.romanobori;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.function.Consumer;
 
-public abstract class AmountFillerDetectorObservable extends Observable {
+public abstract class AmountFillerDetectorObservable{
 
-    private List<Observer> observers = new ArrayList<>();
+    private List<AmountChangedObserver> observers = new ArrayList<>();
     abstract void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder);
 
 
-    public void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder, Observer observer){
+    public void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder, AmountChangedObserver observer){
         observers.add(observer);
         register(orderDetails, secondOrder);
     }
 
-    void notifyObservers(String status) {
-        observers.forEach(observer -> observer.update(this, status));
+    void notifyObservers(String status, double newAmount) {
+        observers.forEach(observer -> observer.updateInfo(status, newAmount));
     }
 }
