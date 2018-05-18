@@ -1,4 +1,4 @@
-package com.romanobori.commands;
+package com.romanobori;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import com.romanobori.datastructures.ConditionStatus;
@@ -20,7 +20,7 @@ public class ConditionKeeperThread implements Runnable, Observer {
     private AtomicDouble price;
     private AtomicBoolean orderFilled = new AtomicBoolean(false);
 
-    ConditionKeeperThread(Function<LimitOrderDetails, ConditionStatus> condition,
+    public ConditionKeeperThread(Function<LimitOrderDetails, ConditionStatus> condition,
                           Function<String, Boolean> actionIfNotMet, String orderId,
                           CountDownLatch countDownLatch, LimitOrderDetails orderDetails) {
         this.condition = condition;
@@ -60,12 +60,7 @@ public class ConditionKeeperThread implements Runnable, Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        UpdateConditionDetails details = (UpdateConditionDetails) arg;
-        if(details.getUpdateType().equals("PARTIAL")){
-            amount.set(details.getAmount());
-        }else if(details.getUpdateType().equals("FULL")){
-            orderFilled.set(true);
-        }
+
     }
 }
 

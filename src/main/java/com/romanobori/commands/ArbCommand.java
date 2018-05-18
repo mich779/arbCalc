@@ -2,8 +2,10 @@ package com.romanobori.commands;
 
 
 import com.binance.api.client.exception.BinanceApiException;
-import com.romanobori.AmountFillerDetector;
+import com.romanobori.AmountFillerDetectorObservable;
 import com.romanobori.ArbContext;
+import com.romanobori.ConditionKeeperThread;
+import com.romanobori.LimitOrderDetails;
 import com.romanobori.datastructures.ConditionStatus;
 
 import java.util.concurrent.*;
@@ -82,7 +84,7 @@ public abstract class ArbCommand {
 
     abstract Consumer<Double> secondOrder();
 
-    abstract AmountFillerDetector getAmountFillerDetector();
+    abstract AmountFillerDetectorObservable getAmountFillerDetector();
 
     abstract ArbCommand buildAnotherCommand(int count);
 

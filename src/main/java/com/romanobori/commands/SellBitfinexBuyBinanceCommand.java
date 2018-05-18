@@ -94,7 +94,7 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
     }
 
     @Override
-    AmountFillerDetector getAmountFillerDetector() {
+    AmountFillerDetectorObservable getAmountFillerDetector() {
         return new AmountFillerDetectorBitfinex(context.getBitfinexApiBroker());
     }
 

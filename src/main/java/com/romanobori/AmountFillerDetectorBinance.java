@@ -4,13 +4,10 @@ import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.OrderStatus;
 import com.binance.api.client.domain.event.OrderTradeUpdateEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
-import com.romanobori.commands.LimitOrderDetails;
-import com.romanobori.commands.UpdateConditionDetails;
 
-import java.util.Observer;
 import java.util.function.Consumer;
 
-public class AmountFillerDetectorBinance extends AmountFillerDetector {
+public class AmountFillerDetectorBinance extends AmountFillerDetectorObservable {
     private BinanceApiWebSocketClient socketClient;
     private String binanceListenKey;
 
@@ -20,27 +17,30 @@ public class AmountFillerDetectorBinance extends AmountFillerDetector {
     }
 
     @Override
-    public void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder, Observer observer) {
+    public void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder) {
         socketClient.onUserDataUpdateEvent(binanceListenKey,
                 response -> {
-                    System.out.println(response);
-                    if (responseTypeIsOrderTradeUpdate(response)) {
-                        OrderTradeUpdateEvent orderTradeUpdateEvent = response.getOrderTradeUpdateEvent();
-                        if (orderTradeUpdateEvent.getOrderStatus() == OrderStatus.FILLED
-                                || orderTradeUpdateEvent.getOrderStatus() == OrderStatus.PARTIALLY_FILLED) {
-                            if (isCurrentOrder(orderDetails.getOrderId(), orderTradeUpdateEvent)) {
-                                double amountExecuted = Double.parseDouble(orderTradeUpdateEvent.getQuantityLastFilledTrade());
-                                secondOrder.accept(amountExecuted);
-                                if (orderTradeUpdateEvent.getOrderStatus() == OrderStatus.FILLED) {
-                                    observer.update(this, new UpdateConditionDetails("FULL", 0.0));
-                                } else {
-                                    observer.update(this, new UpdateConditionDetails("PARTIAL", getOriginalQuantity(orderTradeUpdateEvent) - getAccumulatedQuantity(orderTradeUpdateEvent)));
-                                }
-                                System.out.println("should print this if first order passed !");
-                            }
-                        }
-                    }
+                    if (! checkPreconditions(orderDetails, response)) return;
+
+                    OrderTradeUpdateEvent orderTradeUpdateEvent = response.getOrderTradeUpdateEvent();
+
+                    secondOrder.accept(Double.parseDouble(orderTradeUpdateEvent.getQuantityLastFilledTrade()));
+                    notifyObservers(orderTradeUpdateEvent.getOrderStatus() == OrderStatus.FILLED ? "FILLED" : "PARTIAL");
                 });
+    }
+
+    private boolean checkPreconditions(LimitOrderDetails orderDetails, UserDataUpdateEvent response) {
+        OrderTradeUpdateEvent orderTradeUpdateEvent = response.getOrderTradeUpdateEvent();
+
+
+        return responseTypeIsOrderTradeUpdate(response) &&
+                orderStatusIsPartialOrFilled(orderTradeUpdateEvent.getOrderStatus()) &&
+                isCurrentOrder(orderDetails.getOrderId(), orderTradeUpdateEvent);
+
+    }
+
+    private boolean orderStatusIsPartialOrFilled(OrderStatus status){
+        return status == OrderStatus.FILLED || status == OrderStatus.PARTIALLY_FILLED;
     }
 
     private double getAccumulatedQuantity(OrderTradeUpdateEvent orderTradeUpdateEvent) {

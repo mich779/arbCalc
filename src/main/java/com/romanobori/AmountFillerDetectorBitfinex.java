@@ -3,15 +3,11 @@ package com.romanobori;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.ExchangeOrder;
 import com.github.jnidzwetzki.bitfinex.v2.entity.ExchangeOrderState;
-import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.google.common.util.concurrent.AtomicDouble;
-import com.romanobori.commands.LimitOrderDetails;
-import com.romanobori.commands.UpdateConditionDetails;
 
-import java.util.Observer;
 import java.util.function.Consumer;
 
-public class AmountFillerDetectorBitfinex extends AmountFillerDetector {
+public class AmountFillerDetectorBitfinex extends AmountFillerDetectorObservable {
 
     private BitfinexApiBroker bitfinexClient;
 
@@ -20,26 +16,28 @@ public class AmountFillerDetectorBitfinex extends AmountFillerDetector {
     }
 
     @Override
-    public void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder, Observer observer) {
+    public void register(LimitOrderDetails orderDetails, Consumer<Double> secondOrder) {
+
         final AtomicDouble leftAmount = new AtomicDouble(orderDetails.getAmount());
-        OrderManager orderManager = bitfinexClient.getOrderManager();
-        orderManager.registerCallback(exchangeOrder -> {
+
+        bitfinexClient.getOrderManager().registerCallback(exchangeOrder -> {
             ExchangeOrderState exchangeState = exchangeOrder.getState();
-            if (stateIsPartiallyFilled(exchangeState) || isStateComplete(exchangeState)) {
-                System.out.println(exchangeOrder);
-                if (isCurrentOrder(orderDetails.getOrderId(), exchangeOrder)) {
-                    double updatedLeftAmount = Math.abs(exchangeOrder.getAmount());
-                    secondOrder.accept(leftAmount.get() - updatedLeftAmount);
-                    leftAmount.set(updatedLeftAmount);
-                    if (isStateComplete(exchangeState)) {
-                        observer.update(this, new UpdateConditionDetails("FULL", 0.0));
-                    }else{
-                        observer.update(this, new UpdateConditionDetails("PARTIAL", Math.abs(exchangeOrder.getAmount())));
-                    }
-                }
-            }
+            if (!checkPrecoditions(orderDetails, exchangeOrder, exchangeState)) return;
+            Double updatedLeftAmount = Math.abs(exchangeOrder.getAmount());
+            secondOrder.accept(leftAmount.get() - updatedLeftAmount);
+            leftAmount.set(updatedLeftAmount);
+            notifyObservers(isStateComplete(exchangeState) ? "FILLED" : "PARTIAL");
         });
 
+    }
+
+    private boolean checkPrecoditions(LimitOrderDetails orderDetails, ExchangeOrder exchangeOrder, ExchangeOrderState exchangeState) {
+        return stateIsPartialOrExecutedCompletely(exchangeState) &&
+                isCurrentOrder(orderDetails.getOrderId(), exchangeOrder);
+    }
+
+    private boolean stateIsPartialOrExecutedCompletely(ExchangeOrderState exchangeState) {
+        return stateIsPartiallyFilled(exchangeState) || isStateComplete(exchangeState);
     }
 
     private boolean isStateComplete(ExchangeOrderState exchangeState) {

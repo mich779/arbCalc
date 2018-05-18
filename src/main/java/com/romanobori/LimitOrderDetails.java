@@ -1,4 +1,4 @@
-package com.romanobori.commands;
+package com.romanobori;
 
 public class LimitOrderDetails {
     private String orderId;
