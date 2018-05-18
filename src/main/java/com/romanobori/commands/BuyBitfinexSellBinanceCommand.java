@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 
 public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
+    private double precision = 0.005;
     private double rate = 1.002504;
 
     //private double rate = 1.001504;
@@ -59,27 +60,25 @@ public class BuyBitfinexSellBinanceCommand extends ArbCommand {
 
     @Override
     Function<LimitOrderDetails, ConditionStatus> keepOrderCondition() {
-        return (limitOrderDetails) -> {
-            double limitOrderPrice = limitOrderDetails.getPrice();
-            double limitOrderAmount = limitOrderDetails.getAmount();
-            ArbOrderEntry highestBidBinance = context.getBinanceOrderBookUpdated().getHighestBid();
-            double binanceHighestBid = context.getBinanceOrderBookUpdated().getHighestBid().getPrice();
+        return (limitOrder) -> {
+
+            ArbOrderEntry binanceHighestBid = context.getBinanceOrderBookUpdated().getHighestBid();
 
             return new ConditionStatus(
-                    isPriceGapProfitable(limitOrderPrice, binanceHighestBid)
-                            && isOrderPriceAtractive(limitOrderDetails)
-                            && isLessThenTargetMarketAmount(limitOrderAmount, highestBidBinance.getAmount())
-                    ,
-                    binanceHighestBid, limitOrderPrice, 0.0);
+                    isPriceGapProfitable(limitOrder.getPrice(), binanceHighestBid.getPrice())
+                            && isOrderPriceAtractive(limitOrder)
+                            && isNotHigherThenMarketAmount(limitOrder.getAmount(),
+                                    binanceHighestBid.getAmount()),
+                    binanceHighestBid.getPrice(), limitOrder.getPrice(), 0.0);
         };
     }
 
-    private boolean isLessThenTargetMarketAmount(double limitOrderAmount, double amount) {
-        return limitOrderAmount <= amount;
+    private boolean isNotHigherThenMarketAmount(double limitOrderAmount, double MarketAmount) {
+        return limitOrderAmount <= MarketAmount;
     }
 
     private boolean isOrderPriceAtractive(LimitOrderDetails limitOrderDetails) {
-        return limitOrderDetails.getPrice() == context.getBitfinexOrderBookUpdated().getHighestBid().getPrice();
+        return limitOrderDetails.getPrice() >= (1-precision)*context.getBitfinexOrderBookUpdated().getHighestBid().getPrice();
     }
 
     private boolean isPriceGapProfitable(double limitOrderPrice, double binanceHighestBid) {
