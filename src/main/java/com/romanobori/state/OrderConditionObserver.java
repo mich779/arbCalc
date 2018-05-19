@@ -1,13 +1,15 @@
-package com.romanobori;
+package com.romanobori.state;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import com.romanobori.datastructures.ConditionStatus;
+import com.romanobori.datastructures.LimitOrderDetails;
+import com.romanobori.state.AmountChangedObserver;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-public class ConditionKeeperThread implements Runnable, AmountChangedObserver {
+public class OrderConditionObserver implements Runnable, AmountChangedObserver {
     Function<LimitOrderDetails, ConditionStatus> condition;
     private CountDownLatch countDownLatch;
     private Function<String, Boolean> cancellation;
@@ -16,9 +18,9 @@ public class ConditionKeeperThread implements Runnable, AmountChangedObserver {
     private AtomicDouble price;
     private AtomicBoolean orderFilled = new AtomicBoolean(false);
 
-    public ConditionKeeperThread(Function<LimitOrderDetails, ConditionStatus> condition,
-                          Function<String, Boolean> actionIfNotMet, String orderId,
-                          CountDownLatch countDownLatch, LimitOrderDetails orderDetails) {
+    public OrderConditionObserver(Function<LimitOrderDetails, ConditionStatus> condition,
+                                  Function<String, Boolean> actionIfNotMet, String orderId,
+                                  CountDownLatch countDownLatch, LimitOrderDetails orderDetails) {
         this.condition = condition;
         this.cancellation = actionIfNotMet;
         this.orderId = orderId;

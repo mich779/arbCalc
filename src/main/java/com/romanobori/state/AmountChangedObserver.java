@@ -1,4 +1,4 @@
-package com.romanobori;
+package com.romanobori.state;
 
 public interface AmountChangedObserver {
 

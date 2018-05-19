@@ -1,4 +1,4 @@
-package com.romanobori;
+package com.romanobori.orderbook;
 
 
 import com.binance.api.client.BinanceApiClientFactory;

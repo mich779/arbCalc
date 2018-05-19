@@ -1,9 +1,10 @@
-package com.romanobori;
+package com.romanobori.state;
 
 import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.OrderStatus;
 import com.binance.api.client.domain.event.OrderTradeUpdateEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
+import com.romanobori.datastructures.LimitOrderDetails;
 
 import java.util.function.Consumer;
 

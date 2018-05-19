@@ -1,7 +1,7 @@
 package com.jmx;
 
-import com.romanobori.BinanceOrderBookUpdated;
-import com.romanobori.BitfinexOrderBookUpdated;
+import com.romanobori.orderbook.BinanceOrderBookUpdated;
+import com.romanobori.orderbook.BitfinexOrderBookUpdated;
 
 public class OrderbookMbeanImpl implements OrderbookMXBean {
 

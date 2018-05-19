@@ -7,10 +7,11 @@ import com.binance.api.client.domain.account.NewOrder;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
 import com.romanobori.*;
-import com.romanobori.datastructures.ARBTradeAction;
-import com.romanobori.datastructures.ArbOrderEntry;
-import com.romanobori.datastructures.ConditionStatus;
-import com.romanobori.datastructures.NewArbOrderLimit;
+import com.romanobori.datastructures.*;
+import com.romanobori.state.AmountFillerDetectorBitfinex;
+import com.romanobori.state.AmountFillerDetectorObservable;
+import com.romanobori.utils.CommonFunctions;
+import com.romanobori.wallet.BitfinexUpdatedWallet;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

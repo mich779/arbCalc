@@ -4,6 +4,11 @@ import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.impl.BinanceApiWebSocketClientImpl;
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
+import com.romanobori.client.BitfinexClientApi;
+import com.romanobori.orderbook.BinanceOrderBookUpdated;
+import com.romanobori.orderbook.BitfinexOrderBookUpdated;
+import com.romanobori.wallet.BinanceUpdatedWallet;
+import com.romanobori.wallet.BitfinexUpdatedWallet;
 
 public class ArbContext {
     String symbol;

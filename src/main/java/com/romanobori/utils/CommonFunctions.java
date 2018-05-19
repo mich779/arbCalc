@@ -1,4 +1,4 @@
-package com.romanobori;
+package com.romanobori.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

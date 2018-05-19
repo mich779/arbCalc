@@ -1,5 +1,6 @@
 package com.romanobori;
 
+import com.romanobori.client.ApiClient;
 import com.romanobori.datastructures.*;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import support.BinanceApiWebSocketClientStub;

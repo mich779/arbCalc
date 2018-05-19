@@ -2,6 +2,8 @@ package com.romanobori;
 
 import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;
+import com.romanobori.client.ApiClient;
+import com.romanobori.client.BitfinexClientApi;
 import com.romanobori.datastructures.*;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,6 +1,9 @@
 package com.romanobori;
 
 import com.binance.api.client.BinanceApiWebSocketClient;
+import com.romanobori.client.ApiClient;
+import com.romanobori.orderbook.BinanceOrderBookUpdated;
+import com.romanobori.orderbook.BitfinexOrderBookUpdated;
 
 import java.util.concurrent.ExecutionException;
 

@@ -1,5 +1,6 @@
 package com.romanobori;
 
+import com.romanobori.utils.CommonFunctions;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;

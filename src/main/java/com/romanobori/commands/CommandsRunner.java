@@ -1,13 +1,11 @@
-package com.romanobori;
-
-import com.romanobori.commands.ArbCommand;
+package com.romanobori.commands;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 
-public class CommandsRunner{
+public class CommandsRunner {
 
     BlockingQueue<ArbCommand> commandsQueue = new ArrayBlockingQueue<ArbCommand>(10);
 

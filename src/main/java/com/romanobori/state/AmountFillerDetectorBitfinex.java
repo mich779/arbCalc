@@ -1,9 +1,10 @@
-package com.romanobori;
+package com.romanobori.state;
 
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.ExchangeOrder;
 import com.github.jnidzwetzki.bitfinex.v2.entity.ExchangeOrderState;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.romanobori.datastructures.LimitOrderDetails;
 
 import java.util.function.Consumer;
 

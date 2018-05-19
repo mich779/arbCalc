@@ -1,8 +1,9 @@
-package com.romanobori;
+package com.romanobori.orderbook;
 
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.*;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderbookManager;
+import com.romanobori.client.BitfinexClientApi;
 import com.romanobori.datastructures.ArbOrderEntry;
 import com.romanobori.datastructures.ArbOrders;
 

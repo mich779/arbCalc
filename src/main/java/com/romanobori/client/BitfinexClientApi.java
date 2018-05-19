@@ -1,4 +1,4 @@
-package com.romanobori;
+package com.romanobori.client;
 
 import com.bitfinex.client.Action;
 import com.bitfinex.client.BitfinexClient;

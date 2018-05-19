@@ -1,9 +1,10 @@
-package com.romanobori;
+package com.romanobori.wallet;
 
 import com.binance.api.client.BinanceApiWebSocketClient;
 import com.binance.api.client.domain.account.AssetBalance;
 import com.binance.api.client.domain.event.AccountUpdateEvent;
 import com.binance.api.client.domain.event.UserDataUpdateEvent;
+import com.romanobori.client.BinanceApiClient;
 import com.romanobori.datastructures.ArbWallet;
 import com.romanobori.datastructures.ArbWalletEntry;
 

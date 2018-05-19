@@ -2,10 +2,10 @@ package com.romanobori.commands;
 
 
 import com.binance.api.client.exception.BinanceApiException;
-import com.romanobori.AmountFillerDetectorObservable;
+import com.romanobori.state.AmountFillerDetectorObservable;
 import com.romanobori.ArbContext;
-import com.romanobori.ConditionKeeperThread;
-import com.romanobori.LimitOrderDetails;
+import com.romanobori.state.OrderConditionObserver;
+import com.romanobori.datastructures.LimitOrderDetails;
 import com.romanobori.datastructures.ConditionStatus;
 
 import java.util.concurrent.*;
@@ -31,8 +31,8 @@ public abstract class ArbCommand {
             LimitOrderDetails limitOrderDetails = firstOrder(conditionStatus);
 
             printIfConditionHasPassed(conditionStatus, limitOrderDetails);
-            ConditionKeeperThread conditionKeeperThread = countDownIfConditionBreak(limitOrderDetails.getOrderId(), limitOrderDetails, countDownLatch);
-            getAmountFillerDetector().register(limitOrderDetails, secondOrder(), conditionKeeperThread);
+            OrderConditionObserver orderConditionObserver = countDownIfConditionBreak(limitOrderDetails.getOrderId(), limitOrderDetails, countDownLatch);
+            getAmountFillerDetector().register(limitOrderDetails, secondOrder(), orderConditionObserver);
 
             countDownLatch.await();
             commandsQueue.add(buildAnotherCommand(count));
@@ -50,8 +50,8 @@ public abstract class ArbCommand {
                 , limitOrderDetails.getOrderId(), type()));
     }
 
-    private ConditionKeeperThread  countDownIfConditionBreak(String orderId, LimitOrderDetails limitOrderDetails, CountDownLatch countDownLatch) {
-        ConditionKeeperThread thread = new ConditionKeeperThread(keepOrderCondition(), cancelOrder(), orderId, countDownLatch, limitOrderDetails);
+    private OrderConditionObserver countDownIfConditionBreak(String orderId, LimitOrderDetails limitOrderDetails, CountDownLatch countDownLatch) {
+        OrderConditionObserver thread = new OrderConditionObserver(keepOrderCondition(), cancelOrder(), orderId, countDownLatch, limitOrderDetails);
 
         final ExecutorService pool = Executors.newFixedThreadPool(1);
 

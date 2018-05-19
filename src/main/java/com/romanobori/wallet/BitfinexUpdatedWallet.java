@@ -1,4 +1,4 @@
-package com.romanobori;
+package com.romanobori.wallet;
 
 import com.github.jnidzwetzki.bitfinex.v2.BitfinexApiBroker;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
