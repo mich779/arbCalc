@@ -50,8 +50,10 @@ public class ConditionKeeperThread implements Runnable, AmountChangedObserver {
     @Override
     public void updateInfo(String type, double newAmount) {
         if(type.equals("FILLED")){
+            System.out.println("THE ORDER IS FILLED !!!!");
             orderFilled.set(true);
         }else if(type.equals("PARTIAL")){
+            System.out.println("THE ORDER IS FILLED PARTIALLY!!!!");
             amount.set(newAmount);
         }
     }

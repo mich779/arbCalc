@@ -123,13 +123,11 @@ public class BinanceOrderBookUpdated {
     }
 
     public ArbOrderEntry getLowestAsk(){
-        System.out.println("binanceOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
         return new ArbOrderEntry(getBestAsk().getKey().doubleValue(),
                 getBestAsk().getValue().doubleValue());
     }
 
     public ArbOrderEntry getHighestBid(){
-        System.out.println("binanceOrderBook size = "+ (depthCache.get(ASKS).size()+depthCache.get(BIDS).size()));
         return new ArbOrderEntry(getBestBid().getKey().doubleValue(),getBestBid().getValue().doubleValue());
     }
 }

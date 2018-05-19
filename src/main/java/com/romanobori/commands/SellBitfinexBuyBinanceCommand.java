@@ -44,10 +44,9 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
             double bitfinexLowestAsk = context.getBitfinexOrderBookUpdated().getLowestAsk().getPrice();
             BitfinexUpdatedWallet bitfinexUpdatedWallet = context.getBitfinexUpdatedWallet();
             double amount =
-                    Math.min(
                             Math.min(
                                     CommonFunctions.round(bitfinexUpdatedWallet.getFreeAmount("neo"), 2),
-                                    CommonFunctions.round(lowestAskBinance.getAmount() * 0.75, 2)), 0.2);
+                                    CommonFunctions.round(lowestAskBinance.getAmount() * 0.75, 2));
 
             return (amount < 0.2) ? new ConditionStatus(false, 0.0, 0.0, 0.0) :
                     new ConditionStatus(
