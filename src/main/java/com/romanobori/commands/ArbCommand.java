@@ -2,11 +2,11 @@ package com.romanobori.commands;
 
 
 import com.binance.api.client.exception.BinanceApiException;
-import com.romanobori.state.AmountFillerDetectorObservable;
 import com.romanobori.ArbContext;
-import com.romanobori.state.OrderConditionObserver;
-import com.romanobori.datastructures.LimitOrderDetails;
 import com.romanobori.datastructures.ConditionStatus;
+import com.romanobori.datastructures.LimitOrderDetails;
+import com.romanobori.state.AmountFillerDetectorObservable;
+import com.romanobori.state.OrderConditionObserver;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -36,7 +36,9 @@ public abstract class ArbCommand {
 
             countDownLatch.await();
             commandsQueue.add(buildAnotherCommand(count));
+
         } else {
+            System.out.println(String.format("building another command %s", type()));
             Thread.sleep(1000);
             commandsQueue.add(buildAnotherCommand(count));
         }

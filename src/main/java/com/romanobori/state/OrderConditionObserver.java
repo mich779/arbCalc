@@ -3,7 +3,6 @@ package com.romanobori.state;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.romanobori.datastructures.ConditionStatus;
 import com.romanobori.datastructures.LimitOrderDetails;
-import com.romanobori.state.AmountChangedObserver;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,7 +44,7 @@ public class OrderConditionObserver implements Runnable, AmountChangedObserver {
         ConditionStatus conditionStatus = condition.apply(
                 new LimitOrderDetails(orderId, price.get(), amount.get())
         );
-        return conditionStatus.isPassed();
+        return conditionStatus.isFailed();
     }
 
 
@@ -54,6 +53,7 @@ public class OrderConditionObserver implements Runnable, AmountChangedObserver {
         if(type.equals("FILLED")){
             System.out.println("THE ORDER IS FILLED !!!!");
             orderFilled.set(true);
+            countDownLatch.countDown();
         }else if(type.equals("PARTIAL")){
             System.out.println("THE ORDER IS FILLED PARTIALLY!!!!");
             amount.set(newAmount);

@@ -6,7 +6,7 @@ import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.NewOrder;
 import com.github.jnidzwetzki.bitfinex.v2.entity.APIException;
 import com.github.jnidzwetzki.bitfinex.v2.manager.OrderManager;
-import com.romanobori.*;
+import com.romanobori.ArbContext;
 import com.romanobori.datastructures.*;
 import com.romanobori.state.AmountFillerDetectorBitfinex;
 import com.romanobori.state.AmountFillerDetectorObservable;
@@ -44,9 +44,7 @@ public class SellBitfinexBuyBinanceCommand extends ArbCommand {
             double lowestAskBinancePrice = lowestAskBinance.getPrice();
             double bitfinexLowestAsk = context.getBitfinexOrderBookUpdated().getLowestAsk().getPrice();
             BitfinexUpdatedWallet bitfinexUpdatedWallet = context.getBitfinexUpdatedWallet();
-            double amount =
-                            Math.min(
-                                    CommonFunctions.round(bitfinexUpdatedWallet.getFreeAmount("neo"), 2),
+            double amount = Math.min(CommonFunctions.round(bitfinexUpdatedWallet.getFreeAmount("NEO"), 2),
                                     CommonFunctions.round(lowestAskBinance.getAmount() * 0.75, 2));
 
             return (amount < 0.2) ? new ConditionStatus(false, 0.0, 0.0, 0.0) :

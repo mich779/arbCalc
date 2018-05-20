@@ -1,5 +1,7 @@
 package com.romanobori.datastructures;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 public class ConditionStatus {
     private Boolean isPassed;
     private double binancePrice;
@@ -15,6 +17,10 @@ public class ConditionStatus {
 
     public Boolean isPassed() {
         return isPassed;
+    }
+
+    public Boolean isFailed(){
+        return !isPassed;
     }
 
     public double getBinancePrice() {
